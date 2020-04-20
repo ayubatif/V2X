@@ -1,0 +1,72 @@
+# Taken from: https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+
+# User-specific stuff
+V2X-Java/.idea/**/workspace.xml
+V2X-Java/.idea/**/tasks.xml
+V2X-Java/.idea/**/usage.statistics.xml
+V2X-Java/.idea/**/dictionaries
+V2X-Java/.idea/**/shelf
+
+# Generated files
+V2X-Java/.idea/**/contentModel.xml
+
+# Sensitive or high-churn files
+V2X-Java/.idea/**/dataSources/
+V2X-Java/.idea/**/dataSources.ids
+V2X-Java/.idea/**/dataSources.local.xml
+V2X-Java/.idea/**/sqlDataSources.xml
+V2X-Java/.idea/**/dynamic.xml
+V2X-Java/.idea/**/uiDesigner.xml
+V2X-Java/.idea/**/dbnavigator.xml
+
+# Gradle
+V2X-Java/.idea/**/gradle.xml
+V2X-Java/.idea/**/libraries
+
+# Gradle and Maven with auto-import
+# When using Gradle or Maven with auto-import, you should exclude module files,
+# since they will be recreated, and may cause churn.  Uncomment if using
+# auto-import.
+# .idea/artifacts
+# .idea/compiler.xml
+# .idea/jarRepositories.xml
+# .idea/modules.xml
+# .idea/*.iml
+# .idea/modules
+# *.iml
+# *.ipr
+
+# CMake
+V2X-Java/cmake-build-*/
+
+# Mongo Explorer plugin
+V2X-Java/.idea/**/mongoSettings.xml
+
+# File-based project format
+V2X-Java/*.iws
+
+# IntelliJ
+V2X-Java/out/
+
+# mpeltonen/sbt-idea plugin
+V2X-Java/.idea_modules/
+
+# JIRA plugin
+V2X-Java/atlassian-ide-plugin.xml
+
+# Cursive Clojure plugin
+V2X-Java/.idea/replstate.xml
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+V2X-Java/com_crashlytics_export_strings.xml
+V2X-Java/crashlytics.properties
+V2X-Java/crashlytics-build.properties
+V2X-Java/fabric.properties
+
+# Editor-based Rest Client
+V2X-Java/.idea/httpRequests
+
+# Android studio 3.1+ serialized cache file
+V2X-Java/.idea/caches/build_file_checksums.ser
