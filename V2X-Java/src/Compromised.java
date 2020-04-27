@@ -1,8 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -12,7 +10,7 @@ public class Compromised {
     static final String CA_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/CA-certificate.crt";
 
     public static void main(String args[]) throws IOException {
-        int mode = Integer.getInteger(args[0]);
+        int mode = Integer.parseInt(args[0]);
         switch (mode)
         {
             case 1:

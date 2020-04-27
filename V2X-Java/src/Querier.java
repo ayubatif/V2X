@@ -12,7 +12,7 @@ public class Querier {
 
     // main() handles the initialization of the program to see which experiment it is running
     public static void main(String args[]) throws IOException {
-        int mode = Integer.getInteger(args[0]);
+        int mode = Integer.parseInt(args[0]);
         switch (mode) {
             case 1:
                 runFirstTest();
@@ -24,12 +24,15 @@ public class Querier {
         }
     }
 
+    // sendQuery sends query message to the 2 obu
+    // https://stackoverflow.com/questions/2836646/java-serializable-object-to-byte-array
     private static MulticastSocket sendQuery() throws IOException {
         MulticastSocket multicastSocket = new MulticastSocket(PORT);
-        InetAddress groupIP = InetAddress.getByName("192.168.2.0");
+        // InetAddress groupIP = InetAddress.getByName("192.168.2.0");
+        InetAddress groupIP = InetAddress.getByName("192.168.1.0");
         multicastSocket.joinGroup(groupIP);
         Message query = new Message();
-        query.putValue("question", "question");
+        query.putValue("Query", "Query");
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
         objectOutputStream.writeObject(query);
@@ -43,5 +46,6 @@ public class Querier {
     // runFirstTest() handles the first test
     private static void runFirstTest() throws IOException {
         MulticastSocket multicastSocket = sendQuery();
+        System.out.println("sent");
     }
 }
