@@ -13,11 +13,9 @@ public class Command {
         Socket clientSocket = serverSocket.accept();
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-        while (true)
-        {
+        while (true) {
             String output = bufferedReader.readLine();
-            if (output != null)
-            {
+            if (output != null) {
                 System.out.println(output);
             }
         }
