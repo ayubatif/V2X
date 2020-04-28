@@ -1,5 +1,7 @@
 import java.io.*;
-import java.net.ServerSocket;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.Socket;
 
 public class NonCompromised {
@@ -22,15 +24,15 @@ public class NonCompromised {
     }
 
     private static boolean receiveQuery() throws IOException, ClassNotFoundException {
-        ServerSocket serverSocket = new ServerSocket(PORT);
-        Socket clientSocket = serverSocket.accept();
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
+        MulticastSocket serverSocket = new MulticastSocket(PORT);
+        InetAddress group = InetAddress.getByName("225.0.0.0");
+        serverSocket.joinGroup(group);
+        byte[] buffer = new byte[256];
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         while (true)
         {
-            String data = bufferedReader.readLine();
-            byte[] dataByte = data.getBytes();
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(dataByte);
+            serverSocket.receive(packet);
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer);
             ObjectInput objectInput = new ObjectInputStream(byteArrayInputStream);
             Message message = (Message) objectInput.readObject();
             String request = message.getValue("Query");

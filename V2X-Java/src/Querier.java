@@ -26,10 +26,11 @@ public class Querier {
 
     // sendQuery sends query message to the 2 obu
     // https://stackoverflow.com/questions/2836646/java-serializable-object-to-byte-array
+    // https://www.developer.com/java/data/how-to-multicast-using-java-sockets.html
     private static MulticastSocket sendQuery() throws IOException {
         MulticastSocket multicastSocket = new MulticastSocket(PORT);
         // InetAddress groupIP = InetAddress.getByName("192.168.2.0");
-        InetAddress groupIP = InetAddress.getByName("192.168.1.0");
+        InetAddress groupIP = InetAddress.getByName("225.0.0.0");
         multicastSocket.joinGroup(groupIP);
         Message query = new Message();
         query.putValue("Query", "Query");
