@@ -15,11 +15,14 @@ public class Querier {
         int mode = Integer.parseInt(args[0]);
         switch (mode) {
             case 1:
+                System.out.println("running test 1");
                 runFirstTest();
                 break;
             case 2:
+                System.out.println("running test 2");
                 break;
             case 3:
+                System.out.println("running test 3");
                 break;
         }
     }
