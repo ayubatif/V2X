@@ -2,7 +2,8 @@ import java.io.*;
 import java.net.*;
 
 public class Compromised {
-    static final int PORT = 2020;
+//    static final int PORT = 2020;
+    static final int PORT = 2022;
     static final String CERTIFICATE_FOLDER_LOCATION = "~/Desktop/Thesis/Certificate/";
     static final String CA_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/CA-certificate.crt";
 
@@ -29,15 +30,15 @@ public class Compromised {
         serverSocket.joinGroup(group);
         byte[] buffer = new byte[256];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-        while (true)
-        {
+        while (true) {
             serverSocket.receive(packet);
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer);
             ObjectInput objectInput = new ObjectInputStream(byteArrayInputStream);
             Message message = (Message) objectInput.readObject();
             String request = message.getValue("Query");
-            if (request.equals("Query"))
-            {
+            if (request.equals("Query")) {
+                String inetAddress = packet.getAddress().getHostAddress();
+                System.out.println(inetAddress);
                 return true;
             }
         }
