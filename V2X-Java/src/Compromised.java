@@ -2,10 +2,11 @@ import java.io.*;
 import java.net.*;
 
 public class Compromised {
-//    static final int PORT = 2020;
-    static final int PORT = 2022;
-    static final String CERTIFICATE_FOLDER_LOCATION = "~/Desktop/Thesis/Certificate/";
+    static final int MULTICAST_PORT = 2020;
+    static final int UNICAST_PORT = 2021;
+    static final String OWN_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/OBU-X-certificate-test.crt";
     static final String CA_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/CA-certificate.crt";
+    static final String OWN_PRIVATE_KEY = "~/Desktop/Thesis/Certificate/OBU-X-private-key.der";
 
     // main() handles the initialization of the program to see which experiment it is running
     public static void main(String args[]) throws IOException, ClassNotFoundException {
@@ -24,29 +25,44 @@ public class Compromised {
         }
     }
 
-    private static boolean receiveQuery() throws IOException, ClassNotFoundException {
-        MulticastSocket serverSocket = new MulticastSocket(PORT);
+    private static String receiveQueryTest1() throws IOException, ClassNotFoundException {
+        MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
         InetAddress group = InetAddress.getByName("225.0.0.0");
         serverSocket.joinGroup(group);
         byte[] buffer = new byte[256];
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         while (true) {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             serverSocket.receive(packet);
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer);
             ObjectInput objectInput = new ObjectInputStream(byteArrayInputStream);
             Message message = (Message) objectInput.readObject();
             String request = message.getValue("Query");
             if (request.equals("Query")) {
+                System.out.println("query received");
                 String inetAddress = packet.getAddress().getHostAddress();
-                System.out.println(inetAddress);
-                return true;
+                return inetAddress;
             }
         }
     }
 
+    private static void sendAnswerTest1(String returnIPAddress) throws IOException {
+        InetAddress address = InetAddress.getByName(returnIPAddress);
+        DatagramSocket clientSocket = new DatagramSocket();
+        Message answer = new Message();
+        answer.putValue("Answer", "1");
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+        objectOutputStream.writeObject(answer);
+        objectOutputStream.flush();
+        byte[] data = byteArrayOutputStream.toByteArray();
+        DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
+        clientSocket.send(answerPacket);
+    }
+
     private static void runFirstTest() throws IOException, ClassNotFoundException {
-        if (receiveQuery()) {
-            System.out.println("received");
+        while (true) {
+            String returnIPAddress = receiveQueryTest1();
+            sendAnswerTest1(returnIPAddress);
         }
     }
 }

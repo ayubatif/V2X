@@ -4,8 +4,9 @@ import java.net.*;
 public class NonCompromised {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String CERTIFICATE_FOLDER_LOCATION = "~/Desktop/Thesis/Certificate/";
+    static final String OWN_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/OBU-N-certificate-test.crt";
     static final String CA_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/CA-certificate.crt";
+    static final String OWN_PRIVATE_KEY = "~/Desktop/Thesis/Certificate/OBU-N-private-key.der";
 
     public static void main(String args[]) throws IOException, ClassNotFoundException {
         int mode = Integer.parseInt(args[0]);
@@ -23,7 +24,7 @@ public class NonCompromised {
         }
     }
 
-    private static String receiveQuery() throws IOException, ClassNotFoundException {
+    private static String receiveQueryTest1() throws IOException, ClassNotFoundException {
         MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
         InetAddress group = InetAddress.getByName("225.0.0.0");
         serverSocket.joinGroup(group);
@@ -43,7 +44,7 @@ public class NonCompromised {
         }
     }
 
-    private static void sendAnswer(String returnIPAddress) throws IOException {
+    private static void sendAnswerTest1(String returnIPAddress) throws IOException {
         InetAddress address = InetAddress.getByName(returnIPAddress);
         DatagramSocket clientSocket = new DatagramSocket();
         Message answer = new Message();
@@ -59,8 +60,8 @@ public class NonCompromised {
 
     private static void runFirstTest() throws IOException, ClassNotFoundException {
         while (true) {
-            String returnIPAddress = receiveQuery();
-            sendAnswer(returnIPAddress);
+            String returnIPAddress = receiveQueryTest1();
+            sendAnswerTest1(returnIPAddress);
         }
     }
 }
