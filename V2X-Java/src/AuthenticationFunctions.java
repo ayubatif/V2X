@@ -26,40 +26,39 @@ public class AuthenticationFunctions {
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         File keyFile = new File(location);
         byte[] keyByte = Files.readAllBytes(keyFile.toPath());
-//        PKCS8EncodedKeySpec keyPKCS8 = new PKCS8EncodedKeySpec(keyByte);
-//        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-//        PrivateKey userPrivateKey = keyFactory.generatePrivate(keyPKCS8);
         PKCS8EncodedKeySpec keyPKCS8 = new PKCS8EncodedKeySpec(keyByte);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PrivateKey userPrivateKey = keyFactory.generatePrivate(keyPKCS8);
+
         return userPrivateKey;
     }
 
-    public static PublicKey getPublicKey(String certificate) throws CertificateException {
+    public static Key getPublicKey(String certificate) throws CertificateException {
         byte[] userCertificateByteArray = Base64.getDecoder().decode(certificate);
         InputStream inputStream = new ByteArrayInputStream(userCertificateByteArray);
         CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
         X509Certificate userCertificate = (X509Certificate) certificateFactory.generateCertificate(inputStream);
-        PublicKey userPublicKey = userCertificate.getPublicKey();
+        Key userPublicKey = userCertificate.getPublicKey();
+
         return userPublicKey;
     }
 
-    public static boolean verifyCertificate(String certificate, String caLocation)
-            throws CertificateException, IOException {
-        String caCertificate = getCertificate(caLocation);
-        PublicKey caPublicKey = getPublicKey(caCertificate);
-        byte[] userCertificateByteArray = Base64.getDecoder().decode(certificate);
-        InputStream inputStream = new ByteArrayInputStream(userCertificateByteArray);
-        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-        X509Certificate userCertificate = (X509Certificate) certificateFactory.generateCertificate(inputStream);
-        try {
-            userCertificate.verify(caPublicKey);
-            userCertificate.checkValidity();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
+//    public static boolean verifyCertificate(String certificate, String caLocation)
+//            throws CertificateException, IOException {
+//        String caCertificate = getCertificate(caLocation);
+//        PublicKey caPublicKey = getPublicKey(caCertificate);
+//        byte[] userCertificateByteArray = Base64.getDecoder().decode(certificate);
+//        InputStream inputStream = new ByteArrayInputStream(userCertificateByteArray);
+//        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+//        X509Certificate userCertificate = (X509Certificate) certificateFactory.generateCertificate(inputStream);
+//        try {
+//            userCertificate.verify(caPublicKey);
+//            userCertificate.checkValidity();
+//            return true;
+//        } catch (Exception e) {
+//            return false;
+//        }
+//    }
 
     public static String hashMessage(String message) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -99,31 +98,31 @@ public class AuthenticationFunctions {
         return "onion";
     }
 
-    public static boolean authenticateMessage(String message, String encryptedHash,
-                                              String certificate, String caLocation)
-            throws NoSuchAlgorithmException, CertificateException, IOException, IllegalBlockSizeException,
-            InvalidKeyException, BadPaddingException, NoSuchPaddingException {
-        String calculatedHash = hashMessage(message);
-        PublicKey publicKey = getPublicKey(certificate);
-        String decryptedHash = decryptMessage(encryptedHash, publicKey);
-        boolean certificateVerification = verifyCertificate(certificate, caLocation);
-        if (certificateVerification && calculatedHash.equals(decryptedHash)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+//    public static boolean authenticateMessage(String message, String encryptedHash,
+//                                              String certificate, String caLocation)
+//            throws NoSuchAlgorithmException, CertificateException, IOException, IllegalBlockSizeException,
+//            InvalidKeyException, BadPaddingException, NoSuchPaddingException {
+//        String calculatedHash = hashMessage(message);
+//        PublicKey publicKey = getPublicKey(certificate);
+//        String decryptedHash = decryptMessage(encryptedHash, publicKey);
+//        boolean certificateVerification = verifyCertificate(certificate, caLocation);
+//        if (certificateVerification && calculatedHash.equals(decryptedHash)) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 
-    public static void test(String message, PrivateKey userPrivateKey, PublicKey userPublicKey)
+    public static void test(String message, Key userPrivateKey, Key userPublicKey)
             throws NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException,
             InvalidKeyException {
-//        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-//        kpg.initialize(2048);
-//        KeyPair kp = kpg.generateKeyPair();
-//        PublicKey pub = kp.getPublic();
-//        PrivateKey pvt = kp.getPrivate();
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(2048);
+        KeyPair kp = kpg.generateKeyPair();
+        Key pub = kp.getPublic();
+        Key pvt = kp.getPrivate();
 
-        Cipher cipher1 = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher cipher1 = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher1.init(Cipher.ENCRYPT_MODE, userPrivateKey);
         System.out.println(message);
         System.out.println(message.getBytes());
@@ -133,12 +132,15 @@ public class AuthenticationFunctions {
         System.out.println(Base64.getEncoder().encodeToString(encrypted));
 //        String encryptedMessage = encrypted.toString();
 
-        Cipher cipher2 = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher cipher2 = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher2.init(Cipher.DECRYPT_MODE, userPublicKey);
         byte[] decrypted = cipher2.doFinal(encrypted);
         System.out.println("Decrypted");
         System.out.println(Base64.getEncoder().encodeToString(decrypted));
-//        String decryptedMessage = decrypted.toString();
+        String decryptedMessage = decrypted.toString();
+        System.out.println(decryptedMessage);
+        String testMessage = new String(decrypted);
+        System.out.println(testMessage);
 
 //        System.out.println(decryptedMessage);
     }

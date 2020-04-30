@@ -115,30 +115,30 @@ public class Querier {
     }
 
     // sendQueryTest2() sendQueryTest1() sends query message, hash, and certificate to the 2 OBUs
-    private static void sendQueryTest2()
-            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
-            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
-        String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
-        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
-        String hash = AuthenticationFunctions.hashMessage("Query");
-        String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
-        MulticastSocket multicastSocket = new MulticastSocket(MULTICAST_PORT);
-        InetAddress groupIP = InetAddress.getByName("225.0.0.0");
-        multicastSocket.joinGroup(groupIP);
-        Message query = new Message();
-        query.putValue("Query", "Query");
-        query.putValue("Certificate", userCertificate);
-        query.putValue("Hash", authentication);
-        System.out.println(query);
-        byte[] data = CommunicationFunctions.messageToByteArray(query);
-        System.out.println(data);
-        System.out.println(data.length);
-        int randomPort = multicastSocket.getLocalPort();
-        DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
-        multicastSocket.send(queryPacket);
-        System.out.println("query sent");
-        multicastSocket.close();
-    }
+//    private static void sendQueryTest2()
+//            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
+//            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
+//        String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
+//        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+//        String hash = AuthenticationFunctions.hashMessage("Query");
+//        String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
+//        MulticastSocket multicastSocket = new MulticastSocket(MULTICAST_PORT);
+//        InetAddress groupIP = InetAddress.getByName("225.0.0.0");
+//        multicastSocket.joinGroup(groupIP);
+//        Message query = new Message();
+//        query.putValue("Query", "Query");
+//        query.putValue("Certificate", userCertificate);
+//        query.putValue("Hash", authentication);
+//        System.out.println(query);
+//        byte[] data = CommunicationFunctions.messageToByteArray(query);
+//        System.out.println(data);
+//        System.out.println(data.length);
+//        int randomPort = multicastSocket.getLocalPort();
+//        DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
+//        multicastSocket.send(queryPacket);
+//        System.out.println("query sent");
+//        multicastSocket.close();
+//    }
 
     // receiveAnswerTest2() waits for an answer that is correct and returns it
     private static String receiveAnswerTest2() throws IOException, ClassNotFoundException {
@@ -157,29 +157,29 @@ public class Querier {
     }
 
     // runSecondTest() handles the second test
-    private static void runSecondTest(int testAmount)
-            throws IOException, InterruptedException, CertificateException, NoSuchAlgorithmException,
-            IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
-            InvalidKeySpecException {
-        sendQueryTest2();
-        int counter = 0;
+//    private static void runSecondTest(int testAmount)
+//            throws IOException, InterruptedException, CertificateException, NoSuchAlgorithmException,
+//            IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
+//            InvalidKeySpecException {
+//        sendQueryTest2();
+//        int counter = 0;
 //        while (counter < testAmount) {
 //            sendQueryTest2();
-////            String answer = receiveAnswerTest2();
-////            System.out.println(answer);
-////            Thread.sleep(2000);
+//            String answer = receiveAnswerTest2();
+//            System.out.println(answer);
+//            Thread.sleep(2000);
 //            counter++;
 //        }
-    }
+//    }
 
     private static void test() throws NoSuchAlgorithmException, IOException, InvalidKeySpecException,
             IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
             CertificateException {
         String test = "test";
-        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+        Key userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
 //        String encrypt = AuthenticationFunctions.encryptMessage(test, userPrivateKey);
         String certificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
-        PublicKey userPublicKey = AuthenticationFunctions.getPublicKey(certificate);
+        Key userPublicKey = AuthenticationFunctions.getPublicKey(certificate);
 //        String decrypt = AuthenticationFunctions.decryptMessage(encrypt, userPublicKey);
         AuthenticationFunctions.test("potato", userPrivateKey, userPublicKey);
 //        System.out.println(decrypt);
