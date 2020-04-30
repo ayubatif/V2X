@@ -10,9 +10,9 @@ import java.security.cert.CertificateException;
 public class NonCompromised {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/OBU-N-certificate-test.crt";
-    static final String CA_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/CA-certificate.crt";
-    static final String OWN_PRIVATE_KEY_LOCATION = "~/Desktop/Thesis/Certificate/OBU-N-private-key.der";
+    static final String OWN_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-N-certificate-test.crt";
+    static final String CA_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/CA-certificate.crt";
+    static final String OWN_PRIVATE_KEY_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-N-private-key.der";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -94,12 +94,14 @@ public class NonCompromised {
         MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
         InetAddress group = InetAddress.getByName("225.0.0.0");
         serverSocket.joinGroup(group);
-        byte[] buffer = new byte[256];
+        byte[] buffer = new byte[65508];
         while (true) {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             serverSocket.receive(packet);
             Message message = CommunicationFunctions.byteArrayToMessage(buffer);
+            System.out.println(message);
             String request = message.getValue("Query");
+            System.out.println(request);
             if (request.equals("Query")) {
                 System.out.println("query received");
                 String certificate = message.getValue("Certificate");

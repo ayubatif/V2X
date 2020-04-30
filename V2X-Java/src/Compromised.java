@@ -4,9 +4,9 @@ import java.net.*;
 public class Compromised {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/OBU-X-certificate-test.crt";
-    static final String CA_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/CA-certificate.crt";
-    static final String OWN_PRIVATE_KEY_LOCATION = "~/Desktop/Thesis/Certificate/OBU-X-private-key.der";
+    static final String OWN_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-X-certificate-test.crt";
+    static final String CA_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/CA-certificate.crt";
+    static final String OWN_PRIVATE_KEY_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-X-private-key.der";
 
     /**
      * Handles the initialization of the program to see which experiment it is running

@@ -26,6 +26,9 @@ public class AuthenticationFunctions {
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         File keyFile = new File(location);
         byte[] keyByte = Files.readAllBytes(keyFile.toPath());
+//        PKCS8EncodedKeySpec keyPKCS8 = new PKCS8EncodedKeySpec(keyByte);
+//        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+//        PrivateKey userPrivateKey = keyFactory.generatePrivate(keyPKCS8);
         PKCS8EncodedKeySpec keyPKCS8 = new PKCS8EncodedKeySpec(keyByte);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PrivateKey userPrivateKey = keyFactory.generatePrivate(keyPKCS8);
@@ -70,9 +73,15 @@ public class AuthenticationFunctions {
             BadPaddingException, IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, userPrivateKey);
+//        byte[] encrypted = cipher.doFinal(message.getBytes());
+//        String encryptedMessage = encrypted.toString();
+//        return encryptedMessage;
+        System.out.println(message);
         byte[] encrypted = cipher.doFinal(message.getBytes());
-        String encryptedMessage = encrypted.toString();
-        return encryptedMessage;
+        System.out.println(encrypted);
+        byte[] test = Base64.getEncoder().encode(encrypted);
+        System.out.println(test);
+        return test.toString();
     }
 
     public static String decryptMessage(String message, PublicKey userPublicKey)
@@ -80,9 +89,14 @@ public class AuthenticationFunctions {
             IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, userPublicKey);
-        byte[] decrypted = cipher.doFinal(message.getBytes());
-        String decryptedMessage = decrypted.toString();
-        return decryptedMessage;
+//        byte[] decrypted = cipher.doFinal(message.getBytes());
+//        String decryptedMessage = decrypted.toString();
+//        return decryptedMessage;
+        System.out.println(message);
+//        byte[] test = Base64.getDecoder().decode(message);
+//        byte[] decrypted = cipher.doFinal(test);
+//        String decryptedMessage = decrypted.toString();
+        return "onion";
     }
 
     public static boolean authenticateMessage(String message, String encryptedHash,
@@ -98,5 +112,34 @@ public class AuthenticationFunctions {
         } else {
             return false;
         }
+    }
+
+    public static void test(String message, PrivateKey userPrivateKey, PublicKey userPublicKey)
+            throws NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException,
+            InvalidKeyException {
+//        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+//        kpg.initialize(2048);
+//        KeyPair kp = kpg.generateKeyPair();
+//        PublicKey pub = kp.getPublic();
+//        PrivateKey pvt = kp.getPrivate();
+
+        Cipher cipher1 = Cipher.getInstance("RSA/ECB/NoPadding");
+        cipher1.init(Cipher.ENCRYPT_MODE, userPrivateKey);
+        System.out.println(message);
+        System.out.println(message.getBytes());
+        byte[] encrypted = cipher1.doFinal(message.getBytes());
+        System.out.println(message.getBytes());
+        System.out.println("Encrypted");
+        System.out.println(Base64.getEncoder().encodeToString(encrypted));
+//        String encryptedMessage = encrypted.toString();
+
+        Cipher cipher2 = Cipher.getInstance("RSA/ECB/NoPadding");
+        cipher2.init(Cipher.DECRYPT_MODE, userPublicKey);
+        byte[] decrypted = cipher2.doFinal(encrypted);
+        System.out.println("Decrypted");
+        System.out.println(Base64.getEncoder().encodeToString(decrypted));
+//        String decryptedMessage = decrypted.toString();
+
+//        System.out.println(decryptedMessage);
     }
 }

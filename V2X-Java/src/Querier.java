@@ -17,30 +17,38 @@ import java.util.Base64;
 public class Querier {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/OBU-A-certificate-test.crt";
-    static final String CA_CERTIFICATE_LOCATION = "~/Desktop/Thesis/Certificate/CA-certificate.crt";
-    static final String OWN_PRIVATE_KEY_LOCATION = "~/Desktop/Thesis/Certificate/OBU-A-private-key.der";
+    static final String OWN_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-A-certificate-test.crt";
+    static final String CA_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/CA-certificate.crt";
+    static final String OWN_PRIVATE_KEY_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-A-private-key.der";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
      *
      * @param args input from the command line when running the program
      */
-    public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException {
-        int mode = Integer.parseInt(args[0]);
-        int testAmount = Integer.parseInt(args[1]);
-        switch (mode) {
-            case 1:
-                System.out.println("running test 1");
-                runFirstTest(testAmount);
-                break;
-            case 2:
-                System.out.println("running test 2");
-                break;
-            case 3:
-                System.out.println("running test 3");
-                break;
-        }
+    public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException,
+            CertificateException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
+            NoSuchPaddingException, InvalidKeyException, InvalidKeySpecException {
+        test();
+//        int mode = Integer.parseInt(args[0]);
+//        int testAmount = Integer.parseInt(args[1]);
+//        switch (mode) {
+//            case 1:
+//                System.out.println("running test 1");
+//                runFirstTest(testAmount);
+//                break;
+//            case 2:
+//                System.out.println("running test 2");
+//                runSecondTest(testAmount);
+//                break;
+//            case 3:
+//                System.out.println("running test 3");
+//                break;
+//            case 0:
+//                System.out.println("running test");
+//                test();
+//                break;
+//        }
     }
 
     // https://stackoverflow.com/questions/2836646/java-serializable-object-to-byte-array
@@ -57,13 +65,13 @@ public class Querier {
         Message query = new Message();
         query.putValue("Query", "Query");
         byte[] data = CommunicationFunctions.messageToByteArray(query);
+        System.out.println(data.length);
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
         multicastSocket.send(queryPacket);
         System.out.println("query sent");
         multicastSocket.close();
     }
-
 
     /**
      * Waits for an answer and returns it for the first test.
@@ -74,7 +82,7 @@ public class Querier {
      */
     private static String receiveAnswerTest1() throws IOException, ClassNotFoundException {
         DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
-        byte[] buffer = new byte[256];
+        byte[] buffer = new byte[65508];
         while (true) {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             serverSocket.receive(packet);
@@ -121,7 +129,10 @@ public class Querier {
         query.putValue("Query", "Query");
         query.putValue("Certificate", userCertificate);
         query.putValue("Hash", authentication);
+        System.out.println(query);
         byte[] data = CommunicationFunctions.messageToByteArray(query);
+        System.out.println(data);
+        System.out.println(data.length);
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
         multicastSocket.send(queryPacket);
@@ -150,13 +161,27 @@ public class Querier {
             throws IOException, InterruptedException, CertificateException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException {
+        sendQueryTest2();
         int counter = 0;
-        while (counter < testAmount) {
-            sendQueryTest2();
-//            String answer = receiveAnswerTest2();
-//            System.out.println(answer);
-//            Thread.sleep(2000);
+//        while (counter < testAmount) {
+//            sendQueryTest2();
+////            String answer = receiveAnswerTest2();
+////            System.out.println(answer);
+////            Thread.sleep(2000);
 //            counter++;
-        }
+//        }
+    }
+
+    private static void test() throws NoSuchAlgorithmException, IOException, InvalidKeySpecException,
+            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
+            CertificateException {
+        String test = "test";
+        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+//        String encrypt = AuthenticationFunctions.encryptMessage(test, userPrivateKey);
+        String certificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
+        PublicKey userPublicKey = AuthenticationFunctions.getPublicKey(certificate);
+//        String decrypt = AuthenticationFunctions.decryptMessage(encrypt, userPublicKey);
+        AuthenticationFunctions.test("potato", userPrivateKey, userPublicKey);
+//        System.out.println(decrypt);
     }
 }
