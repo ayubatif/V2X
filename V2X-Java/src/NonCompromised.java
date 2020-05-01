@@ -79,7 +79,12 @@ public class NonCompromised {
         clientSocket.send(answerPacket);
     }
 
-    // runFirstTest() handles the first test
+    /**
+     * Handles the first test.
+     *
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     private static void runFirstTest() throws IOException, ClassNotFoundException {
         while (true) {
             String returnIPAddress = receiveQueryTest1();
@@ -99,9 +104,7 @@ public class NonCompromised {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             serverSocket.receive(packet);
             Message message = CommunicationFunctions.byteArrayToMessage(buffer);
-            System.out.println(message);
             String request = message.getValue("Query");
-            System.out.println(request);
             if (request.equals("Query")) {
                 System.out.println("query received");
                 String certificate = message.getValue("Certificate");
@@ -110,6 +113,8 @@ public class NonCompromised {
                         certificate, CA_CERTIFICATE_LOCATION)) {
                     String inetAddress = packet.getAddress().getHostAddress();
                     return inetAddress;
+                } else {
+                    System.out.println("not authenticated");
                 }
             }
         }
@@ -121,6 +126,11 @@ public class NonCompromised {
             InvalidKeyException {
         while (true) {
             String returnIPAddress = receiveQueryTest2();
+            System.out.println("first");
         }
+    }
+
+    private static void test() {
+
     }
 }

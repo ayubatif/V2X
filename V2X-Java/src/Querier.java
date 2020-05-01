@@ -1,18 +1,12 @@
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.swing.undo.AbstractUndoableEdit;
 import java.io.*;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.security.*;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
 
 public class Querier {
     static final int MULTICAST_PORT = 2020;
@@ -128,10 +122,7 @@ public class Querier {
         query.putValue("Query", "Query");
         query.putValue("Certificate", userCertificate);
         query.putValue("Hash", authentication);
-        System.out.println(query);
         byte[] data = CommunicationFunctions.messageToByteArray(query);
-        System.out.println(data);
-        System.out.println(data.length);
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
         multicastSocket.send(queryPacket);
@@ -171,16 +162,7 @@ public class Querier {
         }
     }
 
-    private static void test() throws NoSuchAlgorithmException, IOException, InvalidKeySpecException,
-            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
-            CertificateException {
-        String test = "test";
-        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey("/home/justin/Desktop/Thesis/Certificate/OBU-X-private-key.der");
-//        String encrypt = AuthenticationFunctions.encryptMessage(test, userPrivateKey);
-        String certificate = AuthenticationFunctions.getCertificate("/home/justin/Desktop/Thesis/Certificate/OBU-X-certificate.crt");
-        PublicKey userPublicKey = AuthenticationFunctions.getPublicKey(certificate);
-//        String decrypt = AuthenticationFunctions.decryptMessage(encrypt, userPublicKey);
-//        System.out.println(decrypt);
-        AuthenticationFunctions.test("potato", userPrivateKey, userPublicKey);
+    private static void test() {
+        String hash = 
     }
 }

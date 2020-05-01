@@ -15,7 +15,7 @@ import java.util.Base64;
 
 public class AuthenticationFunctions {
     /**
-     * Takes in a location and gets the certificate as a string
+     * Takes in a location and gets the certificate as a string.
      *
      * @param location a string of the location of the certificate
      * @return <code>String</code> a string representation of the certificate
@@ -30,7 +30,7 @@ public class AuthenticationFunctions {
     }
 
     /**
-     * Takes in a location and gets the private key
+     * Takes in a location and gets the private key.
      *
      * @param location a string of the location of the private key
      * @return <code>PrivateKey</code> a private key
@@ -50,7 +50,7 @@ public class AuthenticationFunctions {
     }
 
     /**
-     * Takes in a string representation of a certificate and extracts the public key
+     * Takes in a string representation of a certificate and extracts the public key.
      *
      * @param certificate a string representation of a certificate
      * @return <code>PublicKey</code> a public key from teh certificate
@@ -66,6 +66,16 @@ public class AuthenticationFunctions {
         return userPublicKey;
     }
 
+    /**
+     * Verifies a certificate with a CA certificate.
+     *
+     * @param certificate a base64 string representation of a certificate
+     * @param caLocation a string of the location of the CA certificate
+     * @return <code>true</code> if certificate is valid
+     *         <code>false</code> if certificate invalid
+     * @throws CertificateException
+     * @throws IOException
+     */
     public static boolean verifyCertificate(String certificate, String caLocation)
             throws CertificateException, IOException {
         String caCertificate = getCertificate(caLocation);
@@ -90,22 +100,48 @@ public class AuthenticationFunctions {
         return hashMessage;
     }
 
+    /**
+     * Encrypts the message with RSA using a private key.
+     *
+     * @param message a string with the message to be encrypted
+     * @param userPrivateKey a private key to encrypt with
+     * @return <code>String</code> a base64 encrypted string
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     */
     public static String encryptMessage(String message, PrivateKey userPrivateKey)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException,
             BadPaddingException, IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, userPrivateKey);
         byte[] encrypted = cipher.doFinal(message.getBytes());
-        String encryptedMessage = new String(encrypted);
+        byte[] encryptedBase64 = Base64.getEncoder().encode(encrypted);
+        String encryptedMessage = new String(encryptedBase64);
         return encryptedMessage;
     }
 
+    /**
+     * Decrypts the message with RSA using a public key
+     *
+     * @param message a base64 encrypted string with the message
+     * @param userPublicKey a public key to decrypt with
+     * @return <code>String</code> a decoded and decrypted string
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     */
     public static String decryptMessage(String message, PublicKey userPublicKey)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException,
             IllegalBlockSizeException {
+        byte[] messageByte = Base64.getDecoder().decode(message);
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.DECRYPT_MODE, userPublicKey);
-        byte[] decrypted = cipher.doFinal(message.getBytes());
+        byte[] decrypted = cipher.doFinal(messageByte);
         String decryptedMessage = new String(decrypted);
         return decryptedMessage;
     }
@@ -125,30 +161,6 @@ public class AuthenticationFunctions {
         }
     }
 
-    public static void test(String message, Key userPrivateKey, Key userPublicKey)
-            throws NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException,
-            InvalidKeyException {
-//        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-//        kpg.initialize(2048);
-//        KeyPair kp = kpg.generateKeyPair();
-//        Key pub = kp.getPublic();
-//        Key pvt = kp.getPrivate();
-
-        Cipher cipher1 = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        cipher1.init(Cipher.ENCRYPT_MODE, userPrivateKey);
-        System.out.println(message);
-        byte[] encrypted = cipher1.doFinal(message.getBytes());
-        System.out.println(message.getBytes());
-        System.out.println("Encrypted");
-        String test1Message = new String(encrypted);
-        System.out.println(test1Message);
-
-        Cipher cipher2 = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        cipher2.init(Cipher.DECRYPT_MODE, userPublicKey);
-        byte[] decrypted = cipher2.doFinal(encrypted);
-        System.out.println("Decrypted");
-        String testMessage = new String(decrypted);
-        System.out.println(testMessage);
-
+    public static void test() {
     }
 }
