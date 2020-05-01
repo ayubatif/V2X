@@ -5,7 +5,7 @@ public class CommunicationFunctions {
      * Takes in message to turn into a byte array for sending through the network.
      *
      * @param message a message with keys and values inside
-     * @return data a byte array of the converted message
+     * @return <code>byte[]</code> a byte array of the converted message
      * @throws IOException
      */
     public static byte[] messageToByteArray(Message message) throws IOException {
@@ -21,7 +21,7 @@ public class CommunicationFunctions {
      * Takes in a byte array and turns it into a message after it is arrives from the network.
      *
      * @param buffer a byte array to be turned into a message
-     * @return message a message with keys and values inside
+     * @return <code>Message</code> a message with keys and values inside
      * @throws IOException
      * @throws ClassNotFoundException
      */

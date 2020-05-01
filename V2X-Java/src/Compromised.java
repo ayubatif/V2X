@@ -34,7 +34,7 @@ public class Compromised {
     /**
      * Waits for an input and checks if it is a query for the first test.
      *
-     * @return inetAddress a string that is the IP address of the sender
+     * @return <code>String</code> a string that is the IP address of the sender
      * @throws IOException
      * @throws ClassNotFoundException
      */
