@@ -8,13 +8,15 @@ import java.net.*;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 public class Querier {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-A-certificate.crt";
-    static final String CA_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/CA-certificate.crt";
-    static final String OWN_PRIVATE_KEY_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-A-private-key.der";
+    static final String OWN_CERTIFICATE_LOCATION = "../Authentication/OBU-A-certificate.crt";
+    static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
+    static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-A-private-key.der";
+    static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -39,8 +41,12 @@ public class Querier {
                 System.out.println("running test 3");
                 break;
             case 0:
-                System.out.println("running test");
+                System.out.println("running test 0");
                 test();
+                break;
+            case -1:
+                System.out.println("running test -1");
+                crlTest();
                 break;
         }
     }
@@ -207,5 +213,23 @@ public class Querier {
     }
 
     private static void test() {
+    }
+
+     // test a certificate file for revocation, then test adding a certificate to CRL file
+    private static void crlTest() throws IOException {
+        new PrintWriter(CRL_LOCATION).close(); // empty the file
+        String n_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-N-certificate.crt");
+        String x_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-X-certificate.crt");
+
+        if (AuthenticationFunctions.checkRevocatedCertificate(n_certificate, CRL_LOCATION) == false) {
+            if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION) == false) {
+                AuthenticationFunctions.addToCRL(x_certificate, CRL_LOCATION);
+                if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION) == true) {
+                    System.out.println("it seems the revocation list worked..");
+                    return;
+                }
+            }
+        }
+        System.out.println("it seems the revocation list did not work..");
     }
 }

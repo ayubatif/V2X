@@ -12,9 +12,10 @@ import java.security.spec.InvalidKeySpecException;
 public class NonCompromised {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-N-certificate.crt";
-    static final String CA_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/CA-certificate.crt";
-    static final String OWN_PRIVATE_KEY_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-N-private-key.der";
+    static final String OWN_CERTIFICATE_LOCATION = "../Authentication/OBU-N-certificate-test.crt";
+    static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
+    static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-N-private-key.der";
+    static final String CRL_LOCATION = "../Authentication/CRL-N.crl";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
