@@ -46,9 +46,7 @@ public class Querier {
                 break;
             case -1:
                 System.out.println("running test -1");
-                assert crlCheckRevocated("../Authentication/OBU-N-certificate.crt") == false : "CRL FAILED!";;
-                assert crlCheckRevocated("../Authentication/OBU-X-certificate.crt") == true : "CRL FAILED!";
-                System.out.println("it seems the revocation list worked");
+                crlTest();
                 break;
         }
     }
@@ -217,10 +215,21 @@ public class Querier {
     private static void test() {
     }
 
-    // test a certificate file for revocation
-    private static boolean crlCheckRevocated(String certificateLocation) throws IOException {
-        String certificate = AuthenticationFunctions.getCertificate(certificateLocation);
-        List<String> crl = AuthenticationFunctions.getCertificateRevocationList(CRL_LOCATION);
-        return AuthenticationFunctions.checkRevocatedCertificate(certificate, crl);
+     // test a certificate file for revocation, then test adding a certificate to CRL file
+    private static void crlTest() throws IOException {
+        new PrintWriter(CRL_LOCATION).close(); // empty the file
+        String n_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-N-certificate.crt");
+        String x_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-X-certificate.crt");
+
+        if (AuthenticationFunctions.checkRevocatedCertificate(n_certificate, CRL_LOCATION) == false) {
+            if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION) == false) {
+                AuthenticationFunctions.addToCRL(x_certificate, CRL_LOCATION);
+                if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION) == true) {
+                    System.out.println("it seems the revocation list worked..");
+                    return;
+                }
+            }
+        }
+        System.out.println("it seems the revocation list did not work..");
     }
 }

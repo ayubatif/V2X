@@ -5,6 +5,7 @@ import javax.crypto.NoSuchPaddingException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -210,11 +211,24 @@ public class AuthenticationFunctions {
      * <code>false</code> if the certificate is revocated
      * @throws IOException
      */
-    public static boolean checkRevocatedCertificate(String certificate, List<String> crl) throws IOException {
+    public static boolean checkRevocatedCertificate(String certificate, String crllocation) throws IOException {
+        List<String> crl = getCertificateRevocationList(crllocation);
         for (String pseudonym : crl) {
             if (pseudonym.equals(certificate)) {
                 return true;
             }
         } return false;
+    }
+
+    /**
+     * Appends given certificate to the end of the CRL file
+     * 
+     * @param certificate the certificate to be added to the CRL
+     * @param crllocation a string of the location of the CRL
+     * @throws IOException
+     */
+    public static void addToCRL(String certificate, String crllocation) throws IOException {
+        File crlFile = new File(crllocation);
+        Files.write(crlFile.toPath(), certificate.getBytes(), StandardOpenOption.APPEND);
     }
 }
