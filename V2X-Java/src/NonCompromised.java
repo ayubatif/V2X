@@ -113,8 +113,6 @@ public class NonCompromised {
                         certificate, CA_CERTIFICATE_LOCATION)) {
                     String inetAddress = packet.getAddress().getHostAddress();
                     return inetAddress;
-                } else {
-                    System.out.println("not authenticated");
                 }
             }
         }
@@ -126,7 +124,6 @@ public class NonCompromised {
             InvalidKeyException {
         while (true) {
             String returnIPAddress = receiveQueryTest2();
-            System.out.println("first");
         }
     }
 

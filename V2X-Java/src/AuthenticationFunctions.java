@@ -153,6 +153,23 @@ public class AuthenticationFunctions {
         return decryptedMessage;
     }
 
+    /**
+     * Authenticates a message by checking the certificate and seeing is the encrypted hash is correct.
+     *
+     * @param message the message to checked with
+     * @param encryptedHash the hash that is given
+     * @param certificate the certificate that is given
+     * @param caLocation the location of the CA certificate
+     * @return <code>true</code> if the message is authenticated
+     *         <code>false</code> if the message is not authenticated
+     * @throws NoSuchAlgorithmException
+     * @throws CertificateException
+     * @throws IOException
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     */
     public static boolean authenticateMessage(String message, String encryptedHash,
                                               String certificate, String caLocation)
             throws NoSuchAlgorithmException, CertificateException, IOException, IllegalBlockSizeException,
