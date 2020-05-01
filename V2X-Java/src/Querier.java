@@ -162,7 +162,28 @@ public class Querier {
         }
     }
 
-    private static void test() {
-        String hash = 
+    private static void test() throws NoSuchAlgorithmException, IOException, InvalidKeySpecException,
+            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
+            CertificateException {
+        String certificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
+        PrivateKey privateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+        PublicKey publicKey = AuthenticationFunctions.getPublicKey(certificate);
+        String message = "onion";
+        String hash = AuthenticationFunctions.hashMessage(message);
+        String encrypt = AuthenticationFunctions.encryptMessage(hash, privateKey);
+        String decrypt = AuthenticationFunctions.decryptMessage(encrypt, publicKey);
+        String anotherHash = AuthenticationFunctions.hashMessage(message);
+
+        if (decrypt.equals(anotherHash)) {
+            System.out.println("yay");
+        } else {
+            System.out.println("aw");
+        }
+
+        if (hash.equals(anotherHash)) {
+            System.out.println("bagus");
+        } else {
+            System.out.println("jelek");
+        }
     }
 }

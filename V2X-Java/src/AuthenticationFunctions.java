@@ -93,10 +93,17 @@ public class AuthenticationFunctions {
         }
     }
 
+    /**
+     * Hashes a string with sha-256 and returns it.
+     *
+     * @param message a string to be hashed
+     * @return <code>String</code> the hash of the message
+     * @throws NoSuchAlgorithmException
+     */
     public static String hashMessage(String message) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hash = digest.digest(message.getBytes(StandardCharsets.UTF_8));
-        String hashMessage = hash.toString();
+        String hashMessage = new String(hash);
         return hashMessage;
     }
 
@@ -124,7 +131,7 @@ public class AuthenticationFunctions {
     }
 
     /**
-     * Decrypts the message with RSA using a public key
+     * Decrypts the message with RSA using a public key.
      *
      * @param message a base64 encrypted string with the message
      * @param userPublicKey a public key to decrypt with
