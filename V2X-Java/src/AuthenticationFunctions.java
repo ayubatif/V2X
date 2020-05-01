@@ -12,8 +12,21 @@ import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.util.List;
 
 public class AuthenticationFunctions {
+    /**
+     * Takes in a location and gets the CRL as a list of strings.
+     * 
+     * @param location a string of the location of the CRL
+     * @return <code>List</code> a list of string representation of the certificates
+     * @throws IOException
+     */
+    public static List<String> getCertificateRevocationList(String location) throws IOException {
+        File crlFile = new File(location);
+        return Files.readAllLines(crlFile.toPath());
+    }
+
     /**
      * Takes in a location and gets the certificate as a string.
      *
@@ -186,5 +199,22 @@ public class AuthenticationFunctions {
     }
 
     public static void test() {
+    }
+
+    /**
+     * Checks a list of certificate strings for a match with the provided certificate
+     * 
+     * @param certificate the certificate to be checked
+     * @param crl an array of certificates
+     * @return <code>true</code> if the certificate is revocated
+     * <code>false</code> if the certificate is revocated
+     * @throws IOException
+     */
+    public static boolean checkRevocatedCertificate(String certificate, List<String> crl) throws IOException {
+        for (String pseudonym : crl) {
+            if (pseudonym.equals(certificate)) {
+                return true;
+            }
+        } return false;
     }
 }

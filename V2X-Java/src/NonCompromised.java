@@ -15,6 +15,7 @@ public class NonCompromised {
     static final String OWN_CERTIFICATE_LOCATION = "../Authentication/OBU-N-certificate-test.crt";
     static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
     static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-N-private-key.der";
+    static final String CRL_LOCATION = "../Authentication/CRL-N.crl";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.

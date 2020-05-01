@@ -7,6 +7,7 @@ public class Compromised {
     static final String OWN_CERTIFICATE_LOCATION = "../Authentication/OBU-X-certificate-test.crt";
     static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
     static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-X-private-key.der";
+    static final String CRL_LOCATION = "../Authentication/CRL-X.crl";
 
     /**
      * Handles the initialization of the program to see which experiment it is running

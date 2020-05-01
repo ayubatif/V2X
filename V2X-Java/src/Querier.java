@@ -8,6 +8,7 @@ import java.net.*;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 public class Querier {
     static final int MULTICAST_PORT = 2020;
@@ -15,6 +16,7 @@ public class Querier {
     static final String OWN_CERTIFICATE_LOCATION = "../Authentication/OBU-A-certificate.crt";
     static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
     static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-A-private-key.der";
+    static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -39,8 +41,14 @@ public class Querier {
                 System.out.println("running test 3");
                 break;
             case 0:
-                System.out.println("running test");
+                System.out.println("running test 0");
                 test();
+                break;
+            case -1:
+                System.out.println("running test -1");
+                assert crlCheckRevocated("../Authentication/OBU-N-certificate.crt") == false : "CRL FAILED!";;
+                assert crlCheckRevocated("../Authentication/OBU-X-certificate.crt") == true : "CRL FAILED!";
+                System.out.println("it seems the revocation list worked");
                 break;
         }
     }
@@ -207,5 +215,12 @@ public class Querier {
     }
 
     private static void test() {
+    }
+
+    // test a certificate file for revocation
+    private static boolean crlCheckRevocated(String certificateLocation) throws IOException {
+        String certificate = AuthenticationFunctions.getCertificate(certificateLocation);
+        List<String> crl = AuthenticationFunctions.getCertificateRevocationList(CRL_LOCATION);
+        return AuthenticationFunctions.checkRevocatedCertificate(certificate, crl);
     }
 }
