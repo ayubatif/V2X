@@ -1,7 +1,8 @@
+import jdk.jfr.Frequency;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.swing.undo.AbstractUndoableEdit;
 import java.io.*;
 import java.net.*;
 import java.security.*;
@@ -107,19 +108,30 @@ public class Querier {
         }
     }
 
-    // sendQueryTest2() sendQueryTest1() sends query message, hash, and certificate to the 2 OBUs
+    /**
+     * Sends query message, hash, and certificate to the 2 OBUs
+     *
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     */
     private static void sendQueryTest2()
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
             IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
         PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
-        String hash = AuthenticationFunctions.hashMessage("Query");
+        String message = "Query";
+        String hash = AuthenticationFunctions.hashMessage(message);
         String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
         MulticastSocket multicastSocket = new MulticastSocket(MULTICAST_PORT);
         InetAddress groupIP = InetAddress.getByName("225.0.0.0");
         multicastSocket.joinGroup(groupIP);
         Message query = new Message();
-        query.putValue("Query", "Query");
+        query.putValue("Query", message);
         query.putValue("Certificate", userCertificate);
         query.putValue("Hash", authentication);
         byte[] data = CommunicationFunctions.messageToByteArray(query);
@@ -130,28 +142,60 @@ public class Querier {
         multicastSocket.close();
     }
 
-    // receiveAnswerTest2() waits for an answer that is correct and returns it
-    private static String receiveAnswerTest2() throws IOException, ClassNotFoundException {
+    /**
+     * Waits for an answer that is authenticated and returns it
+     *
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     */
+    private static String receiveAnswerTest2() throws IOException, ClassNotFoundException, CertificateException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
+            InvalidKeyException {
         DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
-        byte[] buffer = new byte[256];
+        byte[] buffer = new byte[65508];
         while (true) {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             serverSocket.receive(packet);
             Message message = CommunicationFunctions.byteArrayToMessage(buffer);
             String answer = message.getValue("Answer");
             if (!answer.equals(null)) {
-                serverSocket.close();
-                return answer;
+                String certificate = message.getValue("Certificate");
+                String encryptedHash = message.getValue("Hash");
+                if (AuthenticationFunctions.authenticateMessage(answer, encryptedHash,
+                        certificate, CA_CERTIFICATE_LOCATION)) {
+                    serverSocket.close();
+                    return answer;
+                }
             }
         }
     }
 
-    // runSecondTest() handles the second test
+    /**
+     * Handles the second test.
+     *
+     * @param testAmount
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws InvalidKeySpecException
+     * @throws ClassNotFoundException
+     * @throws CertificateException
+     */
     private static void runSecondTest(int testAmount)
             throws IOException, InterruptedException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
-            InvalidKeySpecException, ClassNotFoundException {
-        sendQueryTest2();
+            InvalidKeySpecException, ClassNotFoundException, CertificateException {
         int counter = 0;
         while (counter < testAmount) {
             sendQueryTest2();
@@ -162,28 +206,6 @@ public class Querier {
         }
     }
 
-    private static void test() throws NoSuchAlgorithmException, IOException, InvalidKeySpecException,
-            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
-            CertificateException {
-        String certificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
-        PrivateKey privateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
-        PublicKey publicKey = AuthenticationFunctions.getPublicKey(certificate);
-        String message = "onion";
-        String hash = AuthenticationFunctions.hashMessage(message);
-        String encrypt = AuthenticationFunctions.encryptMessage(hash, privateKey);
-        String decrypt = AuthenticationFunctions.decryptMessage(encrypt, publicKey);
-        String anotherHash = AuthenticationFunctions.hashMessage(message);
-
-        if (decrypt.equals(anotherHash)) {
-            System.out.println("yay");
-        } else {
-            System.out.println("aw");
-        }
-
-        if (hash.equals(anotherHash)) {
-            System.out.println("bagus");
-        } else {
-            System.out.println("jelek");
-        }
+    private static void test() {
     }
 }

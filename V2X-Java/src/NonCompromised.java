@@ -5,12 +5,14 @@ import java.io.*;
 import java.net.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 
 public class NonCompromised {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-N-certificate-test.crt";
+    static final String OWN_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-N-certificate.crt";
     static final String CA_CERTIFICATE_LOCATION = "/home/justin/Desktop/Thesis/Certificate/CA-certificate.crt";
     static final String OWN_PRIVATE_KEY_LOCATION = "/home/justin/Desktop/Thesis/Certificate/OBU-N-private-key.der";
 
@@ -21,7 +23,7 @@ public class NonCompromised {
      */
     public static void main(String args[]) throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
-            InvalidKeyException {
+            InvalidKeyException, InvalidKeySpecException {
         int mode = Integer.parseInt(args[0]);
         switch (mode) {
             case 1:
@@ -58,6 +60,7 @@ public class NonCompromised {
             if (request.equals("Query")) {
                 System.out.println("query received");
                 String inetAddress = packet.getAddress().getHostAddress();
+                serverSocket.close();
                 return inetAddress;
             }
         }
@@ -77,6 +80,8 @@ public class NonCompromised {
         byte[] data = CommunicationFunctions.messageToByteArray(answer);
         DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
         clientSocket.send(answerPacket);
+        clientSocket.close();
+        System.out.println("answer sent");
     }
 
     /**
@@ -92,7 +97,19 @@ public class NonCompromised {
         }
     }
 
-    // receiveQueryTest2() waits for an input, checks if it is a query, and checks if it is correctly authenticated
+    /**
+     * Waits for an input, checks if it is a query, and checks if it is correctly authenticated
+     *
+     * @return <code>String</code> a string that is the IP address of the sender
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     */
     private static String receiveQueryTest2() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
             NoSuchPaddingException, InvalidKeyException {
@@ -109,21 +126,68 @@ public class NonCompromised {
                 System.out.println("query received");
                 String certificate = message.getValue("Certificate");
                 String encryptedHash = message.getValue("Hash");
-                if (AuthenticationFunctions.authenticateMessage("Query", encryptedHash,
+                if (AuthenticationFunctions.authenticateMessage(request, encryptedHash,
                         certificate, CA_CERTIFICATE_LOCATION)) {
                     String inetAddress = packet.getAddress().getHostAddress();
+                    serverSocket.close();
                     return inetAddress;
                 }
             }
         }
     }
 
-    // runFirstTest() handles the second test
+    /**
+     * Sends a message with the correct answer for the second test along with a certificate and an encrypted hash of
+     * the message.
+     *
+     * @param returnIPAddress a string that is the IP address of who to send to
+     * @throws IOException
+     * @throws InvalidKeySpecException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     */
+    private static void sendAnswerTest2(String returnIPAddress) throws IOException, InvalidKeySpecException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException,
+            BadPaddingException, NoSuchPaddingException {
+        String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
+        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+        String message = "0";
+        String hash = AuthenticationFunctions.hashMessage(message);
+        String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
+        InetAddress address = InetAddress.getByName(returnIPAddress);
+        DatagramSocket clientSocket = new DatagramSocket();
+        Message answer = new Message();
+        answer.putValue("Answer", message);
+        answer.putValue("Certificate", userCertificate);
+        answer.putValue("Hash", authentication);
+        byte[] data = CommunicationFunctions.messageToByteArray(answer);
+        DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
+        clientSocket.send(answerPacket);
+        clientSocket.close();
+    }
+
+    /**
+     *  Handles the second test.
+     *
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws InvalidKeySpecException
+     */
     private static void runSecondTest() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
-            InvalidKeyException {
+            InvalidKeyException, InvalidKeySpecException {
         while (true) {
             String returnIPAddress = receiveQueryTest2();
+            sendAnswerTest2(returnIPAddress);
         }
     }
 
