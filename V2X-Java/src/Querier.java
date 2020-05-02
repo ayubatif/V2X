@@ -1,5 +1,3 @@
-import jdk.jfr.Frequency;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -8,7 +6,6 @@ import java.net.*;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.List;
 
 public class Querier {
     static final int MULTICAST_PORT = 2020;
@@ -17,6 +14,7 @@ public class Querier {
     static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
     static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-A-private-key.der";
     static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
+    static final String OBU_X_CERTIFICATE_LOCATION = "../Authentication/OBU-X-certificate.crt";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -174,8 +172,9 @@ public class Querier {
             if (!answer.equals(null)) {
                 String certificate = message.getValue("Certificate");
                 String encryptedHash = message.getValue("Hash");
+                boolean revoked = AuthenticationFunctions.checkRevocatedCertificate(certificate, CRL_LOCATION);
                 if (AuthenticationFunctions.authenticateMessage(answer, encryptedHash,
-                        certificate, CA_CERTIFICATE_LOCATION)) {
+                        certificate, CA_CERTIFICATE_LOCATION) && !revoked) {
                     serverSocket.close();
                     return answer;
                 }
@@ -186,7 +185,7 @@ public class Querier {
     /**
      * Handles the second test.
      *
-     * @param testAmount
+     * @param testAmount an integer specifying the amount of query to be sent
      * @throws IOException
      * @throws InterruptedException
      * @throws NoSuchAlgorithmException
@@ -203,6 +202,9 @@ public class Querier {
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, ClassNotFoundException, CertificateException {
         int counter = 0;
+        new PrintWriter(CRL_LOCATION).close(); // empty the file
+        String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
+        AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
         while (counter < testAmount) {
             sendQueryTest2();
             String answer = receiveAnswerTest2();

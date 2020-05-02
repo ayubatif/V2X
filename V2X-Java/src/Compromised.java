@@ -1,10 +1,18 @@
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.*;
 import java.net.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 
 public class Compromised {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "../Authentication/OBU-X-certificate-test.crt";
+    static final String OWN_CERTIFICATE_LOCATION = "../Authentication/OBU-X-certificate.crt";
     static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
     static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-X-private-key.der";
     static final String CRL_LOCATION = "../Authentication/CRL-X.crl";
@@ -14,7 +22,9 @@ public class Compromised {
      *
      * @param args input from the command line when running the program
      */
-    public static void main(String args[]) throws IOException, ClassNotFoundException {
+    public static void main(String args[]) throws IOException, ClassNotFoundException, CertificateException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
+            InvalidKeyException, InvalidKeySpecException {
         int mode = Integer.parseInt(args[0]);
         switch (mode) {
             case 1:
@@ -23,14 +33,13 @@ public class Compromised {
                 break;
             case 2:
                 System.out.println("running test 2");
+                runSecondTest();
                 break;
             case 3:
                 System.out.println("running test 3");
                 break;
         }
     }
-
-    // receiveQueryTest1() waits for an input and checks if it is a query
 
     /**
      * Waits for an input and checks if it is a query for the first test.
@@ -77,11 +86,111 @@ public class Compromised {
         clientSocket.send(answerPacket);
     }
 
-    // runFirstTest() handles the first test
+    /**
+     * Handles the first test.
+     *
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     private static void runFirstTest() throws IOException, ClassNotFoundException {
         while (true) {
             String returnIPAddress = receiveQueryTest1();
             sendAnswerTest1(returnIPAddress);
+        }
+    }
+
+    /**
+     * Waits for an input, checks if it is a query, and checks if it is correctly authenticated
+     *
+     * @return <code>String</code> a string that is the IP address of the sender
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     */
+    private static String receiveQueryTest2() throws IOException, ClassNotFoundException, CertificateException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
+            NoSuchPaddingException, InvalidKeyException {
+        MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
+        InetAddress group = InetAddress.getByName("225.0.0.0");
+        serverSocket.joinGroup(group);
+        byte[] buffer = new byte[65508];
+        while (true) {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            serverSocket.receive(packet);
+            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
+            String request = message.getValue("Query");
+            if (request.equals("Query")) {
+                System.out.println("query received");
+                String certificate = message.getValue("Certificate");
+                String encryptedHash = message.getValue("Hash");
+                if (AuthenticationFunctions.authenticateMessage(request, encryptedHash,
+                        certificate, CA_CERTIFICATE_LOCATION)) {
+                    String inetAddress = packet.getAddress().getHostAddress();
+                    serverSocket.close();
+                    return inetAddress;
+                }
+            }
+        }
+    }
+
+    /**
+     * Sends a message with the incorrect answer for the second test along with a certificate and an encrypted hash of
+     * the message.
+     *
+     * @param returnIPAddress a string that is the IP address of who to send to
+     * @throws IOException
+     * @throws InvalidKeySpecException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     */
+    private static void sendAnswerTest2(String returnIPAddress) throws IOException, InvalidKeySpecException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException,
+            BadPaddingException, NoSuchPaddingException {
+        String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
+        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+        String message = "1";
+        String hash = AuthenticationFunctions.hashMessage(message);
+        String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
+        InetAddress address = InetAddress.getByName(returnIPAddress);
+        DatagramSocket clientSocket = new DatagramSocket();
+        Message answer = new Message();
+        answer.putValue("Answer", message);
+        answer.putValue("Certificate", userCertificate);
+        answer.putValue("Hash", authentication);
+        byte[] data = CommunicationFunctions.messageToByteArray(answer);
+        DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
+        clientSocket.send(answerPacket);
+        System.out.println("answer sent");
+        clientSocket.close();
+    }
+
+    /**
+     *  Handles the second test.
+     *
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws InvalidKeySpecException
+     */
+    private static void runSecondTest() throws IOException, ClassNotFoundException, CertificateException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
+            InvalidKeyException, InvalidKeySpecException {
+        while (true) {
+            String returnIPAddress = receiveQueryTest2();
+            sendAnswerTest2(returnIPAddress);
         }
     }
 }

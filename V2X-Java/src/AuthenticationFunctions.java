@@ -206,9 +206,9 @@ public class AuthenticationFunctions {
      * Checks a list of certificate strings for a match with the provided certificate
      * 
      * @param certificate the certificate to be checked
-     * @param crl an array of certificates
+     * @param crllocation an array of certificates
      * @return <code>true</code> if the certificate is revocated
-     * <code>false</code> if the certificate is revocated
+     *         <code>false</code> if the certificate is fine
      * @throws IOException
      */
     public static boolean checkRevocatedCertificate(String certificate, String crllocation) throws IOException {
