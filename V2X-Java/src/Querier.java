@@ -53,6 +53,7 @@ public class Querier {
 
     // https://stackoverflow.com/questions/2836646/java-serializable-object-to-byte-array
     // https://www.developer.com/java/data/how-to-multicast-using-java-sockets.html
+
     /**
      * Sends query message to the 2 OBUs for the first test.
      *
@@ -82,6 +83,8 @@ public class Querier {
         String answer = message.getValue("Answer");
         return answer;
     }
+
+    // https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
 
     /**
      * Handles the first test.
@@ -145,6 +148,8 @@ public class Querier {
         System.out.println("query sent");
         multicastSocket.close();
     }
+
+    // https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
 
     /**
      * Handles the second test.
@@ -221,6 +226,7 @@ public class Querier {
         multicastSocket.close();
     }
 
+    // https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
     private static void runThirdTest(int testAmount)
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
@@ -248,7 +254,7 @@ public class Querier {
     private static void test(int testAmount) throws IOException {
     }
 
-     // test a certificate file for revocation, then test adding a certificate to CRL file
+    // test a certificate file for revocation, then test adding a certificate to CRL file
     private static void crlTest() throws IOException {
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String n_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-N-certificate.crt");

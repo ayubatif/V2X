@@ -3,6 +3,8 @@ import java.net.DatagramSocket;
 import java.util.Base64;
 import java.util.concurrent.Callable;
 
+// https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
+
 /**
  * Waits for an answer that is authenticated and returns it for the third test. If the message is untrustworhy, the
  * certificate is put into the revocation list.

@@ -175,7 +175,7 @@ public class Compromised {
     }
 
     /**
-     *  Handles the second test.
+     * Handles the second test.
      *
      * @throws IOException
      * @throws ClassNotFoundException

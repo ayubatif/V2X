@@ -20,7 +20,7 @@ import java.util.List;
 public class AuthenticationFunctions {
     /**
      * Takes in a location and gets the CRL as a list of strings.
-     * 
+     *
      * @param location a string of the location of the CRL
      * @return <code>List</code> a list of string representation of the certificates
      * @throws IOException
@@ -86,9 +86,9 @@ public class AuthenticationFunctions {
      * Verifies a certificate with a CA certificate.
      *
      * @param certificate a base64 string representation of a certificate
-     * @param caLocation a string of the location of the CA certificate
+     * @param caLocation  a string of the location of the CA certificate
      * @return <code>true</code> if certificate is valid
-     *         <code>false</code> if certificate invalid
+     * <code>false</code> if certificate invalid
      * @throws CertificateException
      * @throws IOException
      */
@@ -126,7 +126,7 @@ public class AuthenticationFunctions {
     /**
      * Encrypts the message with RSA using a private key.
      *
-     * @param message a string with the message to be encrypted
+     * @param message        a string with the message to be encrypted
      * @param userPrivateKey a private key to encrypt with
      * @return <code>String</code> a base64 encrypted string
      * @throws NoSuchPaddingException
@@ -149,7 +149,7 @@ public class AuthenticationFunctions {
     /**
      * Decrypts the message with RSA using a public key.
      *
-     * @param message a base64 encrypted string with the message
+     * @param message       a base64 encrypted string with the message
      * @param userPublicKey a public key to decrypt with
      * @return <code>String</code> a decoded and decrypted string
      * @throws NoSuchPaddingException
@@ -172,12 +172,12 @@ public class AuthenticationFunctions {
     /**
      * Authenticates a message by checking the certificate and seeing is the encrypted hash is correct.
      *
-     * @param message the message to checked with
+     * @param message       the message to checked with
      * @param encryptedHash the hash that is given
-     * @param certificate the certificate that is given
-     * @param caLocation the location of the CA certificate
+     * @param certificate   the certificate that is given
+     * @param caLocation    the location of the CA certificate
      * @return <code>true</code> if the message is authenticated
-     *         <code>false</code> if the message is not authenticated
+     * <code>false</code> if the message is not authenticated
      * @throws NoSuchAlgorithmException
      * @throws CertificateException
      * @throws IOException
@@ -206,11 +206,11 @@ public class AuthenticationFunctions {
 
     /**
      * Checks a list of certificate strings for a match with the provided certificate
-     * 
+     *
      * @param certificate the certificate to be checked
      * @param crllocation an array of certificates
      * @return <code>true</code> if the certificate is revocated
-     *         <code>false</code> if the certificate is fine
+     * <code>false</code> if the certificate is fine
      * @throws IOException
      */
     public static boolean checkRevocatedCertificate(String certificate, String crllocation) throws IOException {
@@ -219,12 +219,13 @@ public class AuthenticationFunctions {
             if (pseudonym.equals(certificate)) {
                 return true;
             }
-        } return false;
+        }
+        return false;
     }
 
     /**
      * Appends given certificate to the end of the CRL file
-     * 
+     *
      * @param certificate the certificate to be added to the CRL
      * @param crllocation a string of the location of the CRL
      * @throws IOException

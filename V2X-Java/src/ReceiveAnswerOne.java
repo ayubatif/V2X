@@ -2,6 +2,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.concurrent.Callable;
 
+// https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
+
 /**
  * Waits for an answer and returns it for the first test. Now built for timeouts
  */
