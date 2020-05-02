@@ -84,6 +84,8 @@ public class Compromised {
         byte[] data = byteArrayOutputStream.toByteArray();
         DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
         clientSocket.send(answerPacket);
+        System.out.println("answer sent");
+        clientSocket.close();
     }
 
     /**

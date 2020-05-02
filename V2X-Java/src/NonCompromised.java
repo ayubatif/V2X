@@ -81,8 +81,8 @@ public class NonCompromised {
         byte[] data = CommunicationFunctions.messageToByteArray(answer);
         DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
         clientSocket.send(answerPacket);
-        clientSocket.close();
         System.out.println("answer sent");
+        clientSocket.close();
     }
 
     /**

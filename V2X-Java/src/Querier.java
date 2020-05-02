@@ -6,6 +6,7 @@ import java.net.*;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.concurrent.*;
 
 public class Querier {
     static final int MULTICAST_PORT = 2020;
@@ -40,7 +41,7 @@ public class Querier {
                 break;
             case 0:
                 System.out.println("running test 0");
-                test();
+                test(testAmount);
                 break;
             case -1:
                 System.out.println("running test -1");
@@ -63,7 +64,6 @@ public class Querier {
         Message query = new Message();
         query.putValue("Query", "Query");
         byte[] data = CommunicationFunctions.messageToByteArray(query);
-        System.out.println(data.length);
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
         multicastSocket.send(queryPacket);
@@ -214,7 +214,21 @@ public class Querier {
         }
     }
 
-    private static void test() {
+    private static void test(int testAmount) throws IOException {
+        int counter = 0;
+        while (counter < testAmount) {
+            sendQueryTest1();
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            Future<String> future = executorService.submit(new ReceiveAnswer());
+            try {
+                String answer = future.get(100, TimeUnit.MILLISECONDS);
+                System.out.println(answer);
+                counter++;
+            } catch (Exception e) {
+                System.out.println("timeout");
+            }
+            executorService.shutdownNow();
+        }
     }
 
      // test a certificate file for revocation, then test adding a certificate to CRL file
@@ -233,5 +247,27 @@ public class Querier {
             }
         }
         System.out.println("it seems the revocation list did not work..");
+    }
+}
+
+/**
+ * Waits for an answer and returns it for the first test. Now built for tiemouts
+ */
+class ReceiveAnswer implements Callable<String> {
+    static final int UNICAST_PORT = 2021;
+    @Override
+    public String call() throws Exception {
+        DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
+        byte[] buffer = new byte[65508];
+        while (true) {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            serverSocket.receive(packet);
+            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
+            String answer = message.getValue("Answer");
+            if (!answer.equals(null)) {
+                serverSocket.close();
+                return answer;
+            }
+        }
     }
 }
