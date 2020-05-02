@@ -23,7 +23,7 @@ public class Querier {
      * @param args input from the command line when running the program
      */
     public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException,
-            CertificateException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
             NoSuchPaddingException, InvalidKeyException, InvalidKeySpecException {
         int mode = Integer.parseInt(args[0]);
         int testAmount = Integer.parseInt(args[1]);
@@ -38,6 +38,7 @@ public class Querier {
                 break;
             case 3:
                 System.out.println("running test 3");
+                runThirdTest(testAmount);
                 break;
             case 0:
                 System.out.println("running test 0");
@@ -175,6 +176,64 @@ public class Querier {
             Future<String> future = executorService.submit(new ReceiveAnswerTwo());
             try {
                 String answer = future.get(100, TimeUnit.MILLISECONDS);
+                answerCounter.addAnswer(answer);
+                System.out.println(answer);
+                counter++;
+            } catch (Exception e) {
+                System.out.println("timeout");
+            }
+            executorService.shutdownNow();
+        }
+        answerCounter.printAnswer();
+    }
+
+    /**
+     * Sends query message, hash, and certificate to the 2 OBUs. Same as the second one.
+     *
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     */
+    private static void sendQueryTest3()
+            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
+            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
+        String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
+        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+        String message = "Query";
+        String hash = AuthenticationFunctions.hashMessage(message);
+        String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
+        MulticastSocket multicastSocket = new MulticastSocket(MULTICAST_PORT);
+        InetAddress groupIP = InetAddress.getByName("225.0.0.0");
+        multicastSocket.joinGroup(groupIP);
+        Message query = new Message();
+        query.putValue("Query", message);
+        query.putValue("Certificate", userCertificate);
+        query.putValue("Hash", authentication);
+        byte[] data = CommunicationFunctions.messageToByteArray(query);
+        int randomPort = multicastSocket.getLocalPort();
+        DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
+        multicastSocket.send(queryPacket);
+        System.out.println("query sent");
+        multicastSocket.close();
+    }
+
+    private static void runThirdTest(int testAmount)
+            throws IOException, NoSuchAlgorithmException,
+            IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
+            InvalidKeySpecException {
+        int counter = 0;
+        AnswerCounter answerCounter = new AnswerCounter();
+        new PrintWriter(CRL_LOCATION).close(); // empty the file
+        while (counter < testAmount) {
+            sendQueryTest3();
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            Future<String> future = executorService.submit(new ReceiveAnswerThree());
+            try {
+                String answer = future.get(1000, TimeUnit.MILLISECONDS);
                 answerCounter.addAnswer(answer);
                 System.out.println(answer);
                 counter++;

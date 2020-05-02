@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 
 public class NonCompromised {
     static final int MULTICAST_PORT = 2020;
@@ -16,6 +17,7 @@ public class NonCompromised {
     static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
     static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-N-private-key.der";
     static final String CRL_LOCATION = "../Authentication/CRL-N.crl";
+    static final String CA_PRIVATE_KEY = "../Authentication/CA-private-key.der";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -37,6 +39,7 @@ public class NonCompromised {
                 break;
             case 3:
                 System.out.println("running test 3");
+                runThirdTest();
                 break;
         }
     }
@@ -99,7 +102,7 @@ public class NonCompromised {
     }
 
     /**
-     * Waits for an input, checks if it is a query, and checks if it is correctly authenticated
+     * Waits for an input, checks if it is a query, and checks if it is correctly authenticated.
      *
      * @return <code>String</code> a string that is the IP address of the sender
      * @throws IOException
@@ -190,6 +193,87 @@ public class NonCompromised {
         while (true) {
             String returnIPAddress = receiveQueryTest2();
             sendAnswerTest2(returnIPAddress);
+        }
+    }
+
+    /**
+     * Waits for an input, checks if it is a query, and checks if it is correctly authenticated.
+     * Same as the second test.
+     *
+     * @return <code>String</code> a string that is the IP address of the sender
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     */
+    private static String receiveQueryTest3() throws IOException, ClassNotFoundException, CertificateException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
+            NoSuchPaddingException, InvalidKeyException {
+        MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
+        InetAddress group = InetAddress.getByName("225.0.0.0");
+        serverSocket.joinGroup(group);
+        byte[] buffer = new byte[65508];
+        while (true) {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            serverSocket.receive(packet);
+            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
+            String request = message.getValue("Query");
+            if (request.equals("Query")) {
+                System.out.println("query received");
+                String certificate = message.getValue("Certificate");
+                String encryptedHash = message.getValue("Hash");
+                if (AuthenticationFunctions.authenticateMessage(request, encryptedHash,
+                        certificate, CA_CERTIFICATE_LOCATION)) {
+                    String inetAddress = packet.getAddress().getHostAddress();
+                    serverSocket.close();
+                    return inetAddress;
+                }
+            }
+        }
+    }
+
+    private static void sendAnswerTest3(String returnIPAddress) throws IOException, InvalidKeySpecException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException,
+            BadPaddingException, NoSuchPaddingException {
+        String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
+        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+        PrivateKey caPrivateKey = AuthenticationFunctions.getPrivateKey(CA_PRIVATE_KEY);
+
+        String caMessage = "0";
+        String caHash = AuthenticationFunctions.hashMessage(caMessage);
+        String caAuthentication = AuthenticationFunctions.encryptMessage(caHash, caPrivateKey);
+        Message caAnswer = new Message();
+        caAnswer.putValue("Message", caMessage);
+        caAnswer.putValue("Hash", caAuthentication);
+        byte[] messageByte = CommunicationFunctions.messageToByteArray(caAnswer);
+        byte[] messageByteBase64 = Base64.getEncoder().encode(messageByte);
+
+        String message = new String(messageByteBase64);
+        String hash = AuthenticationFunctions.hashMessage(message);
+        String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
+        InetAddress address = InetAddress.getByName(returnIPAddress);
+        DatagramSocket clientSocket = new DatagramSocket();
+        Message answer = new Message();
+        answer.putValue("Answer", message);
+        answer.putValue("Certificate", userCertificate);
+        answer.putValue("Hash", authentication);
+        byte[] data = CommunicationFunctions.messageToByteArray(answer);
+        DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
+        clientSocket.send(answerPacket);
+        System.out.println("answer sent");
+        clientSocket.close();
+    }
+
+    private static void runThirdTest() throws IOException, ClassNotFoundException, CertificateException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
+            InvalidKeyException, InvalidKeySpecException {
+        while (true) {
+            String returnIPAddress = receiveQueryTest3();
+            sendAnswerTest3(returnIPAddress);
         }
     }
 

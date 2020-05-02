@@ -1,11 +1,13 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.Base64;
 import java.util.concurrent.Callable;
 
 /**
- * Waits for an answer that is authenticated and returns it for the second test. Now built for timeouts
+ * Waits for an answer that is authenticated and returns it for the third test. If the message is untrustworhy, the
+ * certificate is put into the revocation list.
  */
-class ReceiveAnswerTwo implements Callable<String> {
+public class ReceiveAnswerThree implements Callable<String> {
     static final int UNICAST_PORT = 2021;
     static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
     static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
@@ -26,8 +28,20 @@ class ReceiveAnswerTwo implements Callable<String> {
                 boolean authenticated = AuthenticationFunctions.authenticateMessage(answer, encryptedHash,
                         certificate, CA_CERTIFICATE_LOCATION);
                 if (authenticated && !revoked) {
-                    serverSocket.close();
-                    return answer;
+
+                    byte[] caMessageByte = Base64.getDecoder().decode(answer.getBytes());
+                    Message caMessage = CommunicationFunctions.byteArrayToMessage(caMessageByte);
+                    String caAnswer = caMessage.getValue("Message");
+                    String caEncryptedHash = message.getValue("Hash");
+                    String caCertificate = AuthenticationFunctions.getCertificate(CA_CERTIFICATE_LOCATION);
+                    boolean caAuthenticated = AuthenticationFunctions.authenticateMessage(caAnswer, caEncryptedHash,
+                            caCertificate, CA_CERTIFICATE_LOCATION);
+                    if (caAuthenticated) {
+                        serverSocket.close();
+                        return answer;
+                    } else {
+                        AuthenticationFunctions.addToCRL(certificate, CRL_LOCATION);
+                    }
                 }
             }
         }
