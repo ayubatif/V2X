@@ -13,6 +13,7 @@ public class ReceiveAnswerThree implements Callable<String> {
     static final int UNICAST_PORT = 2021;
     static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
     static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
+    static final String DNS_CERTIFICATE_LOCATION = "../Authentication/DNS-certificate.crt";
 
     @Override
     public String call() throws Exception {
@@ -30,18 +31,22 @@ public class ReceiveAnswerThree implements Callable<String> {
                 boolean authenticated = AuthenticationFunctions.authenticateMessage(answer, encryptedHash,
                         certificate, CA_CERTIFICATE_LOCATION);
                 if (authenticated && !revoked) {
+                    byte[] dnsMessageByte = Base64.getDecoder().decode(answer.getBytes());
+                    Message dnsMessage = CommunicationFunctions.byteArrayToMessage(dnsMessageByte);
+                    String dnsAnswer = dnsMessage.getValue("Message");
+                    String dnsEncryptedHash = message.getValue("Hash");
+                    System.out.println(dnsEncryptedHash);
+                    String dnsCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
+                    System.out.println("pompeii");
 
-                    byte[] caMessageByte = Base64.getDecoder().decode(answer.getBytes());
-                    Message caMessage = CommunicationFunctions.byteArrayToMessage(caMessageByte);
-                    String caAnswer = caMessage.getValue("Message");
-                    String caEncryptedHash = message.getValue("Hash");
-                    String caCertificate = AuthenticationFunctions.getCertificate(CA_CERTIFICATE_LOCATION);
-                    boolean caAuthenticated = AuthenticationFunctions.authenticateMessage(caAnswer, caEncryptedHash,
-                            caCertificate, CA_CERTIFICATE_LOCATION);
-                    if (caAuthenticated) {
+                    boolean dnsAuthenticated = AuthenticationFunctions.authenticateMessage(dnsAnswer, dnsEncryptedHash,
+                            dnsCertificate, DNS_CERTIFICATE_LOCATION);
+                    if (dnsAuthenticated) {
+                        System.out.println("onion");
                         serverSocket.close();
                         return answer;
                     } else {
+                        System.out.println("potato");
                         AuthenticationFunctions.addToCRL(certificate, CRL_LOCATION);
                     }
                 }

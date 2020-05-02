@@ -17,7 +17,7 @@ public class NonCompromised {
     static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
     static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-N-private-key.der";
     static final String CRL_LOCATION = "../Authentication/CRL-N.crl";
-    static final String CA_PRIVATE_KEY = "../Authentication/CA-private-key.der";
+    static final String DNS_PRIVATE_KEY = "../Authentication/DNS-private-key.der";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -241,18 +241,19 @@ public class NonCompromised {
             BadPaddingException, NoSuchPaddingException {
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
         PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
-        PrivateKey caPrivateKey = AuthenticationFunctions.getPrivateKey(CA_PRIVATE_KEY);
+        PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(DNS_PRIVATE_KEY);
 
-        String caMessage = "0";
-        String caHash = AuthenticationFunctions.hashMessage(caMessage);
-        String caAuthentication = AuthenticationFunctions.encryptMessage(caHash, caPrivateKey);
-        Message caAnswer = new Message();
-        caAnswer.putValue("Message", caMessage);
-        caAnswer.putValue("Hash", caAuthentication);
-        byte[] messageByte = CommunicationFunctions.messageToByteArray(caAnswer);
+        String dnsMessage = "0";
+        String dnsHash = AuthenticationFunctions.hashMessage(dnsMessage);
+        String dnsAuthentication = AuthenticationFunctions.encryptMessage(dnsHash, dnsPrivateKey);
+        Message dnsAnswer = new Message();
+        dnsAnswer.putValue("Message", dnsMessage);
+        dnsAnswer.putValue("Hash", dnsAuthentication);
+        System.out.println(dnsAuthentication);
+        byte[] messageByte = CommunicationFunctions.messageToByteArray(dnsAnswer);
         byte[] messageByteBase64 = Base64.getEncoder().encode(messageByte);
-
         String message = new String(messageByteBase64);
+
         String hash = AuthenticationFunctions.hashMessage(message);
         String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
         InetAddress address = InetAddress.getByName(returnIPAddress);

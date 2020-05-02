@@ -6,6 +6,7 @@ import java.net.*;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.concurrent.*;
 
 public class Querier {
@@ -16,6 +17,7 @@ public class Querier {
     static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-A-private-key.der";
     static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
     static final String OBU_X_CERTIFICATE_LOCATION = "../Authentication/OBU-X-certificate.crt";
+    static final String DNS_CERTIFICATE_LOCATION = "../Authentication/DNS-certificate.crt";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -24,7 +26,7 @@ public class Querier {
      */
     public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
-            NoSuchPaddingException, InvalidKeyException, InvalidKeySpecException {
+            NoSuchPaddingException, InvalidKeyException, InvalidKeySpecException, CertificateException {
         int mode = Integer.parseInt(args[0]);
         int testAmount = Integer.parseInt(args[1]);
         switch (mode) {
@@ -226,11 +228,60 @@ public class Querier {
         multicastSocket.close();
     }
 
+    private static String receiveThirdTest() throws IOException, ClassNotFoundException, CertificateException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
+            InvalidKeyException {
+        DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
+        byte[] buffer = new byte[65508];
+        while (true) {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            serverSocket.receive(packet);
+            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
+            String answer = message.getValue("Answer");
+            if (!answer.equals(null)) {
+                String certificate = message.getValue("Certificate");
+                String encryptedHash = message.getValue("Hash");
+                boolean revoked = AuthenticationFunctions.checkRevocatedCertificate(certificate, CRL_LOCATION);
+                boolean authenticated = AuthenticationFunctions.authenticateMessage(answer, encryptedHash,
+                        certificate, CA_CERTIFICATE_LOCATION);
+                if (authenticated && !revoked) {
+                    byte[] dnsMessageByte = Base64.getDecoder().decode(answer.getBytes());
+                    Message dnsMessage = CommunicationFunctions.byteArrayToMessage(dnsMessageByte);
+                    String dnsAnswer = dnsMessage.getValue("Message");
+                    String dnsEncryptedHash = message.getValue("Hash");
+                    String dnsCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
+                    System.out.println("pompeii");
+                    System.out.println(dnsEncryptedHash);
+
+//                    String someHash = AuthenticationFunctions.hashMessage(dnsAnswer);
+//                    PublicKey somePublicKey = AuthenticationFunctions.getPublicKey(dnsCertificate);
+//                    String decryptedSomeHash = AuthenticationFunctions.decryptMessage(dnsEncryptedHash, somePublicKey);
+//
+//                    System.out.println(someHash);
+//                    System.out.println(decryptedSomeHash);
+
+//                    boolean dnsAuthenticated = AuthenticationFunctions.authenticateMessage(dnsAnswer, dnsEncryptedHash,
+//                            dnsCertificate, DNS_CERTIFICATE_LOCATION);
+                    return "1";
+
+//                    if (dnsAuthenticated) {
+//                        System.out.println("onion");
+//                        serverSocket.close();
+//                        return answer;
+//                    } else {
+//                        System.out.println("potato");
+//                        AuthenticationFunctions.addToCRL(certificate, CRL_LOCATION);
+//                    }
+                }
+            }
+        }
+    }
+
     // https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
     private static void runThirdTest(int testAmount)
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
-            InvalidKeySpecException {
+            InvalidKeySpecException, InterruptedException {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
@@ -239,19 +290,46 @@ public class Querier {
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             Future<String> future = executorService.submit(new ReceiveAnswerThree());
             try {
-                String answer = future.get(1000, TimeUnit.MILLISECONDS);
+//                String answer = future.get(10, TimeUnit.SECONDS);
+                String answer = receiveThirdTest();
                 answerCounter.addAnswer(answer);
+                System.out.println("answer");
                 System.out.println(answer);
                 counter++;
             } catch (Exception e) {
                 System.out.println("timeout");
+                System.out.println(e);
             }
             executorService.shutdownNow();
+            Thread.sleep(1000);
         }
         answerCounter.printAnswer();
     }
 
-    private static void test(int testAmount) throws IOException {
+    private static void test(int testAmount) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
+            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
+            CertificateException {
+        String dnsCertificate = AuthenticationFunctions.getCertificate("../Authentication/DNS-certificate.crt");
+        PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey("../Authentication/DNS-private-key.der");
+        PublicKey dnsPublicKey = AuthenticationFunctions.getPublicKey(dnsCertificate);
+        String dnsMessage = "0";
+        String encrypted = AuthenticationFunctions.encryptMessage(dnsMessage, dnsPrivateKey);
+        String decrypted = AuthenticationFunctions.decryptMessage(encrypted, dnsPublicKey);
+        System.out.println(decrypted);
+
+        String dnsHash = AuthenticationFunctions.hashMessage(dnsMessage);
+        String dnsAuthentication = AuthenticationFunctions.encryptMessage(dnsHash, dnsPrivateKey);
+        Message dnsAnswer = new Message();
+        dnsAnswer.putValue("Message", dnsMessage);
+        dnsAnswer.putValue("Hash", dnsAuthentication);
+        byte[] messageByte = CommunicationFunctions.messageToByteArray(dnsAnswer);
+        byte[] messageByteBase64 = Base64.getEncoder().encode(messageByte);
+        String message = new String(messageByteBase64);
+
+        String encryptedHash = dnsAnswer.getValue("Hash");
+        String decryptedHash = AuthenticationFunctions.decryptMessage(encryptedHash, dnsPublicKey);
+        System.out.println(dnsHash);
+        System.out.println(decryptedHash);
     }
 
     // test a certificate file for revocation, then test adding a certificate to CRL file
