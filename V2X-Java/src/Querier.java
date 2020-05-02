@@ -72,28 +72,6 @@ public class Querier {
     }
 
     /**
-     * Waits for an answer and returns it for the first test.
-     *
-     * @return <code>String</code> a string from the message received
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
-    private static String receiveAnswerTest1() throws IOException, ClassNotFoundException {
-        DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
-        byte[] buffer = new byte[65508];
-        while (true) {
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            serverSocket.receive(packet);
-            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
-            String answer = message.getValue("Answer");
-            if (!answer.equals(null)) {
-                serverSocket.close();
-                return answer;
-            }
-        }
-    }
-
-    /**
      * parses the message and returns the answer inside
      *
      * @param message A Message received by the OBU
@@ -114,6 +92,7 @@ public class Querier {
      */
     private static void runFirstTest(int testAmount) throws IOException, ClassNotFoundException, InterruptedException {
         int counter = 0;
+        AnswerCounter answerCounter = new AnswerCounter();
         while (counter < testAmount) {
             sendQueryTest1();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -121,6 +100,7 @@ public class Querier {
             try {
                 Message message = future.get(50, TimeUnit.MILLISECONDS);
                 String answer = parseMessageTest1(message);
+                answerCounter.addAnswer(answer);
                 System.out.println(answer);
                 counter++;
             } catch (Exception e) {
@@ -128,6 +108,7 @@ public class Querier {
             }
             executorService.shutdownNow();
         }
+        answerCounter.printAnswer();
     }
 
     /**
