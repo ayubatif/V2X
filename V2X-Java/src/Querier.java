@@ -96,7 +96,7 @@ public class Querier {
         while (counter < testAmount) {
             sendQueryTest1();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
-            Future<Message> future = executorService.submit(new ReceiveAnswer());
+            Future<Message> future = executorService.submit(new ReceiveAnswerOne());
             try {
                 Message message = future.get(50, TimeUnit.MILLISECONDS);
                 String answer = parseMessageTest1(message);
@@ -146,42 +146,6 @@ public class Querier {
     }
 
     /**
-     * Waits for an answer that is authenticated and returns it
-     *
-     * @return
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @throws CertificateException
-     * @throws NoSuchAlgorithmException
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
-     * @throws NoSuchPaddingException
-     * @throws InvalidKeyException
-     */
-    private static String receiveAnswerTest2() throws IOException, ClassNotFoundException, CertificateException,
-            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
-            InvalidKeyException {
-        DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
-        byte[] buffer = new byte[65508];
-        while (true) {
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            serverSocket.receive(packet);
-            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
-            String answer = message.getValue("Answer");
-            if (!answer.equals(null)) {
-                String certificate = message.getValue("Certificate");
-                String encryptedHash = message.getValue("Hash");
-                boolean revoked = AuthenticationFunctions.checkRevocatedCertificate(certificate, CRL_LOCATION);
-                if (AuthenticationFunctions.authenticateMessage(answer, encryptedHash,
-                        certificate, CA_CERTIFICATE_LOCATION) && !revoked) {
-                    serverSocket.close();
-                    return answer;
-                }
-            }
-        }
-    }
-
-    /**
      * Handles the second test.
      *
      * @param testAmount an integer specifying the amount of query to be sent
@@ -197,20 +161,29 @@ public class Querier {
      * @throws CertificateException
      */
     private static void runSecondTest(int testAmount)
-            throws IOException, InterruptedException, NoSuchAlgorithmException,
+            throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
-            InvalidKeySpecException, ClassNotFoundException, CertificateException {
+            InvalidKeySpecException {
         int counter = 0;
+        AnswerCounter answerCounter = new AnswerCounter();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
         AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
         while (counter < testAmount) {
             sendQueryTest2();
-            String answer = receiveAnswerTest2();
-            System.out.println(answer);
-            Thread.sleep(2000);
-            counter++;
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            Future<String> future = executorService.submit(new ReceiveAnswerTwo());
+            try {
+                String answer = future.get(100, TimeUnit.MILLISECONDS);
+                answerCounter.addAnswer(answer);
+                System.out.println(answer);
+                counter++;
+            } catch (Exception e) {
+                System.out.println("timeout");
+            }
+            executorService.shutdownNow();
         }
+        answerCounter.printAnswer();
     }
 
     private static void test(int testAmount) throws IOException {
