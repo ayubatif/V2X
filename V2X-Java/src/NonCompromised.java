@@ -243,27 +243,31 @@ public class NonCompromised {
         PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
         PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(DNS_PRIVATE_KEY);
 
-        String dnsMessage = "0";
-        String dnsHash = AuthenticationFunctions.hashMessage(dnsMessage);
-        String dnsAuthentication = AuthenticationFunctions.encryptMessage(dnsHash, dnsPrivateKey);
-        Message dnsAnswer = new Message();
-        dnsAnswer.putValue("Message", dnsMessage);
-        dnsAnswer.putValue("Hash", dnsAuthentication);
-        System.out.println(dnsAuthentication);
-        byte[] messageByte = CommunicationFunctions.messageToByteArray(dnsAnswer);
-        byte[] messageByteBase64 = Base64.getEncoder().encode(messageByte);
-        String message = new String(messageByteBase64);
+        String innerAnswer = "0";
+        String innerHash = AuthenticationFunctions.hashMessage(innerAnswer);
+        String innerEncryptedHash = AuthenticationFunctions.encryptMessage(innerHash, dnsPrivateKey);
 
-        String hash = AuthenticationFunctions.hashMessage(message);
-        String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
+        Message innerMessage = new Message();
+        innerMessage.putValue("Answer", innerAnswer);
+        innerMessage.putValue("Hash", innerEncryptedHash);
+
+        byte[] innerMessageByte = CommunicationFunctions.messageToByteArray(innerMessage);
+        byte[] innerMessageByteBase64 = Base64.getEncoder().encode(innerMessageByte);
+        String innerMessageString = new String(innerMessageByteBase64);
+
+        String outerHash = AuthenticationFunctions.hashMessage(innerMessageString);
+        String outerEncryptedHash = AuthenticationFunctions.encryptMessage(outerHash, userPrivateKey);
+
+        Message outerMessage = new Message();
+        outerMessage.putValue("Answer", innerMessageString);
+        outerMessage.putValue("Hash", outerEncryptedHash);
+        outerMessage.putValue("Certificate", userCertificate);
+
+        byte[] outerMessageByte = CommunicationFunctions.messageToByteArray(outerMessage);
         InetAddress address = InetAddress.getByName(returnIPAddress);
+        DatagramPacket answerPacket = new DatagramPacket(outerMessageByte, outerMessageByte.length,
+                address, UNICAST_PORT);
         DatagramSocket clientSocket = new DatagramSocket();
-        Message answer = new Message();
-        answer.putValue("Answer", message);
-        answer.putValue("Certificate", userCertificate);
-        answer.putValue("Hash", authentication);
-        byte[] data = CommunicationFunctions.messageToByteArray(answer);
-        DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
         clientSocket.send(answerPacket);
         System.out.println("answer sent");
         clientSocket.close();

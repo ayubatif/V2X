@@ -4,6 +4,7 @@ import javax.crypto.NoSuchPaddingException;
 import java.io.*;
 import java.net.*;
 import java.security.*;
+import java.security.cert.CRL;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
@@ -234,44 +235,53 @@ public class Querier {
         DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
         byte[] buffer = new byte[65508];
         while (true) {
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            serverSocket.receive(packet);
-            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
-            String answer = message.getValue("Answer");
-            if (!answer.equals(null)) {
-                String certificate = message.getValue("Certificate");
-                String encryptedHash = message.getValue("Hash");
-                boolean revoked = AuthenticationFunctions.checkRevocatedCertificate(certificate, CRL_LOCATION);
-                boolean authenticated = AuthenticationFunctions.authenticateMessage(answer, encryptedHash,
-                        certificate, CA_CERTIFICATE_LOCATION);
-                if (authenticated && !revoked) {
-                    byte[] dnsMessageByte = Base64.getDecoder().decode(answer.getBytes());
-                    Message dnsMessage = CommunicationFunctions.byteArrayToMessage(dnsMessageByte);
-                    String dnsAnswer = dnsMessage.getValue("Message");
-                    String dnsEncryptedHash = message.getValue("Hash");
-                    String dnsCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
-                    System.out.println("pompeii");
-                    System.out.println(dnsEncryptedHash);
+            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
+            serverSocket.receive(receivePacket);
+            Message outerMessage = CommunicationFunctions.byteArrayToMessage(buffer);
+            String outerAnswer = outerMessage.getValue("Answer");
 
-//                    String someHash = AuthenticationFunctions.hashMessage(dnsAnswer);
-//                    PublicKey somePublicKey = AuthenticationFunctions.getPublicKey(dnsCertificate);
-//                    String decryptedSomeHash = AuthenticationFunctions.decryptMessage(dnsEncryptedHash, somePublicKey);
-//
-//                    System.out.println(someHash);
-//                    System.out.println(decryptedSomeHash);
+            if (!outerAnswer.equals(null)) {
+                String outerCertificate = outerMessage.getValue("Certificate");
+                String outerEncryptedHash = outerMessage.getValue("Hash");
 
-//                    boolean dnsAuthenticated = AuthenticationFunctions.authenticateMessage(dnsAnswer, dnsEncryptedHash,
-//                            dnsCertificate, DNS_CERTIFICATE_LOCATION);
-                    return "1";
+                boolean outerAuthentication = AuthenticationFunctions.authenticateMessage(
+                        outerAnswer, outerEncryptedHash, outerCertificate, CA_CERTIFICATE_LOCATION);
+                boolean outerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
+                        outerCertificate, CRL_LOCATION);
 
-//                    if (dnsAuthenticated) {
-//                        System.out.println("onion");
-//                        serverSocket.close();
-//                        return answer;
-//                    } else {
-//                        System.out.println("potato");
-//                        AuthenticationFunctions.addToCRL(certificate, CRL_LOCATION);
-//                    }
+                if (outerAuthentication && !outerRevoked) {
+                    byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
+                    Message innerMessage = CommunicationFunctions.byteArrayToMessage(decodedInnerAnswer);
+
+                    String innerAnswer = innerMessage.getValue("Answer");
+                    String innerCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
+                    String innerEncryptedHash = innerMessage.getValue("Hash");
+
+                    boolean innerAuthentication = false;
+                    String calculatedHash = AuthenticationFunctions.hashMessage(outerAnswer);
+                    PublicKey publicKey = AuthenticationFunctions.getPublicKey(innerCertificate);
+                    String decryptedHash = AuthenticationFunctions.decryptMessage(innerEncryptedHash, publicKey);
+                    boolean certificateVerification = AuthenticationFunctions.verifyCertificate(
+                            innerCertificate, CA_CERTIFICATE_LOCATION);
+                    System.out.println(certificateVerification);
+                    System.out.println("calculated hash");
+                    System.out.println(calculatedHash);
+                    System.out.println("decrypted hash");
+                    System.out.println(decryptedHash);
+                    if (certificateVerification && calculatedHash.equals(decryptedHash)) {
+                        innerAuthentication = true;
+                    }
+
+//                    boolean innerAuthentication = true;
+                    boolean innerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
+                            innerCertificate, CRL_LOCATION);
+
+                    if (innerAuthentication && !innerRevoked) {
+                        serverSocket.close();
+                        return innerAnswer;
+                    } else {
+                        AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
+                    }
                 }
             }
         }
@@ -308,28 +318,50 @@ public class Querier {
 
     private static void test(int testAmount) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
             IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
-            CertificateException {
+            CertificateException, ClassNotFoundException {
         String dnsCertificate = AuthenticationFunctions.getCertificate("../Authentication/DNS-certificate.crt");
-        PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey("../Authentication/DNS-private-key.der");
+        PrivateKey dnsPrivateKey =
+                AuthenticationFunctions.getPrivateKey("../Authentication/DNS-private-key.der");
         PublicKey dnsPublicKey = AuthenticationFunctions.getPublicKey(dnsCertificate);
         String dnsMessage = "0";
-        String encrypted = AuthenticationFunctions.encryptMessage(dnsMessage, dnsPrivateKey);
-        String decrypted = AuthenticationFunctions.decryptMessage(encrypted, dnsPublicKey);
-        System.out.println(decrypted);
-
         String dnsHash = AuthenticationFunctions.hashMessage(dnsMessage);
         String dnsAuthentication = AuthenticationFunctions.encryptMessage(dnsHash, dnsPrivateKey);
-        Message dnsAnswer = new Message();
-        dnsAnswer.putValue("Message", dnsMessage);
-        dnsAnswer.putValue("Hash", dnsAuthentication);
-        byte[] messageByte = CommunicationFunctions.messageToByteArray(dnsAnswer);
-        byte[] messageByteBase64 = Base64.getEncoder().encode(messageByte);
-        String message = new String(messageByteBase64);
-
-        String encryptedHash = dnsAnswer.getValue("Hash");
-        String decryptedHash = AuthenticationFunctions.decryptMessage(encryptedHash, dnsPublicKey);
+        Message message = new Message();
+        message.putValue("Answer", dnsMessage);
+        message.putValue("Hash", dnsAuthentication);
+        System.out.println("sender answer");
+        System.out.println(dnsMessage);
+        System.out.println("sender unencrypted hash");
         System.out.println(dnsHash);
-        System.out.println(decryptedHash);
+        System.out.println("sender encrypted hash");
+        System.out.println(dnsAuthentication);
+
+        byte[] messageByte = CommunicationFunctions.messageToByteArray(message);
+        byte[] messageByteBase64 = Base64.getEncoder().encode(messageByte);
+        String messageString = new String(messageByteBase64);
+
+        Message outerMessage = new Message();
+        outerMessage.putValue("test", messageString);
+        String outerMessageString = outerMessage.getValue("test");
+
+//        byte[] messageNonByte64 = Base64.getDecoder().decode(messageString);
+        byte[] messageNonByte64 = Base64.getDecoder().decode(outerMessageString);
+        Message newMessage = CommunicationFunctions.byteArrayToMessage(messageNonByte64);
+        String answer = newMessage.getValue("Answer");
+        System.out.println("receiver answer");
+        System.out.println(answer);
+        String answerEncrypted = newMessage.getValue("Hash");
+        System.out.println("receiver encrypted hash");
+        System.out.println(answerEncrypted);
+        String answerUnecrypted = AuthenticationFunctions.decryptMessage(answerEncrypted, dnsPublicKey);
+        System.out.println("receiver unencrypted hash");
+        System.out.println(answerUnecrypted);
+
+        if (AuthenticationFunctions.hashMessage(answer).equals(answerUnecrypted)) {
+            System.out.println("majestic");
+        } else {
+            System.out.println("disturbing");
+        }
     }
 
     // test a certificate file for revocation, then test adding a certificate to CRL file
