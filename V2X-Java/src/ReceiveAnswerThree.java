@@ -1,5 +1,6 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.security.PublicKey;
 import java.util.Base64;
 import java.util.concurrent.Callable;
 
@@ -20,34 +21,48 @@ public class ReceiveAnswerThree implements Callable<String> {
         DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
         byte[] buffer = new byte[65508];
         while (true) {
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            serverSocket.receive(packet);
-            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
-            String answer = message.getValue("Answer");
-            if (!answer.equals(null)) {
-                String certificate = message.getValue("Certificate");
-                String encryptedHash = message.getValue("Hash");
-                boolean revoked = AuthenticationFunctions.checkRevocatedCertificate(certificate, CRL_LOCATION);
-                boolean authenticated = AuthenticationFunctions.authenticateMessage(answer, encryptedHash,
-                        certificate, CA_CERTIFICATE_LOCATION);
-                if (authenticated && !revoked) {
-                    byte[] dnsMessageByte = Base64.getDecoder().decode(answer.getBytes());
-                    Message dnsMessage = CommunicationFunctions.byteArrayToMessage(dnsMessageByte);
-                    String dnsAnswer = dnsMessage.getValue("Message");
-                    String dnsEncryptedHash = message.getValue("Hash");
-                    System.out.println(dnsEncryptedHash);
-                    String dnsCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
-                    System.out.println("pompeii");
+            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
+            serverSocket.receive(receivePacket);
+            Message outerMessage = CommunicationFunctions.byteArrayToMessage(buffer);
+            String outerAnswer = outerMessage.getValue("Answer");
 
-                    boolean dnsAuthenticated = AuthenticationFunctions.authenticateMessage(dnsAnswer, dnsEncryptedHash,
-                            dnsCertificate, DNS_CERTIFICATE_LOCATION);
-                    if (dnsAuthenticated) {
-                        System.out.println("onion");
+            if (!outerAnswer.equals(null)) {
+                String outerCertificate = outerMessage.getValue("Certificate");
+                String outerEncryptedHash = outerMessage.getValue("Hash");
+
+                boolean outerAuthentication = AuthenticationFunctions.authenticateMessage(
+                        outerAnswer, outerEncryptedHash, outerCertificate, CA_CERTIFICATE_LOCATION);
+                boolean outerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
+                        outerCertificate, CRL_LOCATION);
+
+                if (outerAuthentication && !outerRevoked) {
+                    byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
+                    Message innerMessage = CommunicationFunctions.byteArrayToMessage(decodedInnerAnswer);
+
+                    String innerAnswer = innerMessage.getValue("Answer");
+                    String innerCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
+                    String innerEncryptedHash = innerMessage.getValue("Hash");
+
+                    boolean innerAuthentication = false;
+                    String calculatedHash = AuthenticationFunctions.hashMessage(innerAnswer);
+                    PublicKey publicKey = AuthenticationFunctions.getPublicKey(innerCertificate);
+                    String decryptedHash = AuthenticationFunctions.decryptMessage(innerEncryptedHash, publicKey);
+                    boolean certificateVerification = AuthenticationFunctions.verifyCertificate(
+                            innerCertificate, CA_CERTIFICATE_LOCATION);
+
+                    if (certificateVerification && calculatedHash.equals(decryptedHash)) {
+                        innerAuthentication = true;
+                    }
+
+
+                    boolean innerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
+                            innerCertificate, CRL_LOCATION);
+
+                    if (innerAuthentication && !innerRevoked) {
                         serverSocket.close();
-                        return answer;
+                        return innerAnswer;
                     } else {
-                        System.out.println("potato");
-                        AuthenticationFunctions.addToCRL(certificate, CRL_LOCATION);
+                        AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                     }
                 }
             }

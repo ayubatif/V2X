@@ -236,6 +236,19 @@ public class NonCompromised {
         }
     }
 
+    /**
+     * Sends a DNS message which is a correctly signed message. The DNS message is wrapped inside a message that
+     * is signed by the sender.
+     *
+     * @param returnIPAddress a string that is the IP address of who to send to
+     * @throws IOException
+     * @throws InvalidKeySpecException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     */
     private static void sendAnswerTest3(String returnIPAddress) throws IOException, InvalidKeySpecException,
             NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException,
             BadPaddingException, NoSuchPaddingException {
@@ -273,6 +286,19 @@ public class NonCompromised {
         clientSocket.close();
     }
 
+    /**
+     * Handles the third test.
+     *
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws InvalidKeySpecException
+     */
     private static void runThirdTest() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
@@ -280,9 +306,5 @@ public class NonCompromised {
             String returnIPAddress = receiveQueryTest3();
             sendAnswerTest3(returnIPAddress);
         }
-    }
-
-    private static void test() {
-
     }
 }
