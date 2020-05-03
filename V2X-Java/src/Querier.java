@@ -254,16 +254,17 @@ public class Querier {
         while (counter < testAmount) {
             sendQueryTest3();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
-            Future<String> future = executorService.submit(new ReceiveAnswerThree());
+            DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
+            Future<String> future = executorService.submit(new ReceiveAnswerThree(serverSocket));
             try {
                 String answer = future.get(200, TimeUnit.MILLISECONDS);
-//                String answer = receiveThirdTest();
                 answerCounter.addAnswer(answer);
                 System.out.println("answer");
                 System.out.println(answer);
                 counter++;
             } catch (Exception e) {
                 System.out.println("timeout");
+                serverSocket.close();
                 System.out.println(e);
             }
             executorService.shutdownNow();

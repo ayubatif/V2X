@@ -16,9 +16,14 @@ public class ReceiveAnswerThree implements Callable<String> {
     static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
     static final String DNS_CERTIFICATE_LOCATION = "../Authentication/DNS-certificate.crt";
 
+    private final DatagramSocket serverSocket;
+
+    public ReceiveAnswerThree(DatagramSocket serverSocket) {
+        this.serverSocket = serverSocket;
+    }
+
     @Override
     public String call() throws Exception {
-        DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
         byte[] buffer = new byte[65508];
         while (true) {
             DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
@@ -44,25 +49,30 @@ public class ReceiveAnswerThree implements Callable<String> {
                     String innerEncryptedHash = innerMessage.getValue("Hash");
 
                     boolean innerAuthentication = false;
-                    String calculatedHash = AuthenticationFunctions.hashMessage(innerAnswer);
-                    PublicKey publicKey = AuthenticationFunctions.getPublicKey(innerCertificate);
-                    String decryptedHash = AuthenticationFunctions.decryptMessage(innerEncryptedHash, publicKey);
-                    boolean certificateVerification = AuthenticationFunctions.verifyCertificate(
-                            innerCertificate, CA_CERTIFICATE_LOCATION);
+                    try {
+                        String calculatedHash = AuthenticationFunctions.hashMessage(innerAnswer);
+                        PublicKey publicKey = AuthenticationFunctions.getPublicKey(innerCertificate);
+                        String decryptedHash = AuthenticationFunctions.decryptMessage(innerEncryptedHash, publicKey);
+                        boolean certificateVerification = AuthenticationFunctions.verifyCertificate(
+                                innerCertificate, CA_CERTIFICATE_LOCATION);
 
-                    if (certificateVerification && calculatedHash.equals(decryptedHash)) {
-                        innerAuthentication = true;
-                    }
+                        if (certificateVerification && calculatedHash.equals(decryptedHash)) {
+                            innerAuthentication = true;
+                        }
 
 
-                    boolean innerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
-                            innerCertificate, CRL_LOCATION);
+                        boolean innerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
+                                innerCertificate, CRL_LOCATION);
 
-                    if (innerAuthentication && !innerRevoked) {
-                        serverSocket.close();
-                        return innerAnswer;
-                    } else {
+                        if (innerAuthentication && !innerRevoked) {
+                            serverSocket.close();
+                            return innerAnswer;
+                        } else {
+                            AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
+                        }
+                    } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
+                        serverSocket.close();
                     }
                 }
             }
