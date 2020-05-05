@@ -276,6 +276,7 @@ public class Querier {
     private static void test(int testAmount) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
             IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
             CertificateException, ClassNotFoundException {
+
     }
 
     // test a certificate file for revocation, then test adding a certificate to CRL file
