@@ -19,6 +19,7 @@ public class Querier {
     static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
     static final String OBU_X_CERTIFICATE_LOCATION = "../Authentication/OBU-X-certificate.crt";
     static final String DNS_CERTIFICATE_LOCATION = "../Authentication/DNS-certificate.crt";
+    static final String BLOOM_FILTER_LOCATION = "../Authentication/DNS-bloom-filter.txt";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -43,6 +44,10 @@ public class Querier {
                 System.out.println("running test 3");
                 runThirdTest(testAmount);
                 break;
+            case 4:
+                System.out.println("running test 4");
+                runFourthTest(testAmount);
+                break;
             case 0:
                 System.out.println("running test 0");
                 test(testAmount);
@@ -51,6 +56,9 @@ public class Querier {
                 System.out.println("running test -1");
                 crlTest();
                 break;
+            case -2:
+                System.out.println("running test -2");
+                bloomFilterTest();
         }
     }
 
@@ -273,6 +281,86 @@ public class Querier {
         answerCounter.printAnswer();
     }
 
+    /**
+     * Sends query message, hash, and certificate to the 2 OBUs. Same as the second & third ones.
+     *
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     */
+    private static void sendQueryTest4()
+            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
+            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
+        String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
+        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+        String message = "Query";
+        String hash = AuthenticationFunctions.hashMessage(message);
+        String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
+        MulticastSocket multicastSocket = new MulticastSocket(MULTICAST_PORT);
+        InetAddress groupIP = InetAddress.getByName("225.0.0.0");
+        multicastSocket.joinGroup(groupIP);
+        Message query = new Message();
+        query.putValue("Query", message);
+        query.putValue("Certificate", userCertificate);
+        query.putValue("Hash", authentication);
+        byte[] data = CommunicationFunctions.messageToByteArray(query);
+        int randomPort = multicastSocket.getLocalPort();
+        DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
+        multicastSocket.send(queryPacket);
+        System.out.println("query sent");
+        multicastSocket.close();
+    }
+
+    /**
+     * Handles the fourth test
+     *
+     * @param testAmount an integer specifying the amount of query to be sent
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws InvalidKeySpecException
+     * @throws InterruptedException
+     */
+    private static void runFourthTest(int testAmount)
+            throws IOException, NoSuchAlgorithmException,
+            IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
+            InvalidKeySpecException, InterruptedException {
+        int counter = 0;
+        AnswerCounter answerCounter = new AnswerCounter();
+        new PrintWriter(CRL_LOCATION).close(); // empty the file
+        while (counter < testAmount) {
+            sendQueryTest4();
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
+            Future<String> future = executorService.submit(new ReceiveAnswerThree(serverSocket));
+            try {
+                String answer = future.get(200, TimeUnit.MILLISECONDS);
+                answerCounter.addAnswer(answer);
+                System.out.println("answer");
+                System.out.println(answer);
+                if (AuthenticationFunctions.checkSignedAAAARecord(answer, BLOOM_FILTER_LOCATION)) {
+                    //TODO add mischievous cert to CRL
+                    throw new SignatureException();
+                }
+                counter++;
+            } catch (Exception e) {
+                System.out.println("timeout");
+                serverSocket.close();
+                System.out.println(e);
+            }
+            executorService.shutdownNow();
+            Thread.sleep(1000);
+        }
+        answerCounter.printAnswer();
+    }
+
     private static void test(int testAmount) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
             IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
             CertificateException, ClassNotFoundException {
@@ -295,5 +383,23 @@ public class Querier {
             }
         }
         System.out.println("it seems the revocation list did not work..");
+    }
+
+    // test a bloomfilter with one entry against 2 missing records and the one exisiting record
+    private static void bloomFilterTest() throws IOException {
+        new PrintWriter(BLOOM_FILTER_LOCATION).close();
+        String exampleHostname = "artoria.saber.fgo";
+        String exampleIPv66Addr = "2001:0db8:85a3:0000:0000:8a2e:0370:7334";
+        String exampleAAAA = exampleHostname+"="+exampleIPv66Addr;
+
+        if (AuthenticationFunctions.checkSignedAAAARecord(exampleHostname, CRL_LOCATION) == false) {
+            if (AuthenticationFunctions.checkSignedAAAARecord(exampleIPv66Addr, CRL_LOCATION) == false) {
+                if (AuthenticationFunctions.checkSignedAAAARecord(exampleAAAA, CRL_LOCATION) == true) {
+                    System.out.println("it seems the bloom filter worked..");
+                    return;
+                }
+            }
+        }
+        System.out.println("it seems the bloom filter did not work..");
     }
 }
