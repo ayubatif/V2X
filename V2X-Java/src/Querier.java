@@ -13,13 +13,13 @@ import java.util.concurrent.*;
 public class Querier {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "../Authentication/OBU-A-certificate.crt";
-    static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
-    static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-A-private-key.der";
-    static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
-    static final String OBU_X_CERTIFICATE_LOCATION = "../Authentication/OBU-X-certificate.crt";
-    static final String DNS_CERTIFICATE_LOCATION = "../Authentication/DNS-certificate.crt";
-    static final String BLOOM_FILTER_LOCATION = "../Authentication/DNS-bloom-filter.txt";
+    static final String OWN_CERTIFICATE_LOCATION = "Authentication/OBU-A-certificate.crt";
+    static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
+    static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-A-private-key.der";
+    static final String CRL_LOCATION = "Authentication/CRL-A.crl";
+    static final String OBU_X_CERTIFICATE_LOCATION = "Authentication/OBU-X-certificate.crt";
+    static final String DNS_CERTIFICATE_LOCATION = "Authentication/DNS-certificate.crt";
+    static final String BLOOM_FILTER_LOCATION = "Authentication/DNS-bloom-filter.txt";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
