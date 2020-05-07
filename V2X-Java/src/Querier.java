@@ -1,14 +1,22 @@
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.*;
-import java.net.*;
-import java.security.*;
-import java.security.cert.CRL;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Base64;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class Querier {
     static final int MULTICAST_PORT = 2020;
@@ -19,7 +27,7 @@ public class Querier {
     static final String CRL_LOCATION = "Authentication/CRL-A.crl";
     static final String OBU_X_CERTIFICATE_LOCATION = "Authentication/OBU-X-certificate.crt";
     static final String DNS_CERTIFICATE_LOCATION = "Authentication/DNS-certificate.crt";
-    static final String BLOOM_FILTER_LOCATION = "Authentication/DNS-bloom-filter.txt";
+    static final String BLOOM_FILTER_LOCATION = "Authentication/DNS-bloom-filter.bf";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -369,14 +377,13 @@ public class Querier {
 
     // test a certificate file for revocation, then test adding a certificate to CRL file
     private static void crlTest() throws IOException {
-        new PrintWriter(CRL_LOCATION).close(); // empty the file
         String n_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-N-certificate.crt");
         String x_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-X-certificate.crt");
-
-        if (AuthenticationFunctions.checkRevocatedCertificate(n_certificate, CRL_LOCATION) == false) {
-            if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION) == false) {
+        new PrintWriter(CRL_LOCATION).close(); // empty the file
+        if (!AuthenticationFunctions.checkRevocatedCertificate(n_certificate, CRL_LOCATION)) {
+            if (!AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
                 AuthenticationFunctions.addToCRL(x_certificate, CRL_LOCATION);
-                if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION) == true) {
+                if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
                     System.out.println("it seems the revocation list worked..");
                     return;
                 }
@@ -385,16 +392,14 @@ public class Querier {
         System.out.println("it seems the revocation list did not work..");
     }
 
-    // test a bloomfilter with one entry against 2 missing records and the one exisiting record
+    // test a bloom filter with one entry against 2 missing records and the one exisiting record
     private static void bloomFilterTest() throws IOException {
-        new PrintWriter(BLOOM_FILTER_LOCATION).close();
-        String exampleHostname = "artoria.saber.fgo";
-        String exampleIPv66Addr = "2001:0db8:85a3:0000:0000:8a2e:0370:7334";
-        String exampleAAAA = exampleHostname+"="+exampleIPv66Addr;
-
-        if (AuthenticationFunctions.checkSignedAAAARecord(exampleHostname, CRL_LOCATION) == false) {
-            if (AuthenticationFunctions.checkSignedAAAARecord(exampleIPv66Addr, CRL_LOCATION) == false) {
-                if (AuthenticationFunctions.checkSignedAAAARecord(exampleAAAA, CRL_LOCATION) == true) {
+        DNSBloomFilter dnsBloomFilter = new DNSBloomFilter(DNSBloomFilter.NUM_AAAA_RECORDS);
+        dnsBloomFilter.add(DNSBloomFilter.exampleAAAA);
+        dnsBloomFilter.exportBloomFilter(BLOOM_FILTER_LOCATION);
+        if (!AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleHostname, DNS_CERTIFICATE_LOCATION)) {
+            if (!AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleIPv66Addr, DNS_CERTIFICATE_LOCATION)) {
+                if (AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleAAAA, DNS_CERTIFICATE_LOCATION)) {
                     System.out.println("it seems the bloom filter worked..");
                     return;
                 }

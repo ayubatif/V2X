@@ -25,11 +25,7 @@ public class AuthenticationFunctions {
      */
     public static DNSBloomFilter getBloomFilter(String location) throws IOException {
         DNSBloomFilter dnsBloomFilter = new DNSBloomFilter(DNSBloomFilter.NUM_AAAA_RECORDS);
-        File crlFile = new File(location);
-        List<String> bitArray = Files.readAllLines(crlFile.toPath());
-        for (String bit : bitArray) {
-            dnsBloomFilter.add(bit);
-        }
+        dnsBloomFilter.importBloomFilter(location);
         return dnsBloomFilter;
     }
 
