@@ -24,9 +24,7 @@ public class AuthenticationFunctions {
      * @throws IOException
      */
     public static DNSBloomFilter getBloomFilter(String location) throws IOException {
-        DNSBloomFilter dnsBloomFilter = new DNSBloomFilter(DNSBloomFilter.NUM_AAAA_RECORDS);
-        dnsBloomFilter.importBloomFilter(location);
-        return dnsBloomFilter;
+        return new DNSBloomFilter(location);
     }
 
     /**
@@ -250,12 +248,12 @@ public class AuthenticationFunctions {
      * Checks if the given AAAA record is probably signed by the DNS authority
      *
      * @param aaaa the AAAA record to be checked
-     * @param bfLocation a string of the location of the BF
+     * @param signedIPs the populated BF to be used for checking
      * @return <code>true</code> if the AAAA record is signed by the DNS authority OR it is a false positive
      * <code>false</code> if the AAAA record is not signed by the DNS authority
      * @throws IOException
      */
-    public static boolean checkSignedAAAARecord(String aaaa, String bfLocation) throws IOException {
-        return getBloomFilter(bfLocation).probablyContains(aaaa);
+    public static boolean checkSignedAAAARecord(String aaaa, DNSBloomFilter signedIPs) throws IOException {
+        return signedIPs.probablyContains(aaaa);
     }
 }

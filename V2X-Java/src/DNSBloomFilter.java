@@ -5,6 +5,8 @@ import com.google.common.hash.Funnels;
 import java.io.*;
 import java.nio.charset.Charset;
 
+import static com.google.common.hash.BloomFilter.readFrom;
+
 public class DNSBloomFilter {
     public static final String exampleHostname = "artoria.saber.fgo";
     public static final String exampleIPv66Addr = "2001:0db8:85a3:0000:0000:8a2e:0370:7334";
@@ -13,6 +15,7 @@ public class DNSBloomFilter {
     public static final double MAX_FALSE_POSITIVE_RATE = 0.01;
     private final BloomFilter<String> signedIPs;
     private final Funnel<CharSequence> stringFunnel = Funnels.stringFunnel(Charset.forName("UTF-8"));
+    private static final String BLOOM_FILTER_LOCATION = "Authentication/DNS-bloom-filter.bf";
 
     /**
      * Create a BF
@@ -29,6 +32,17 @@ public class DNSBloomFilter {
      */
     public DNSBloomFilter(int size, double maxFalsePositiveRate) {
         signedIPs = BloomFilter.create(stringFunnel, size, maxFalsePositiveRate);
+    }
+
+    /**
+     * Import a bloom filter from a file and return it
+     * @param location a string of the location to import the BF
+     * @throws IOException
+     */
+    public DNSBloomFilter(String location) throws IOException {
+        File bfFile = new File(location);
+        InputStream in = new FileInputStream(bfFile);
+        signedIPs = readFrom(in, stringFunnel);
     }
 
     /**
@@ -60,29 +74,27 @@ public class DNSBloomFilter {
         signedIPs.writeTo(out);
     }
 
-    /**
-     * import a bloom filter to a file after emptying it
-     * @param location a string of the location to import the BF
-     * @throws IOException
-     */
-    public void importBloomFilter(String location) throws IOException {
-        File bfFile = new File(location);
-        InputStream in = new FileInputStream(bfFile);
-        signedIPs.readFrom(in, stringFunnel);
-    }
-
     public static void main(String[] args) {
         DNSBloomFilter dnsBloomFilter = new DNSBloomFilter(NUM_AAAA_RECORDS);
 
         dnsBloomFilter.add(exampleAAAA);
 
-        assert !dnsBloomFilter.probablyContains(exampleHostname);
-        assert !dnsBloomFilter.probablyContains(exampleIPv66Addr);
-        assert dnsBloomFilter.probablyContains(exampleAAAA);
-
         System.out.println("Expected: "+false+" Actual: "+dnsBloomFilter.probablyContains(exampleHostname));
         System.out.println("Expected: "+false+" Actual: "+dnsBloomFilter.probablyContains(exampleIPv66Addr));
         System.out.println("Expected: "+true+"  Actual: "+dnsBloomFilter.probablyContains(exampleAAAA));
+
+        try {
+            DNSBloomFilter dnsBloomFilter2 = new DNSBloomFilter(NUM_AAAA_RECORDS);
+            dnsBloomFilter2.add(exampleAAAA);
+            dnsBloomFilter2.exportBloomFilter(BLOOM_FILTER_LOCATION);
+            DNSBloomFilter dnsBloomFilter3 = new DNSBloomFilter(BLOOM_FILTER_LOCATION);
+
+            System.out.println("Expected: "+false+" Actual: "+dnsBloomFilter3.probablyContains(exampleHostname));
+            System.out.println("Expected: "+false+" Actual: "+dnsBloomFilter3.probablyContains(exampleIPv66Addr));
+            System.out.println("Expected: "+true+"  Actual: "+dnsBloomFilter3.probablyContains(exampleAAAA));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

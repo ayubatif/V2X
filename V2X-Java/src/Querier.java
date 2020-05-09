@@ -343,6 +343,7 @@ public class Querier {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
+        DNSBloomFilter signedIPs = AuthenticationFunctions.getBloomFilter(BLOOM_FILTER_LOCATION);
         while (counter < testAmount) {
             sendQueryTest4();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -353,7 +354,7 @@ public class Querier {
                 answerCounter.addAnswer(answer);
                 System.out.println("answer");
                 System.out.println(answer);
-                if (AuthenticationFunctions.checkSignedAAAARecord(answer, BLOOM_FILTER_LOCATION)) {
+                if (AuthenticationFunctions.checkSignedAAAARecord(answer, signedIPs)) {
                     //TODO add mischievous cert to CRL
                     throw new SignatureException();
                 }
@@ -381,10 +382,12 @@ public class Querier {
         String x_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-X-certificate.crt");
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         if (!AuthenticationFunctions.checkRevocatedCertificate(n_certificate, CRL_LOCATION)) {
+            System.out.println("it seems the bloom filter worked..2");
             if (!AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
+                System.out.println("it seems the bloom filter worked..1");
                 AuthenticationFunctions.addToCRL(x_certificate, CRL_LOCATION);
                 if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
-                    System.out.println("it seems the revocation list worked..");
+                    System.out.println("it seems the revocation list worked..0");
                     return;
                 }
             }
@@ -394,13 +397,16 @@ public class Querier {
 
     // test a bloom filter with one entry against 2 missing records and the one exisiting record
     private static void bloomFilterTest() throws IOException {
-        DNSBloomFilter dnsBloomFilter = new DNSBloomFilter(DNSBloomFilter.NUM_AAAA_RECORDS);
-        dnsBloomFilter.add(DNSBloomFilter.exampleAAAA);
-        dnsBloomFilter.exportBloomFilter(BLOOM_FILTER_LOCATION);
-        if (!AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleHostname, DNS_CERTIFICATE_LOCATION)) {
-            if (!AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleIPv66Addr, DNS_CERTIFICATE_LOCATION)) {
-                if (AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleAAAA, DNS_CERTIFICATE_LOCATION)) {
-                    System.out.println("it seems the bloom filter worked..");
+        DNSBloomFilter signedIPsRSU = new DNSBloomFilter(DNSBloomFilter.NUM_AAAA_RECORDS); // BF created by C&C
+        signedIPsRSU.add(DNSBloomFilter.exampleAAAA);
+        signedIPsRSU.exportBloomFilter(BLOOM_FILTER_LOCATION);
+        DNSBloomFilter signedIPsOBU = AuthenticationFunctions.getBloomFilter(BLOOM_FILTER_LOCATION); // BF obtained for test
+        if (!AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleHostname, signedIPsOBU)) {
+            System.out.println("it seems the bloom filter worked..2");
+            if (!AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleIPv66Addr, signedIPsOBU)) {
+                System.out.println("it seems the bloom filter worked..1");
+                if (AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleAAAA, signedIPsOBU)) {
+                    System.out.println("it seems the bloom filter worked..0");
                     return;
                 }
             }
