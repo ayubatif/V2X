@@ -9,8 +9,8 @@ import static com.google.common.hash.BloomFilter.readFrom;
 
 public class DNSBloomFilter {
     public static final String exampleHostname = "artoria.saber.fgo";
-    public static final String exampleIPv66Addr = "2001:0db8:85a3:0000:0000:8a2e:0370:7334";
-    public static final String exampleAAAA = exampleHostname+"="+exampleIPv66Addr;
+    public static final String exampleIPv6Addr = "2001:0db8:85a3:0000:0000:8a2e:0370:7334";
+    public static final String exampleAAAA = exampleHostname+"="+exampleIPv6Addr;
     public static final int NUM_AAAA_RECORDS= 1000;
     public static final double MAX_FALSE_POSITIVE_RATE = 0.01;
     private final BloomFilter<String> signedIPs;
@@ -80,7 +80,7 @@ public class DNSBloomFilter {
         dnsBloomFilter.add(exampleAAAA);
 
         System.out.println("Expected: "+false+" Actual: "+dnsBloomFilter.probablyContains(exampleHostname));
-        System.out.println("Expected: "+false+" Actual: "+dnsBloomFilter.probablyContains(exampleIPv66Addr));
+        System.out.println("Expected: "+false+" Actual: "+dnsBloomFilter.probablyContains(exampleIPv6Addr));
         System.out.println("Expected: "+true+"  Actual: "+dnsBloomFilter.probablyContains(exampleAAAA));
 
         try {
@@ -90,7 +90,7 @@ public class DNSBloomFilter {
             DNSBloomFilter dnsBloomFilter3 = new DNSBloomFilter(BLOOM_FILTER_LOCATION);
 
             System.out.println("Expected: "+false+" Actual: "+dnsBloomFilter3.probablyContains(exampleHostname));
-            System.out.println("Expected: "+false+" Actual: "+dnsBloomFilter3.probablyContains(exampleIPv66Addr));
+            System.out.println("Expected: "+false+" Actual: "+dnsBloomFilter3.probablyContains(exampleIPv6Addr));
             System.out.println("Expected: "+true+"  Actual: "+dnsBloomFilter3.probablyContains(exampleAAAA));
         } catch (IOException e) {
             e.printStackTrace();
