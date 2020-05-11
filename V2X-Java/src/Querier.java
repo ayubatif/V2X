@@ -343,21 +343,16 @@ public class Querier {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
-        DNSBloomFilter signedIPs = AuthenticationFunctions.getBloomFilter(BLOOM_FILTER_LOCATION);
         while (counter < testAmount) {
             sendQueryTest4();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
-            Future<String> future = executorService.submit(new ReceiveAnswerThree(serverSocket));
+            Future<String> future = executorService.submit(new ReceiveAnswerFour(serverSocket));
             try {
                 String answer = future.get(200, TimeUnit.MILLISECONDS);
                 answerCounter.addAnswer(answer);
                 System.out.println("answer");
                 System.out.println(answer);
-                if (AuthenticationFunctions.checkSignedAAAARecord(answer, signedIPs)) {
-                    //TODO add mischievous cert to CRL
-                    throw new SignatureException();
-                }
                 counter++;
             } catch (Exception e) {
                 System.out.println("timeout");

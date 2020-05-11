@@ -20,7 +20,8 @@ public class Compromised {
     static final String DNS_PRIVATE_KEY = "Authentication/OBU-N-private-key.der";
 
     /**
-     * Handles the initialization of the program to see which experiment it is running
+     * Handles the initialization of the program to see which experiment it is
+     * running
      *
      * @param args input from the command line when running the program
      */
@@ -105,7 +106,8 @@ public class Compromised {
     }
 
     /**
-     * Waits for an input, checks if it is a query, and checks if it is correctly authenticated
+     * Waits for an input, checks if it is a query, and checks if it is correctly
+     * authenticated
      *
      * @return <code>String</code> a string that is the IP address of the sender
      * @throws IOException
@@ -117,9 +119,9 @@ public class Compromised {
      * @throws NoSuchPaddingException
      * @throws InvalidKeyException
      */
-    private static String receiveQueryTest2() throws IOException, ClassNotFoundException, CertificateException,
-            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
-            NoSuchPaddingException, InvalidKeyException {
+    private static String receiveQueryTest2()
+            throws IOException, ClassNotFoundException, CertificateException, NoSuchAlgorithmException,
+            IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException {
         MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
         InetAddress group = InetAddress.getByName("225.0.0.0");
         serverSocket.joinGroup(group);
@@ -133,8 +135,8 @@ public class Compromised {
                 System.out.println("query received");
                 String certificate = message.getValue("Certificate");
                 String encryptedHash = message.getValue("Hash");
-                if (AuthenticationFunctions.authenticateMessage(request, encryptedHash,
-                        certificate, CA_CERTIFICATE_LOCATION)) {
+                if (AuthenticationFunctions.authenticateMessage(request, encryptedHash, certificate,
+                        CA_CERTIFICATE_LOCATION)) {
                     String inetAddress = packet.getAddress().getHostAddress();
                     serverSocket.close();
                     return inetAddress;
@@ -144,8 +146,8 @@ public class Compromised {
     }
 
     /**
-     * Sends a message with the incorrect answer for the second test along with a certificate and an encrypted hash of
-     * the message.
+     * Sends a message with the incorrect answer for the second test along with a
+     * certificate and an encrypted hash of the message.
      *
      * @param returnIPAddress a string that is the IP address of who to send to
      * @throws IOException
@@ -156,9 +158,9 @@ public class Compromised {
      * @throws BadPaddingException
      * @throws NoSuchPaddingException
      */
-    private static void sendAnswerTest2(String returnIPAddress) throws IOException, InvalidKeySpecException,
-            NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException,
-            BadPaddingException, NoSuchPaddingException {
+    private static void sendAnswerTest2(String returnIPAddress)
+            throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException,
+            InvalidKeyException, BadPaddingException, NoSuchPaddingException {
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
         PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
         String message = "1";
@@ -200,8 +202,8 @@ public class Compromised {
     }
 
     /**
-     * Waits for an input, checks if it is a query, and checks if it is correctly authenticated.
-     * Same as the second test.
+     * Waits for an input, checks if it is a query, and checks if it is correctly
+     * authenticated. Same as the second test.
      *
      * @return <code>String</code> a string that is the IP address of the sender
      * @throws IOException
@@ -213,9 +215,9 @@ public class Compromised {
      * @throws NoSuchPaddingException
      * @throws InvalidKeyException
      */
-    private static String receiveQueryTest3() throws IOException, ClassNotFoundException, CertificateException,
-            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
-            NoSuchPaddingException, InvalidKeyException {
+    private static String receiveQueryTest3()
+            throws IOException, ClassNotFoundException, CertificateException, NoSuchAlgorithmException,
+            IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException {
         MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
         InetAddress group = InetAddress.getByName("225.0.0.0");
         serverSocket.joinGroup(group);
@@ -229,8 +231,8 @@ public class Compromised {
                 System.out.println("query received");
                 String certificate = message.getValue("Certificate");
                 String encryptedHash = message.getValue("Hash");
-                if (AuthenticationFunctions.authenticateMessage(request, encryptedHash,
-                        certificate, CA_CERTIFICATE_LOCATION)) {
+                if (AuthenticationFunctions.authenticateMessage(request, encryptedHash, certificate,
+                        CA_CERTIFICATE_LOCATION)) {
                     String inetAddress = packet.getAddress().getHostAddress();
                     serverSocket.close();
                     return inetAddress;
@@ -240,8 +242,8 @@ public class Compromised {
     }
 
     /**
-     * Sends a DNS message which is an incorrectly signed message. The DNS message is wrapped inside a message that
-     * is signed by the sender.
+     * Sends a DNS message which is an incorrectly signed message. The DNS message
+     * is wrapped inside a message that is signed by the sender.
      *
      * @param returnIPAddress a string that is the IP address of who to send to
      * @throws IOException
@@ -252,9 +254,9 @@ public class Compromised {
      * @throws BadPaddingException
      * @throws NoSuchPaddingException
      */
-    private static void sendAnswerTest3(String returnIPAddress) throws IOException, InvalidKeySpecException,
-            NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException,
-            BadPaddingException, NoSuchPaddingException {
+    private static void sendAnswerTest3(String returnIPAddress)
+            throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException,
+            InvalidKeyException, BadPaddingException, NoSuchPaddingException {
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
         PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
         PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(DNS_PRIVATE_KEY);
@@ -281,8 +283,8 @@ public class Compromised {
 
         byte[] outerMessageByte = CommunicationFunctions.messageToByteArray(outerMessage);
         InetAddress address = InetAddress.getByName(returnIPAddress);
-        DatagramPacket answerPacket = new DatagramPacket(outerMessageByte, outerMessageByte.length,
-                address, UNICAST_PORT);
+        DatagramPacket answerPacket = new DatagramPacket(outerMessageByte, outerMessageByte.length, address,
+                UNICAST_PORT);
         DatagramSocket clientSocket = new DatagramSocket();
         clientSocket.send(answerPacket);
         System.out.println("answer sent");
@@ -308,6 +310,74 @@ public class Compromised {
         while (true) {
             String returnIPAddress = receiveQueryTest3();
             sendAnswerTest3(returnIPAddress);
+        }
+    }
+
+    private static String receiveQueryTest4()
+            throws IOException, ClassNotFoundException, CertificateException, NoSuchAlgorithmException,
+            IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException {
+        MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
+        InetAddress group = InetAddress.getByName("225.0.0.0");
+        serverSocket.joinGroup(group);
+        byte[] buffer = new byte[65508];
+        while (true) {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            serverSocket.receive(packet);
+            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
+            String request = message.getValue("Query");
+            if (request.equals("Query")) {
+                System.out.println("query received");
+                String certificate = message.getValue("Certificate");
+                String encryptedHash = message.getValue("Hash");
+                if (AuthenticationFunctions.authenticateMessage(request, encryptedHash, certificate,
+                        CA_CERTIFICATE_LOCATION)) {
+                    String inetAddress = packet.getAddress().getHostAddress();
+                    serverSocket.close();
+                    return inetAddress;
+                }
+            }
+        }
+    }
+
+    private static void sendAnswerTest4(String returnIPAddress)
+            throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException,
+            InvalidKeyException, BadPaddingException, NoSuchPaddingException {
+        String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
+        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+
+        String innerAnswer = "1";
+
+        Message innerMessage = new Message();
+        innerMessage.putValue("Answer", innerAnswer);
+
+        byte[] innerMessageByte = CommunicationFunctions.messageToByteArray(innerMessage);
+        byte[] innerMessageByteBase64 = Base64.getEncoder().encode(innerMessageByte);
+        String innerMessageString = new String(innerMessageByteBase64);
+
+        String outerHash = AuthenticationFunctions.hashMessage(innerMessageString);
+        String outerEncryptedHash = AuthenticationFunctions.encryptMessage(outerHash, userPrivateKey);
+
+        Message outerMessage = new Message();
+        outerMessage.putValue("Answer", innerMessageString);
+        outerMessage.putValue("Hash", outerEncryptedHash);
+        outerMessage.putValue("Certificate", userCertificate);
+
+        byte[] outerMessageByte = CommunicationFunctions.messageToByteArray(outerMessage);
+        InetAddress address = InetAddress.getByName(returnIPAddress);
+        DatagramPacket answerPacket = new DatagramPacket(outerMessageByte, outerMessageByte.length, address,
+                UNICAST_PORT);
+        DatagramSocket clientSocket = new DatagramSocket();
+        clientSocket.send(answerPacket);
+        System.out.println("answer sent");
+        clientSocket.close();
+    }
+
+    private static void runFourthTest() throws IOException, ClassNotFoundException, CertificateException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
+            InvalidKeyException, InvalidKeySpecException {
+        while (true) {
+            String returnIPAddress = receiveQueryTest4();
+            sendAnswerTest4(returnIPAddress);
         }
     }
 }
