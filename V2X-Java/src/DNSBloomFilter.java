@@ -15,7 +15,7 @@ public class DNSBloomFilter {
     public static final double MAX_FALSE_POSITIVE_RATE = 0.01;
     private final BloomFilter<String> signedIPs;
     private final Funnel<CharSequence> stringFunnel = Funnels.stringFunnel(Charset.forName("UTF-8"));
-    private static final String BLOOM_FILTER_LOCATION = "../Authentication/DNS-bloom-filter.bf";
+    private static final String BLOOM_FILTER_LOCATION = "Authentication/DNS-bloom-filter.bf";
 
     /**
      * Create a BF

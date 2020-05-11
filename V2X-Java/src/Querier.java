@@ -21,13 +21,13 @@ import java.util.concurrent.TimeUnit;
 public class Querier {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "../Authentication/OBU-A-certificate.crt";
-    static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
-    static final String OWN_PRIVATE_KEY_LOCATION = "../Authentication/OBU-A-private-key.der";
-    static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
-    static final String OBU_X_CERTIFICATE_LOCATION = "../Authentication/OBU-X-certificate.crt";
-    static final String DNS_CERTIFICATE_LOCATION = "../Authentication/DNS-certificate.crt";
-    static final String BLOOM_FILTER_LOCATION = "../Authentication/DNS-bloom-filter.bf";
+    static final String OWN_CERTIFICATE_LOCATION = "Authentication/OBU-A-certificate.crt";
+    static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
+    static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-A-private-key.der";
+    static final String CRL_LOCATION = "Authentication/CRL-A.crl";
+    static final String OBU_X_CERTIFICATE_LOCATION = "Authentication/OBU-X-certificate.crt";
+    static final String DNS_CERTIFICATE_LOCATION = "Authentication/DNS-certificate.crt";
+    static final String BLOOM_FILTER_LOCATION = "Authentication/DNS-bloom-filter.bf";
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -368,13 +368,26 @@ public class Querier {
     private static void test(int testAmount) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
             IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException,
             CertificateException, ClassNotFoundException {
-
+        DNSBloomFilter signedIPsRSU = DNSBloomFilterFunctions.generateRandomBloomFilter(10); // BF created by C&C
+        signedIPsRSU.exportBloomFilter(BLOOM_FILTER_LOCATION);
+        DNSBloomFilter signedIPsOBU = AuthenticationFunctions.getBloomFilter(BLOOM_FILTER_LOCATION); // BF obtained for test
+        if (!AuthenticationFunctions.checkSignedAAAARecord("KTH.Thesis.V2X", signedIPsOBU)) {
+            System.out.println("it seems the bloom filter worked..2");
+            if (!AuthenticationFunctions.checkSignedAAAARecord("0000:1111:2222:3333:4444:5555:6666:7777", signedIPsOBU)) {
+                System.out.println("it seems the bloom filter worked..1");
+                if (AuthenticationFunctions.checkSignedAAAARecord("KTH.Thesis.V2X=0000:1111:2222:3333:4444:5555:6666:7777", signedIPsOBU)) {
+                    System.out.println("it seems the bloom filter worked..0");
+                    return;
+                }
+            }
+        }
+        System.out.println("it seems the bloom filter did not work..");
     }
 
     // test a certificate file for revocation, then test adding a certificate to CRL file
     private static void crlTest() throws IOException {
-        String n_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-N-certificate.crt");
-        String x_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-X-certificate.crt");
+        String n_certificate = AuthenticationFunctions.getCertificate("Authentication/OBU-N-certificate.crt");
+        String x_certificate = AuthenticationFunctions.getCertificate("Authentication/OBU-X-certificate.crt");
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         if (!AuthenticationFunctions.checkRevocatedCertificate(n_certificate, CRL_LOCATION)) {
             System.out.println("it seems the bloom filter worked..2");

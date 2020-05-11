@@ -12,9 +12,9 @@ import java.util.concurrent.Callable;
  */
 public class ReceiveAnswerThree implements Callable<String> {
     static final int UNICAST_PORT = 2021;
-    static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
-    static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
-    static final String DNS_CERTIFICATE_LOCATION = "../Authentication/DNS-certificate.crt";
+    static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
+    static final String CRL_LOCATION = "Authentication/CRL-A.crl";
+    static final String DNS_CERTIFICATE_LOCATION = "Authentication/DNS-certificate.crt";
 
     private final DatagramSocket serverSocket;
 

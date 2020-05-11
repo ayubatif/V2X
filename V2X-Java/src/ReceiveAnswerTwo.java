@@ -9,8 +9,8 @@ import java.util.concurrent.Callable;
  */
 class ReceiveAnswerTwo implements Callable<String> {
     static final int UNICAST_PORT = 2021;
-    static final String CA_CERTIFICATE_LOCATION = "../Authentication/CA-certificate.crt";
-    static final String CRL_LOCATION = "../Authentication/CRL-A.crl";
+    static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
+    static final String CRL_LOCATION = "Authentication/CRL-A.crl";
 
     @Override
     public String call() throws Exception {
