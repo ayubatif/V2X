@@ -398,7 +398,7 @@ public class Querier {
         DNSBloomFilter signedIPsOBU = AuthenticationFunctions.getBloomFilter(BLOOM_FILTER_LOCATION); // BF obtained for test
         if (!AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleHostname, signedIPsOBU)) {
             System.out.println("it seems the bloom filter worked..2");
-            if (!AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleIPv66Addr, signedIPsOBU)) {
+            if (!AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleIPv6Addr, signedIPsOBU)) {
                 System.out.println("it seems the bloom filter worked..1");
                 if (AuthenticationFunctions.checkSignedAAAARecord(DNSBloomFilter.exampleAAAA, signedIPsOBU)) {
                     System.out.println("it seems the bloom filter worked..0");
