@@ -341,7 +341,7 @@ public class NonCompromised {
         PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
         PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(DNS_PRIVATE_KEY);
 
-        String innerAnswer = "0";
+        String innerAnswer = DNSBloomFilterFunctions.getFixedAAAA();
 
         Message innerMessage = new Message();
         innerMessage.putValue("Answer", innerAnswer);

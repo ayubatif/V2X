@@ -30,7 +30,6 @@ public class ReceiveAnswerFour implements Callable<String> {
             serverSocket.receive(receivePacket);
             Message outerMessage = CommunicationFunctions.byteArrayToMessage(buffer);
             String outerAnswer = outerMessage.getValue("Answer");
-            System.out.println("Outer: "+outerAnswer);
 
             if (!outerAnswer.equals(null)) {
                 String outerCertificate = outerMessage.getValue("Certificate");
@@ -45,14 +44,14 @@ public class ReceiveAnswerFour implements Callable<String> {
                     byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
                     Message innerMessage = CommunicationFunctions.byteArrayToMessage(decodedInnerAnswer);
 
-                    String innerAnswer = innerMessage.getValue("Answer");
-                    System.out.println("Inner: "+innerAnswer);
 
-                    boolean innerAuthentication = false;
+                    String innerAnswer = innerMessage.getValue("Answer");
+
                     try {
                         DNSBloomFilter signedIPs = AuthenticationFunctions.getBloomFilter(BLOOM_FILTER_LOCATION);
-                        innerAuthentication = AuthenticationFunctions.checkSignedAAAARecord(innerAnswer, signedIPs);
-                        if (innerAuthentication) {
+                        boolean innerAuthentication = AuthenticationFunctions.checkSignedAAAARecord(innerAnswer, signedIPs);
+                        boolean isResponseMalicious = !DNSBloomFilterFunctions.getFixedAAAA().equals(innerAnswer);
+                        if (innerAuthentication && !isResponseMalicious) {
                             serverSocket.close();
                             return innerAnswer;
                         } else {

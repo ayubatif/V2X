@@ -18,6 +18,7 @@ public class Compromised {
     static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-X-private-key.der";
     static final String CRL_LOCATION = "Authentication/CRL-X.crl";
     static final String DNS_PRIVATE_KEY = "Authentication/OBU-N-private-key.der";
+    public static final String MALICIOUS_DNS_RESPONSE = "artoria.saber.fgo=2001:0db8:85a3:0000:0000:8a2e:0370:7334";
 
     /**
      * Handles the initialization of the program to see which experiment it is
@@ -163,7 +164,7 @@ public class Compromised {
             InvalidKeyException, BadPaddingException, NoSuchPaddingException {
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
         PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
-        String message = "1";
+        String message = DNSBloomFilter.exampleAAAA;
         String hash = AuthenticationFunctions.hashMessage(message);
         String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
         InetAddress address = InetAddress.getByName(returnIPAddress);
@@ -345,7 +346,7 @@ public class Compromised {
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
         PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
 
-        String innerAnswer = "1";
+        String innerAnswer = MALICIOUS_DNS_RESPONSE;
 
         Message innerMessage = new Message();
         innerMessage.putValue("Answer", innerAnswer);
