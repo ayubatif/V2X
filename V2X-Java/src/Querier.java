@@ -373,8 +373,8 @@ public class Querier {
 
     // test a certificate file for revocation, then test adding a certificate to CRL file
     private static void crlTest() throws IOException {
-        String n_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-N-certificate.crt");
-        String x_certificate = AuthenticationFunctions.getCertificate("../Authentication/OBU-X-certificate.crt");
+        String n_certificate = AuthenticationFunctions.getCertificate("Authentication/OBU-N-certificate.crt");
+        String x_certificate = AuthenticationFunctions.getCertificate("Authentication/OBU-X-certificate.crt");
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         if (!AuthenticationFunctions.checkRevocatedCertificate(n_certificate, CRL_LOCATION)) {
             System.out.println("it seems the bloom filter worked..2");
