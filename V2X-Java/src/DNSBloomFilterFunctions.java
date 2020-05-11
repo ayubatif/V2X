@@ -1,6 +1,7 @@
 import java.util.Random;
 
 public class DNSBloomFilterFunctions {
+    static final String FIXED_DNS_ENTRY = "KTH.Thesis.V2X=0000:1111:2222:3333:4444:5555:6666:7777";
 
     /**
      * Makes a random amount except for one preset case of bloom filter entries
@@ -10,8 +11,7 @@ public class DNSBloomFilterFunctions {
      */
     public static DNSBloomFilter generateRandomBloomFilter(int amount) {
         DNSBloomFilter dnsBloomFilter = new DNSBloomFilter(amount);
-        String defaultDNSEntry = "KTH.Thesis.V2X=0000:1111:2222:3333:4444:5555:6666:7777";
-        dnsBloomFilter.add(defaultDNSEntry);
+        dnsBloomFilter.add(FIXED_DNS_ENTRY);
 
         for (int i = 1; i < amount; i++) {
             String randomIPV6 = generateRandomIPV6();
@@ -59,5 +59,14 @@ public class DNSBloomFilterFunctions {
                 .toString();
 
         return generateWord;
+    }
+
+    /**
+     * Gives a fixed dns entry
+     *
+     * @return <code>String</code> a fixed dns entry
+     */
+    public static String getFixedAAAA() {
+        return FIXED_DNS_ENTRY;
     }
 }
