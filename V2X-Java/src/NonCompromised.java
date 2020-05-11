@@ -307,4 +307,73 @@ public class NonCompromised {
             sendAnswerTest3(returnIPAddress);
         }
     }
+    
+    private static String receiveQueryTest4() throws IOException, ClassNotFoundException, CertificateException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
+            NoSuchPaddingException, InvalidKeyException {
+        MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
+        InetAddress group = InetAddress.getByName("225.0.0.0");
+        serverSocket.joinGroup(group);
+        byte[] buffer = new byte[65508];
+        while (true) {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            serverSocket.receive(packet);
+            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
+            String request = message.getValue("Query");
+            if (request.equals("Query")) {
+                System.out.println("query received");
+                String certificate = message.getValue("Certificate");
+                String encryptedHash = message.getValue("Hash");
+                if (AuthenticationFunctions.authenticateMessage(request, encryptedHash,
+                        certificate, CA_CERTIFICATE_LOCATION)) {
+                    String inetAddress = packet.getAddress().getHostAddress();
+                    serverSocket.close();
+                    return inetAddress;
+                }
+            }
+        }
+    }
+
+    private static void sendAnswerTest4(String returnIPAddress) throws IOException, InvalidKeySpecException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException,
+            BadPaddingException, NoSuchPaddingException {
+        String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
+        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+        PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(DNS_PRIVATE_KEY);
+
+        String innerAnswer = "0";
+
+        Message innerMessage = new Message();
+        innerMessage.putValue("Answer", innerAnswer);
+
+        byte[] innerMessageByte = CommunicationFunctions.messageToByteArray(innerMessage);
+        byte[] innerMessageByteBase64 = Base64.getEncoder().encode(innerMessageByte);
+        String innerMessageString = new String(innerMessageByteBase64);
+
+        String outerHash = AuthenticationFunctions.hashMessage(innerMessageString);
+        String outerEncryptedHash = AuthenticationFunctions.encryptMessage(outerHash, userPrivateKey);
+
+        Message outerMessage = new Message();
+        outerMessage.putValue("Answer", innerMessageString);
+        outerMessage.putValue("Hash", outerEncryptedHash);
+        outerMessage.putValue("Certificate", userCertificate);
+
+        byte[] outerMessageByte = CommunicationFunctions.messageToByteArray(outerMessage);
+        InetAddress address = InetAddress.getByName(returnIPAddress);
+        DatagramPacket answerPacket = new DatagramPacket(outerMessageByte, outerMessageByte.length,
+                address, UNICAST_PORT);
+        DatagramSocket clientSocket = new DatagramSocket();
+        clientSocket.send(answerPacket);
+        System.out.println("answer sent");
+        clientSocket.close();
+    }
+
+    private static void runFourthTest() throws IOException, ClassNotFoundException, CertificateException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
+            InvalidKeyException, InvalidKeySpecException {
+        while (true) {
+            String returnIPAddress = receiveQueryTest4();
+            sendAnswerTest4(returnIPAddress);
+        }
+    }
 }

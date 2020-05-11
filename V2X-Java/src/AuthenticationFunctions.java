@@ -3,8 +3,6 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.*;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -18,6 +16,17 @@ import java.util.Base64;
 import java.util.List;
 
 public class AuthenticationFunctions {
+    /**
+     * Takes in a location and gets the BF as a DNSBloomFilter object
+     *
+     * @param location a string of the location of the BF
+     * @return <code>DNSBloomFilter</code> a BF for signed AAAA records
+     * @throws IOException
+     */
+    public static DNSBloomFilter getBloomFilter(String location) throws IOException {
+        return new DNSBloomFilter(location);
+    }
+
     /**
      * Takes in a location and gets the CRL as a list of strings.
      *
@@ -233,5 +242,18 @@ public class AuthenticationFunctions {
     public static void addToCRL(String certificate, String crllocation) throws IOException {
         File crlFile = new File(crllocation);
         Files.write(crlFile.toPath(), certificate.getBytes(), StandardOpenOption.APPEND);
+    }
+
+    /**
+     * Checks if the given AAAA record is probably signed by the DNS authority
+     *
+     * @param aaaa the AAAA record to be checked
+     * @param signedIPs the populated BF to be used for checking
+     * @return <code>true</code> if the AAAA record is signed by the DNS authority OR it is a false positive
+     * <code>false</code> if the AAAA record is not signed by the DNS authority
+     * @throws IOException
+     */
+    public static boolean checkSignedAAAARecord(String aaaa, DNSBloomFilter signedIPs) throws IOException {
+        return signedIPs.probablyContains(aaaa);
     }
 }
