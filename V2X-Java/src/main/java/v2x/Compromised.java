@@ -47,6 +47,10 @@ public class Compromised {
                 System.out.println("running test 3");
                 runThirdTest();
                 break;
+            case 4:
+                System.out.println("running test 4");
+                runFourthTest();
+                break;
         }
     }
 
