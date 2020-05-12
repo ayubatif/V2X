@@ -310,7 +310,7 @@ public class NonCompromised {
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
         ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command("./"+PseudonymAuthority.SCRIPT_N_LOCATION);
+        processBuilder.command("/bin/sh", PseudonymAuthority.SCRIPT_N_LOCATION);
         int counter = 0;
         while (true) {
             if (counter++ % PSEUDONYM_RATE == 0) {
@@ -385,7 +385,7 @@ public class NonCompromised {
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
         ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command("./"+PseudonymAuthority.SCRIPT_N_LOCATION);
+        processBuilder.command("/bin/sh", PseudonymAuthority.SCRIPT_N_LOCATION);
         int counter = 0;
         while (true) {
             if (counter++ % PSEUDONYM_RATE == 0) {
