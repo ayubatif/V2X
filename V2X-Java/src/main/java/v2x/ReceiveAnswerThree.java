@@ -75,6 +75,7 @@ public class ReceiveAnswerThree implements Callable<String> {
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                         serverSocket.close();
+                        return "1";
                     }
                 }
             }
