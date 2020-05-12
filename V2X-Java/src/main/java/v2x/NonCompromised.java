@@ -20,7 +20,6 @@ public class NonCompromised {
     static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-N-private-key.der";
     static final String CRL_LOCATION = "Authentication/CRL-N.crl";
     static final String DNS_PRIVATE_KEY = "Authentication/DNS-private-key.der";
-    static final String TEST_CERTIFICATE_N_LOCATION = "Bash/create-obu-n-certificate.sh";
     static final int PSEUDONYM_RATE = 5;
 
     /**

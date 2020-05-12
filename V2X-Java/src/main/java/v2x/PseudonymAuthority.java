@@ -1,8 +1,8 @@
 package v2x;
 
 public class PseudonymAuthority {
-    static final String SCRIPT_X_LOCATION = "create-obu-x-certificate.sh";
-    static final String SCRIPT_N_LOCATION = "create-obu-n-certificate.sh";
+    static final String SCRIPT_X_LOCATION = "Bash/create-obu-x-certificate.sh";
+    static final String SCRIPT_N_LOCATION = "Bash/create-obu-n-certificate.sh";
 
     //TODO Can use pre gen pseudonyms if a la carte no work
 

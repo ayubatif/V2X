@@ -21,7 +21,6 @@ public class Compromised {
     static final String CRL_LOCATION = "Authentication/CRL-X.crl";
     static final String DNS_PRIVATE_KEY = "Authentication/OBU-N-private-key.der";
     static final String MALICIOUS_DNS_RESPONSE = "artoria.saber.fgo=2001:0db8:85a3:0000:0000:8a2e:0370:7334";
-    static final String TEST_CERTIFICATE_X_LOCATION = "Bash/create-obu-x-certificate.sh";
     static final int PSEUDONYM_RATE = 5;
 
     /**
