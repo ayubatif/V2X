@@ -311,7 +311,12 @@ public class Compromised {
     private static void runThirdTest() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        int counter = 0;
         while (true) {
+            if (counter++ % PSEUDONYM_RATE == 0) {
+                processBuilder.command(PseudonymAuthority.SCRIPT_X_LOCATION);
+            }
             String returnIPAddress = receiveQueryTest3();
             sendAnswerTest3(returnIPAddress);
         }
