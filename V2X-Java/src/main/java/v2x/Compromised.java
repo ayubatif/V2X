@@ -314,7 +314,7 @@ public class Compromised {
      * @throws InvalidKeyException
      * @throws InvalidKeySpecException
      */
-    private static void runThirdTest() throws IOException, ClassNotFoundException, CertificateException,
+    private static synchronized void runThirdTest() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
         ProcessBuilder processBuilder = new ProcessBuilder();
@@ -395,7 +395,7 @@ public class Compromised {
         clientSocket.close();
     }
 
-    private static void runFourthTest() throws IOException, ClassNotFoundException, CertificateException,
+    private static synchronized void runFourthTest() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
         ProcessBuilder processBuilder = new ProcessBuilder();
