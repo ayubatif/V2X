@@ -18,7 +18,9 @@ public class Compromised {
     static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-X-private-key.der";
     static final String CRL_LOCATION = "Authentication/CRL-X.crl";
     static final String DNS_PRIVATE_KEY = "Authentication/OBU-N-private-key.der";
-    public static final String MALICIOUS_DNS_RESPONSE = "artoria.saber.fgo=2001:0db8:85a3:0000:0000:8a2e:0370:7334";
+    static final String MALICIOUS_DNS_RESPONSE = "artoria.saber.fgo=2001:0db8:85a3:0000:0000:8a2e:0370:7334";
+    static final String TEST_CERTIFICATE_X_LOCATION = "Bash/create-obu-x-certificate.sh";
+    static final int PSEUDONYM_RATE = 5;
 
     /**
      * Handles the initialization of the program to see which experiment it is
@@ -258,6 +260,7 @@ public class Compromised {
     private static void sendAnswerTest3(String returnIPAddress)
             throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException,
             InvalidKeyException, BadPaddingException, NoSuchPaddingException {
+
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
         PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
         PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(DNS_PRIVATE_KEY);
@@ -376,7 +379,12 @@ public class Compromised {
     private static void runFourthTest() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        int counter = 0;
         while (true) {
+            if (counter++ % PSEUDONYM_RATE == 0) {
+                processBuilder.command(PseudonymAuthority.SCRIPT_X_LOCATION);
+            }
             String returnIPAddress = receiveQueryTest4();
             sendAnswerTest4(returnIPAddress);
         }

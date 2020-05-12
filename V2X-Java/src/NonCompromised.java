@@ -18,6 +18,8 @@ public class NonCompromised {
     static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-N-private-key.der";
     static final String CRL_LOCATION = "Authentication/CRL-N.crl";
     static final String DNS_PRIVATE_KEY = "Authentication/DNS-private-key.der";
+    static final String TEST_CERTIFICATE_N_LOCATION = "Bash/create-obu-n-certificate.sh";
+    static final int PSEUDONYM_RATE = 5;
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -371,7 +373,12 @@ public class NonCompromised {
     private static void runFourthTest() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        int counter = 0;
         while (true) {
+            if (counter++ % PSEUDONYM_RATE == 0) {
+                processBuilder.command(PseudonymAuthority.SCRIPT_N_LOCATION);
+            }
             String returnIPAddress = receiveQueryTest4();
             sendAnswerTest4(returnIPAddress);
         }
