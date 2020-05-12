@@ -278,7 +278,7 @@ public class Querier {
             DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
             Future<String> future = executorService.submit(new ReceiveAnswerThree(serverSocket));
             try {
-                String answer = future.get(200, TimeUnit.MILLISECONDS);
+                String answer = future.get(1000, TimeUnit.MILLISECONDS);
                 answerCounter.addAnswer(answer);
                 System.out.println("answer");
                 System.out.println(answer);
