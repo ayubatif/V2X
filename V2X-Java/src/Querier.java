@@ -67,6 +67,9 @@ public class Querier {
             case -2:
                 System.out.println("running test -2");
                 bloomFilterTest();
+                break;
+            case -3:
+                System.out.println(System.getProperty("user.dir"));
         }
     }
 
