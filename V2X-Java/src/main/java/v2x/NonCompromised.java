@@ -311,10 +311,11 @@ public class NonCompromised {
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
         ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command(PseudonymAuthority.SCRIPT_X_LOCATION);
         int counter = 0;
         while (true) {
             if (counter++ % PSEUDONYM_RATE == 0) {
-                processBuilder.command(PseudonymAuthority.SCRIPT_N_LOCATION);
+                processBuilder.start();
             }
             String returnIPAddress = receiveQueryTest3();
             sendAnswerTest3(returnIPAddress);
@@ -385,10 +386,11 @@ public class NonCompromised {
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
         ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command(PseudonymAuthority.SCRIPT_X_LOCATION);
         int counter = 0;
         while (true) {
             if (counter++ % PSEUDONYM_RATE == 0) {
-                processBuilder.command(PseudonymAuthority.SCRIPT_N_LOCATION);
+                processBuilder.start();
             }
             String returnIPAddress = receiveQueryTest4();
             sendAnswerTest4(returnIPAddress);
