@@ -12,6 +12,8 @@ import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
+import static v2x.PseudonymAuthority.PSEUDONYM_RATE;
+
 public class NonCompromised {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
@@ -20,7 +22,6 @@ public class NonCompromised {
     static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-N-private-key.der";
     static final String CRL_LOCATION = "Authentication/CRL-N.crl";
     static final String DNS_PRIVATE_KEY = "Authentication/DNS-private-key.der";
-    static final int PSEUDONYM_RATE = 5;
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
@@ -311,13 +312,20 @@ public class NonCompromised {
             InvalidKeyException, InvalidKeySpecException {
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("/bin/sh", PseudonymAuthority.SCRIPT_N_LOCATION);
+        processBuilder.start();
         int counter = 0;
         while (true) {
-            if (counter++ % PSEUDONYM_RATE == 0) {
-                processBuilder.start();
-            }
             String returnIPAddress = receiveQueryTest3();
             sendAnswerTest3(returnIPAddress);
+            if (counter++ % PSEUDONYM_RATE == 0) {
+                try {
+                    processBuilder.wait();
+                } catch (InterruptedException e) {
+                    System.out.println("pseudo gen process ran into a problem");
+                    System.out.println(e);
+                }
+                processBuilder.start();
+            }
         }
     }
     
@@ -386,13 +394,20 @@ public class NonCompromised {
             InvalidKeyException, InvalidKeySpecException {
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("/bin/sh", PseudonymAuthority.SCRIPT_N_LOCATION);
+        processBuilder.start();
         int counter = 0;
         while (true) {
-            if (counter++ % PSEUDONYM_RATE == 0) {
-                processBuilder.start();
-            }
             String returnIPAddress = receiveQueryTest4();
             sendAnswerTest4(returnIPAddress);
+            if (counter++ % PSEUDONYM_RATE == 0) {
+                try {
+                    processBuilder.wait();
+                } catch (InterruptedException e) {
+                    System.out.println("pseudo gen process ran into a problem");
+                    System.out.println(e);
+                }
+                processBuilder.start();
+            }
         }
     }
 }
