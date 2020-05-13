@@ -1,9 +1,11 @@
 package v2x;
 
+import java.io.IOException;
 import java.util.Random;
 
 public class DNSBloomFilterFunctions {
     static final String FIXED_DNS_ENTRY = "KTH.Thesis.V2X=0000:1111:2222:3333:4444:5555:6666:7777";
+    private static final String BLOOM_FILTER_LOCATION = "Authentication/DNS-bloom-filter.bf";
 
     /**
      * Makes a random amount except for one preset case of bloom filter entries
@@ -11,7 +13,7 @@ public class DNSBloomFilterFunctions {
      * @param amount amount of random - 1 AAAA entry for the bloom filter
      * @return <code>DNSBloomFilter</code> a dns bloom filter object
      */
-    public static DNSBloomFilter generateRandomBloomFilter(int amount) {
+    public static DNSBloomFilter generateRandomBloomFilter(int amount) throws IOException {
         DNSBloomFilter dnsBloomFilter = new DNSBloomFilter(amount);
         dnsBloomFilter.add(FIXED_DNS_ENTRY);
 
@@ -21,6 +23,8 @@ public class DNSBloomFilterFunctions {
             String randomAAAA = randomHostname + "=" + randomIPV6;
             dnsBloomFilter.add(randomAAAA);
         }
+
+        dnsBloomFilter.exportBloomFilter(BLOOM_FILTER_LOCATION);
 
         return dnsBloomFilter;
     }

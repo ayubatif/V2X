@@ -325,7 +325,6 @@ public class NonCompromised {
                 System.out.println("changing certificate");
                 number++;
             }
-            System.out.println(number);
             counter++;
         }
     }
@@ -356,11 +355,13 @@ public class NonCompromised {
         }
     }
 
-    private static void sendAnswerTest4(String returnIPAddress) throws IOException, InvalidKeySpecException,
+    private static void sendAnswerTest4(String returnIPAddress, int number) throws IOException, InvalidKeySpecException,
             NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException,
             BadPaddingException, NoSuchPaddingException {
-        String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
-        PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
+        String userCertificate = AuthenticationFunctions
+                .getCertificate("Authentication/OBU-N-certificate" + number + ".crt");
+        PrivateKey userPrivateKey = AuthenticationFunctions
+                .getPrivateKey("Authentication/OBU-N-private-key" + number + ".der");
         PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(DNS_PRIVATE_KEY);
 
         String innerAnswer = DNSBloomFilterFunctions.getFixedAAAA();
@@ -393,22 +394,19 @@ public class NonCompromised {
     private static synchronized void runFourthTest() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
-        ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command("/bin/sh", PseudonymAuthority.SCRIPT_N_LOCATION);
-        processBuilder.start();
         int counter = 0;
+        int number = 0;
         while (true) {
             String returnIPAddress = receiveQueryTest4();
-            sendAnswerTest4(returnIPAddress);
-            if (counter++ % PSEUDONYM_RATE == 0) {
-                try {
-                    processBuilder.wait();
-                } catch (InterruptedException e) {
-                    System.out.println("pseudo gen process ran into a problem");
-                    System.out.println(e);
-                }
-                processBuilder.start();
+            sendAnswerTest4(returnIPAddress, number);
+            if (number > CERTIFICATE_AMOUNT - 2) {
+                System.out.println("certificate limit reached");
             }
+            else if (counter != 0 && counter % PSEUDONYM_RATE == 0) {
+                System.out.println("changing certificate");
+                number++;
+            }
+            counter++;
         }
     }
 }

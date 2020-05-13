@@ -348,13 +348,14 @@ public class Querier {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
+        DNSBloomFilter dnsBloomFilter = DNSBloomFilterFunctions.generateRandomBloomFilter(1000);
         while (counter < testAmount) {
             sendQueryTest4();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
             Future<String> future = executorService.submit(new ReceiveAnswerFour(serverSocket));
             try {
-                String answer = future.get(200, TimeUnit.MILLISECONDS);
+                String answer = future.get(1000, TimeUnit.MILLISECONDS);
                 answerCounter.addAnswer(answer);
                 System.out.println("answer");
                 System.out.println(answer);

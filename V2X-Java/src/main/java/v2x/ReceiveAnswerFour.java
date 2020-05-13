@@ -50,17 +50,21 @@ public class ReceiveAnswerFour implements Callable<String> {
 
                     try {
                         DNSBloomFilter signedIPs = AuthenticationFunctions.getBloomFilter(BLOOM_FILTER_LOCATION);
-                        boolean innerAuthentication = AuthenticationFunctions.checkSignedAAAARecord(innerAnswer, signedIPs);
+                        boolean innerAuthentication = AuthenticationFunctions
+                                .checkSignedAAAARecord(innerAnswer, signedIPs);
                         boolean isResponseMalicious = !DNSBloomFilterFunctions.getFixedAAAA().equals(innerAnswer);
                         if (innerAuthentication && !isResponseMalicious) {
                             serverSocket.close();
-                            return innerAnswer;
+                            return "0";
                         } else {
                             AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
+                            serverSocket.close();
+                            return "1";
                         }
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                         serverSocket.close();
+                        return "1";
                     }
                 }
             }
