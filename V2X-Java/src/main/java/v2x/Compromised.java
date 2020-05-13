@@ -325,13 +325,14 @@ public class Compromised {
         while (true) {
             String returnIPAddress = receiveQueryTest3();
             sendAnswerTest3(returnIPAddress, number);
-            if (number >= CERTIFICATE_AMOUNT) {
+            if (number > CERTIFICATE_AMOUNT - 2) {
                 System.out.println("certificate limit reached");
             }
             else if (counter != 0 && counter % PSEUDONYM_RATE == 0) {
                 System.out.println("changing certificate");
                 number++;
             }
+            System.out.println(number);
             counter++;
         }
     }
