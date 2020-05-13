@@ -44,6 +44,8 @@ public class ReceiveAnswerThree implements Callable<String> {
 
                 System.out.println(outerRevoked);
 
+                System.out.println("A");
+
                 if (outerAuthentication && !outerRevoked) {
                     byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
                     Message innerMessage = CommunicationFunctions.byteArrayToMessage(decodedInnerAnswer);
@@ -51,6 +53,8 @@ public class ReceiveAnswerThree implements Callable<String> {
                     String innerAnswer = innerMessage.getValue("Answer");
                     String innerCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
                     String innerEncryptedHash = innerMessage.getValue("Hash");
+
+                    System.out.println("B");
 
                     boolean innerAuthentication = false;
                     try {
@@ -68,14 +72,20 @@ public class ReceiveAnswerThree implements Callable<String> {
                         boolean innerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
                                 innerCertificate, CRL_LOCATION);
 
+                        System.out.println("C");
+
                         if (innerAuthentication && !innerRevoked) {
+                            System.out.println("D");
                             serverSocket.close();
                             return innerAnswer;
                         } else {
+                            System.out.println("E");
                             AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                             serverSocket.close();
+                            return "1";
                         }
                     } catch (Exception e) {
+                        System.out.println("F");
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                         serverSocket.close();
                         System.out.println("bad padding");
