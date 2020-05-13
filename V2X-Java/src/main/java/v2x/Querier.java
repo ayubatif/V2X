@@ -400,7 +400,8 @@ public class Querier {
             if (!AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
                 System.out.println("it seems the bloom filter worked..1");
                 AuthenticationFunctions.addToCRL(x_certificate, CRL_LOCATION);
-                if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
+                AuthenticationFunctions.addToCRL(n_certificate, CRL_LOCATION);
+                if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION) && AuthenticationFunctions.checkRevocatedCertificate(n_certificate, CRL_LOCATION)) {
                     System.out.println("it seems the revocation list worked..0");
                     return;
                 }
