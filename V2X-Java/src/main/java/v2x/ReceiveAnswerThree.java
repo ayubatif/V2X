@@ -42,6 +42,8 @@ public class ReceiveAnswerThree implements Callable<String> {
                 boolean outerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
                         outerCertificate, CRL_LOCATION);
 
+                System.out.println(outerRevoked);
+
                 if (outerAuthentication && !outerRevoked) {
                     byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
                     Message innerMessage = CommunicationFunctions.byteArrayToMessage(decodedInnerAnswer);
@@ -71,6 +73,7 @@ public class ReceiveAnswerThree implements Callable<String> {
                             return innerAnswer;
                         } else {
                             AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
+                            serverSocket.close();
                         }
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
