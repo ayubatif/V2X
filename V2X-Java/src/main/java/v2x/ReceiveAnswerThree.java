@@ -42,9 +42,7 @@ public class ReceiveAnswerThree implements Callable<String> {
                 boolean outerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
                         outerCertificate, CRL_LOCATION);
 
-                System.out.println(outerRevoked);
-
-                System.out.println("A");
+                System.out.println("ZONE A: Authenticating response sender...");
 
                 if (outerAuthentication && !outerRevoked) {
                     byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
@@ -54,7 +52,7 @@ public class ReceiveAnswerThree implements Callable<String> {
                     String innerCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
                     String innerEncryptedHash = innerMessage.getValue("Hash");
 
-                    System.out.println("B");
+                    System.out.println("ZONE B: Checking for bad padding...");
 
                     boolean innerAuthentication = false;
                     try {
@@ -68,28 +66,23 @@ public class ReceiveAnswerThree implements Callable<String> {
                             innerAuthentication = true;
                         }
 
-
+                        /* Check if DNS server is revocated */
                         boolean innerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
                                 innerCertificate, CRL_LOCATION);
 
-                        System.out.println("C");
+                        System.out.println("ZONE C: Authenticating response data...");
 
                         if (innerAuthentication && !innerRevoked) {
-                            System.out.println("D");
+                            System.out.println("RESULT 0: Fully authenticated response!");
                             serverSocket.close();
                             return innerAnswer;
                         } else {
-                            System.out.println("E");
                             AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
-                            serverSocket.close();
-                            return "1";
+                            System.out.println("RESULT 2: Bad digital signature!");
                         }
                     } catch (Exception e) {
-                        System.out.println("F");
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
-                        serverSocket.close();
-                        System.out.println("bad padding");
-                        return "1";
+                        System.out.println("RESULT 1: Bad padding!");
                     }
                 }
             }

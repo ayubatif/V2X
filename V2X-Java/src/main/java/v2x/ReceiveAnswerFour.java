@@ -41,30 +41,36 @@ public class ReceiveAnswerFour implements Callable<String> {
                 boolean outerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
                         outerCertificate, CRL_LOCATION);
 
+                System.out.println("ZONE A: Authenticating response sender...");
+
                 if (outerAuthentication && !outerRevoked) {
                     byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
                     Message innerMessage = CommunicationFunctions.byteArrayToMessage(decodedInnerAnswer);
 
-
                     String innerAnswer = innerMessage.getValue("Answer");
+
+                    System.out.println("ZONE B: Checking BF...");
 
                     try {
                         DNSBloomFilter signedIPs = AuthenticationFunctions.getBloomFilter(BLOOM_FILTER_LOCATION);
                         boolean innerAuthentication = AuthenticationFunctions
                                 .checkSignedAAAARecord(innerAnswer, signedIPs);
-                        boolean isResponseMalicious = !DNSBloomFilterFunctions.getFixedAAAA().equals(innerAnswer);
-                        if (innerAuthentication && !isResponseMalicious) {
+
+                        System.out.println("ZONE C: Authenticating response data...");
+
+                        if (innerAuthentication) {
+                            System.out.println("RESULT 0: Fully authenticated response!");
                             serverSocket.close();
-                            return "0";
+                            
+                            boolean isResponseMalicious = !DNSBloomFilterFunctions.getFixedAAAA().equals(innerAnswer);
+                            return (isResponseMalicious) ? "1" : "0";
                         } else {
                             AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
-                            serverSocket.close();
-                            return "1";
+                            System.out.println("RESULT 2: Bad data verification!");
                         }
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
-                        serverSocket.close();
-                        return "1";
+                        System.out.println("RESULT 1: Bad BF?!");
                     }
                 }
             }
