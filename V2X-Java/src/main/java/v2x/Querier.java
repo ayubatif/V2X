@@ -430,7 +430,10 @@ public class Querier {
 
                 if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION) && AuthenticationFunctions.checkRevocatedCertificate(n_certificate, CRL_LOCATION)) {
                     System.out.println("it seems the revocation list worked..0");
-                    return;
+                }
+
+                if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate + n_certificate, CRL_LOCATION)) {
+                    System.out.println("Y'all have a good one");
                 }
             }
         }
