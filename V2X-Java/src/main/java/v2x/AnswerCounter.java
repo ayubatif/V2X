@@ -1,8 +1,9 @@
 package v2x;
 
 public class AnswerCounter {
-    private int correctAnswer = 0;
-    private int incorrectAnswer = 0;
+    private int answerZero = 0;
+    private int answerOne = 0;
+    private int answerTwo = 0;
 
     /**
      * Takes in answer and counts how much is correct and incorrect.
@@ -14,10 +15,13 @@ public class AnswerCounter {
 
         switch (answerInt) {
             case 0:
-                this.correctAnswer++;
+                this.answerZero++;
                 break;
             case 1:
-                this.incorrectAnswer++;
+                this.answerOne++;
+                break;
+            case 2:
+                this.answerTwo++;
                 break;
             default:
                 System.out.println("This is not a number");
@@ -28,9 +32,14 @@ public class AnswerCounter {
      * Prints out the answers that it has been given.
      */
     public void printAnswer() {
-        System.out.println("Correct answer amount:");
-        System.out.println(this.correctAnswer);
-        System.out.println("Incorrect answer amount:");
-        System.out.println(this.incorrectAnswer);
+        System.out.println("Total answers received:");
+        int totalAnswers = this.answerZero + this.answerOne + this.answerTwo;
+        System.out.println(totalAnswers);
+        System.out.println("Answer type zero amount:");
+        System.out.println(this.answerZero);
+        System.out.println("Answer type one amount:");
+        System.out.println(this.answerOne);
+        System.out.println("Answer type two amount:");
+        System.out.println(this.answerTwo);
     }
 }
