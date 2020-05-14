@@ -137,6 +137,7 @@ public class Querier {
             executorService.shutdownNow();
         }
         answerCounter.printAnswer();
+        answerCounter.printMath();
     }
 
     /**
@@ -214,6 +215,7 @@ public class Querier {
             executorService.shutdownNow();
         }
         answerCounter.printAnswer();
+        answerCounter.printMath();
     }
 
     /**
@@ -292,6 +294,7 @@ public class Querier {
             Thread.sleep(1000);
         }
         answerCounter.printAnswer();
+        answerCounter.printMath();
     }
 
     /**
@@ -369,6 +372,7 @@ public class Querier {
             Thread.sleep(1000);
         }
         answerCounter.printAnswer();
+        answerCounter.printMath();
     }
 
     private static void test(int testAmount) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,

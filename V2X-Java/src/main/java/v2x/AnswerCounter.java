@@ -28,6 +28,24 @@ public class AnswerCounter {
         }
     }
 
+    private int[] getPercentage() {
+        int[] answer = new int[3];
+        int totalAnswers = this.answerZero + this.answerOne + this.answerTwo;
+        answer[0] = (this.answerZero / totalAnswers) * 100;
+        answer[1] = (this.answerOne / totalAnswers) * 100;
+        answer[2] = (this.answerTwo / totalAnswers) * 100;
+
+        return answer;
+    }
+
+    public void printMath() {
+        int[] answer = getPercentage();
+        for (int i = 0; i < answer.length; i++) {
+            System.out.println("Percentage of answer type " + (i + 1) + ":");
+            System.out.println(answer[i]);
+        }
+    }
+
     /**
      * Prints out the answers that it has been given.
      */
