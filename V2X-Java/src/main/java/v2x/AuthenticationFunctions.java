@@ -244,6 +244,7 @@ public class AuthenticationFunctions {
     public static void addToCRL(String certificate, String crllocation) throws IOException {
         File crlFile = new File(crllocation);
         Files.write(crlFile.toPath(), certificate.getBytes(), StandardOpenOption.APPEND);
+        Files.write(crlFile.toPath(), "\n".getBytes(), StandardOpenOption.APPEND);
     }
 
     /**
