@@ -83,7 +83,18 @@ public class ReceiveAnswerThree implements Callable<String> {
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                         System.out.println("RESULT 1: Bad padding!");
+
+                        boolean check = AuthenticationFunctions.checkRevocatedCertificate(
+                                outerCertificate, CRL_LOCATION);
+
+                        if (check) {
+                            System.out.println("It is in the CRL");
+                        } else {
+                            System.out.println("Not in the CRL");
+                        }
                     }
+                } else {
+                    System.out.println("Found in the CRL");
                 }
             }
         }

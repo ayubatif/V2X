@@ -399,8 +399,35 @@ public class Querier {
             System.out.println("it seems the bloom filter worked..2");
             if (!AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
                 System.out.println("it seems the bloom filter worked..1");
+
                 AuthenticationFunctions.addToCRL(x_certificate, CRL_LOCATION);
+
+                if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
+                    System.out.println("it seems the revocation list worked..0.5");
+                }
+
+                if (!AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
+                    System.out.println("0.5 not working");
+                }
+
                 AuthenticationFunctions.addToCRL(n_certificate, CRL_LOCATION);
+
+                if (AuthenticationFunctions.checkRevocatedCertificate(n_certificate, CRL_LOCATION)) {
+                    System.out.println("it seems the revocation list worked..0.25");
+                }
+
+                if (!AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
+                    System.out.println("0.25 not working");
+                }
+
+                if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
+                    System.out.println("it seems the revocation list worked..0.125");
+                }
+
+                if (!AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION)) {
+                    System.out.println("0.125 not working");
+                }
+
                 if (AuthenticationFunctions.checkRevocatedCertificate(x_certificate, CRL_LOCATION) && AuthenticationFunctions.checkRevocatedCertificate(n_certificate, CRL_LOCATION)) {
                     System.out.println("it seems the revocation list worked..0");
                     return;
