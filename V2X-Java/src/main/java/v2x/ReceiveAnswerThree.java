@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
  * Waits for an answer that is authenticated and returns it for the third test. If the message is untrustworhy, the
  * certificate is put into the revocation list.
  */
-public class ReceiveAnswerThree implements Callable<String> {
+public class ReceiveAnswerThree implements Callable<String[]> {
     static final int UNICAST_PORT = 2021;
     static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
     static final String CRL_LOCATION = "Authentication/CRL-A.crl";
@@ -25,8 +25,10 @@ public class ReceiveAnswerThree implements Callable<String> {
     }
 
     @Override
-    public String call() throws Exception {
+    public String[] call() throws Exception {
         byte[] buffer = new byte[65508];
+        int counter = 1;
+        String[] allAnswer = new String[500];
         while (true) {
             DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
             serverSocket.receive(receivePacket);
@@ -67,14 +69,25 @@ public class ReceiveAnswerThree implements Callable<String> {
                                 innerCertificate, CRL_LOCATION);
 
                         if (innerAuthentication && !innerRevoked) {
-                            serverSocket.close();
-                            return innerAnswer;
+                            allAnswer[0] = innerAnswer;
+                            allAnswer[counter] = "2";
+                            counter++;
+                            allAnswer[counter] = "-2";
+                            return allAnswer;
                         } else {
                             AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
+                            allAnswer[counter] = "1";
+                            counter++;
                         }
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
+                        allAnswer[counter] = "1";
+                        counter++;
                     }
+                } else {
+                    allAnswer[0] = "-1";
+                    allAnswer[counter] = "0";
+                    counter++;
                 }
             }
         }

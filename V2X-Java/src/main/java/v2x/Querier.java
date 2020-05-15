@@ -121,6 +121,7 @@ public class Querier {
     private static void runFirstTest(int testAmount) throws IOException, ClassNotFoundException, InterruptedException {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter();
+        ValidityCounter validityCounter = new ValidityCounter();
         while (counter < testAmount) {
             sendQueryTest1();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -129,6 +130,7 @@ public class Querier {
                 Message message = future.get(50, TimeUnit.MILLISECONDS);
                 String answer = parseMessageTest1(message);
                 answerCounter.addAnswer(answer);
+                validityCounter.addValidity("2");
                 System.out.println(answer);
                 counter++;
             } catch (Exception e) {
@@ -138,6 +140,8 @@ public class Querier {
         }
         answerCounter.printAnswer();
         answerCounter.printMath();
+        validityCounter.printValidity();
+        validityCounter.printMath();
     }
 
     /**
@@ -197,25 +201,37 @@ public class Querier {
             InvalidKeySpecException {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter();
+        ValidityCounter validityCounter = new ValidityCounter();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
         AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
         while (counter < testAmount) {
             sendQueryTest2();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
-            Future<String> future = executorService.submit(new ReceiveAnswerTwo());
+            DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
+            Future<String[]> future = executorService.submit(new ReceiveAnswerTwo(serverSocket));
             try {
-                String answer = future.get(100, TimeUnit.MILLISECONDS);
-                answerCounter.addAnswer(answer);
-                System.out.println(answer);
+                String[] answer = future.get(1000, TimeUnit.MILLISECONDS);
+                answerCounter.addAnswer(answer[0]);
+                for (int i = 0; i < answer.length; i++) {
+                    if (answer[i].equals("-2")) {
+                        break;
+                    }
+                    validityCounter.addValidity(answer[i]);
+                }
+                System.out.println(answer[0]);
                 counter++;
+                serverSocket.close();
             } catch (Exception e) {
                 System.out.println("timeout");
+                serverSocket.close();
             }
             executorService.shutdownNow();
         }
         answerCounter.printAnswer();
         answerCounter.printMath();
+        validityCounter.printValidity();
+        validityCounter.printMath();
     }
 
     /**
@@ -273,18 +289,26 @@ public class Querier {
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter();
+        ValidityCounter validityCounter = new ValidityCounter();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         while (counter < testAmount) {
             sendQueryTest3();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
-            Future<String> future = executorService.submit(new ReceiveAnswerThree(serverSocket));
+            Future<String[]> future = executorService.submit(new ReceiveAnswerThree(serverSocket));
             try {
-                String answer = future.get(1000, TimeUnit.MILLISECONDS);
-                answerCounter.addAnswer(answer);
+                String[] answer = future.get(1000, TimeUnit.MILLISECONDS);
+                answerCounter.addAnswer(answer[0]);
+                for (int i = 0; i < answer.length; i++) {
+                    if (answer[i].equals("-2")) {
+                        break;
+                    }
+                    validityCounter.addValidity(answer[i]);
+                }
                 System.out.println("answer");
-                System.out.println(answer);
+                System.out.println(answer[0]);
                 counter++;
+                serverSocket.close();
             } catch (Exception e) {
                 System.out.println("timeout");
                 serverSocket.close();
@@ -295,6 +319,8 @@ public class Querier {
         }
         answerCounter.printAnswer();
         answerCounter.printMath();
+        validityCounter.printValidity();
+        validityCounter.printMath();
     }
 
     /**
@@ -350,19 +376,27 @@ public class Querier {
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter();
+        ValidityCounter validityCounter = new ValidityCounter();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         DNSBloomFilter dnsBloomFilter = DNSBloomFilterFunctions.generateRandomBloomFilter(1000);
         while (counter < testAmount) {
             sendQueryTest4();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
-            Future<String> future = executorService.submit(new ReceiveAnswerFour(serverSocket));
+            Future<String[]> future = executorService.submit(new ReceiveAnswerFour(serverSocket));
             try {
-                String answer = future.get(1000, TimeUnit.MILLISECONDS);
-                answerCounter.addAnswer(answer);
+                String[] answer = future.get(1000, TimeUnit.MILLISECONDS);
+                answerCounter.addAnswer(answer[0]);
+                for (int i = 0; i < answer.length; i++) {
+                    if (answer[i].equals("-2")) {
+                        break;
+                    }
+                    validityCounter.addValidity(answer[i]);
+                }
                 System.out.println("answer");
-                System.out.println(answer);
+                System.out.println(answer[0]);
                 counter++;
+                serverSocket.close();
             } catch (Exception e) {
                 System.out.println("timeout");
                 serverSocket.close();
@@ -373,6 +407,8 @@ public class Querier {
         }
         answerCounter.printAnswer();
         answerCounter.printMath();
+        validityCounter.printValidity();
+        validityCounter.printMath();
     }
 
     private static void test(int testAmount) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,

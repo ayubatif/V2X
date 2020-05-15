@@ -2,6 +2,7 @@ package v2x;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.security.PublicKey;
 import java.util.Base64;
 import java.util.concurrent.Callable;
 
@@ -11,11 +12,12 @@ import java.util.concurrent.Callable;
  * Waits for an answer that is authenticated and returns it for the third test. If the message is untrustworhy, the
  * certificate is put into the revocation list.
  */
-public class ReceiveAnswerFour implements Callable<String> {
+public class ReceiveAnswerFour implements Callable<String[]> {
     static final int UNICAST_PORT = 2021;
     static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
     static final String CRL_LOCATION = "Authentication/CRL-A.crl";
     static final String BLOOM_FILTER_LOCATION = "Authentication/DNS-bloom-filter.bf";
+    static final String DNS_CERTIFICATE_LOCATION = "Authentication/DNS-certificate.crt";
 
     private final DatagramSocket serverSocket;
 
@@ -24,8 +26,10 @@ public class ReceiveAnswerFour implements Callable<String> {
     }
 
     @Override
-    public String call() throws Exception {
+    public String[] call() throws Exception {
         byte[] buffer = new byte[65508];
+        int counter = 1;
+        String[] allAnswer = new String[500];
         while (true) {
             DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
             serverSocket.receive(receivePacket);
@@ -53,16 +57,49 @@ public class ReceiveAnswerFour implements Callable<String> {
                                 .checkSignedAAAARecord(innerAnswer, signedIPs);
 
                         if (innerAuthentication) {
-                            serverSocket.close();
-                            
                             boolean isResponseMalicious = !DNSBloomFilterFunctions.getFixedAAAA().equals(innerAnswer);
-                            return (isResponseMalicious) ? "1" : "0";
+                            allAnswer[0] = isResponseMalicious ? "1" : "0";
+                            allAnswer[counter] = "2";
+                            counter++;
+                            allAnswer[counter] = "-2";
+                            return allAnswer;
                         } else {
+                            String innerCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
+                            boolean innerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
+                                    innerCertificate, CRL_LOCATION);
+                            boolean certificateVerification = AuthenticationFunctions.verifyCertificate(
+                                    innerCertificate, CA_CERTIFICATE_LOCATION);
+
+                            String calculatedHash = AuthenticationFunctions.hashMessage(innerAnswer);
+                            String innerEncryptedHash = innerMessage.getValue("Hash");
+                            PublicKey publicKey = AuthenticationFunctions.getPublicKey(innerCertificate);
+                            String decryptedHash = AuthenticationFunctions
+                                    .decryptMessage(innerEncryptedHash, publicKey);
+
+                            if (certificateVerification && calculatedHash.equals(decryptedHash)) {
+                                innerAuthentication = true;
+                            }
+
+                            if (!innerRevoked && innerAuthentication) {
+                                allAnswer[0] = "0";
+                                allAnswer[counter] = "2";
+                                counter++;
+                                allAnswer[counter] = "-2";
+                                return allAnswer;
+                            }
                             AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
+                            allAnswer[counter] = "1";
+                            counter++;
                         }
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
+                        allAnswer[counter] = "1";
+                        counter++;
                     }
+                } else {
+                    allAnswer[0] = "-1";
+                    allAnswer[counter] = "0";
+                    counter++;
                 }
             }
         }

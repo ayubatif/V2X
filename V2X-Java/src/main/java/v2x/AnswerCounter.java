@@ -10,14 +10,14 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public class AnswerCounter {
+    private int answerNull = 0;
     private int answerZero = 0;
     private int answerOne = 0;
-    private int answerTwo = 0;
     private static final String LOG_FILE_LOCATION = "v2x-log.txt";
     private JSONArray log = new JSONArray();
 
     /**
-     * Takes in answer and counts how much is correct and incorrect.
+     * Takes in answer and counts how much is correct, incorrect, and missing and answer.
      *
      * @param answer a string of the answer received
      */
@@ -25,17 +25,15 @@ public class AnswerCounter {
         int answerInt = Integer.parseInt(answer);
 
         switch (answerInt) {
+            case -1:
+                this.answerNull++;
+                break;
             case 0:
                 this.answerZero++;
                 break;
             case 1:
                 this.answerOne++;
                 break;
-            case 2:
-                this.answerTwo++;
-                break;
-            default:
-                System.out.println("This is not a number");
         }
     }
 
@@ -46,10 +44,9 @@ public class AnswerCounter {
      */
     public double[] getPercentage() {
         double[] answer = new double[3];
-        double totalAnswers = this.answerZero + this.answerOne + this.answerTwo;
+        double totalAnswers = this.answerZero + this.answerOne;
         answer[0] = (this.answerZero / totalAnswers) * 100;
         answer[1] = (this.answerOne / totalAnswers) * 100;
-        answer[2] = (this.answerTwo / totalAnswers) * 100;
 
         return answer;
     }
@@ -70,14 +67,14 @@ public class AnswerCounter {
      */
     public void printAnswer() {
         System.out.println("Total answers received:");
-        int totalAnswers = this.answerZero + this.answerOne + this.answerTwo;
+        int totalAnswers = this.answerZero + this.answerOne;
         System.out.println(totalAnswers);
         System.out.println("Answer type zero amount:");
         System.out.println(this.answerZero);
         System.out.println("Answer type one amount:");
         System.out.println(this.answerOne);
-        System.out.println("Answer type two amount:");
-        System.out.println(this.answerTwo);
+        System.out.println("No answers received amount:");
+        System.out.println(this.answerNull);
     }
 
     public void logAnswers() {
