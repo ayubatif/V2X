@@ -56,6 +56,7 @@ public class AnswerCounter {
      */
     public void printMath() {
         double[] answer = getPercentage();
+
         for (int i = 0; i < answer.length; i++) {
             System.out.println("Percentage of answer type " + (i + 1) + ":");
             System.out.println(answer[i]);
@@ -69,9 +70,9 @@ public class AnswerCounter {
         System.out.println("Total answers received:");
         int totalAnswers = this.answerZero + this.answerOne;
         System.out.println(totalAnswers);
-        System.out.println("Answer type zero amount:");
+        System.out.println("Answer type 0 amount:");
         System.out.println(this.answerZero);
-        System.out.println("Answer type one amount:");
+        System.out.println("Answer type 1 amount:");
         System.out.println(this.answerOne);
         System.out.println("No answers received amount:");
         System.out.println(this.answerNull);
