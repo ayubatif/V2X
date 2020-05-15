@@ -120,7 +120,7 @@ public class Querier {
      */
     private static void runFirstTest(int testAmount) throws IOException, ClassNotFoundException, InterruptedException {
         int counter = 0;
-        AnswerCounter answerCounter = new AnswerCounter();
+        AnswerCounter answerCounter = new AnswerCounter(1);
         ValidityCounter validityCounter = new ValidityCounter();
         while (counter < testAmount) {
             sendQueryTest1();
@@ -200,7 +200,7 @@ public class Querier {
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException {
         int counter = 0;
-        AnswerCounter answerCounter = new AnswerCounter();
+        AnswerCounter answerCounter = new AnswerCounter(2);
         ValidityCounter validityCounter = new ValidityCounter();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
@@ -288,7 +288,7 @@ public class Querier {
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
-        AnswerCounter answerCounter = new AnswerCounter();
+        AnswerCounter answerCounter = new AnswerCounter(3);
         ValidityCounter validityCounter = new ValidityCounter();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         while (counter < testAmount) {
@@ -375,7 +375,7 @@ public class Querier {
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
-        AnswerCounter answerCounter = new AnswerCounter();
+        AnswerCounter answerCounter = new AnswerCounter(4);
         ValidityCounter validityCounter = new ValidityCounter();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         DNSBloomFilter dnsBloomFilter = DNSBloomFilterFunctions.generateRandomBloomFilter(1000);

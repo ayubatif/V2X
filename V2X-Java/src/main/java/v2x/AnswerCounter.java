@@ -14,7 +14,12 @@ public class AnswerCounter {
     private int answerZero = 0;
     private int answerOne = 0;
     private static final String LOG_FILE_LOCATION = "v2x-log.txt";
+    private int testNumber;
     private JSONArray log = new JSONArray();
+
+    public AnswerCounter(int testnum) {
+        this.testNumber = testnum;
+    }
 
     /**
      * Takes in answer and counts how much is correct, incorrect, and missing and answer.
@@ -93,7 +98,7 @@ public class AnswerCounter {
     }
 
     public void importJSONLog() throws IOException {
-        File bfFile = new File(LOG_FILE_LOCATION);
+        File bfFile = new File(LOG_FILE_LOCATION+this.testNumber);
         InputStream in = new FileInputStream(bfFile);
 
         StringBuilder textBuilder = new StringBuilder();
@@ -110,15 +115,15 @@ public class AnswerCounter {
     }
 
     public void exportJSONLog() throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE_LOCATION));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE_LOCATION+this.testNumber));
         writer.write(log.toString());
 
         writer.close();
     }
 
     public static void main(String[] args) {
-        AnswerCounter answerCounter1 = new AnswerCounter();
-        AnswerCounter answerCounter2 = new AnswerCounter();
+        AnswerCounter answerCounter1 = new AnswerCounter(3);
+        AnswerCounter answerCounter2 = new AnswerCounter(3);
         int notSoRandomNumber = DNSBloomFilterFunctions.generateRandomHostname().length() * DNSBloomFilterFunctions.generateRandomHostname().length();
         for(int i = 0; i < notSoRandomNumber; i++) {
             answerCounter1.addAnswer(Integer.valueOf(i % 3).toString());
@@ -132,7 +137,7 @@ public class AnswerCounter {
             answerCounter2.importJSONLog();
             System.out.println("Actual: "+answerCounter2.getLog().toString());
         } catch (IOException e) {
-            System.out.println("Check if ./v2x-log.txt exists");
+            System.out.println("Check if ./v2x-log.txt"+answerCounter1.testNumber+" exists");
             System.err.println(e);
         }
     }
