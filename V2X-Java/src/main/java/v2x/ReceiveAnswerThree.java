@@ -42,8 +42,6 @@ public class ReceiveAnswerThree implements Callable<String> {
                 boolean outerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
                         outerCertificate, CRL_LOCATION);
 
-                System.out.println("ZONE A: Authenticating response sender...");
-
                 if (outerAuthentication && !outerRevoked) {
                     byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
                     Message innerMessage = CommunicationFunctions.byteArrayToMessage(decodedInnerAnswer);
@@ -51,8 +49,6 @@ public class ReceiveAnswerThree implements Callable<String> {
                     String innerAnswer = innerMessage.getValue("Answer");
                     String innerCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
                     String innerEncryptedHash = innerMessage.getValue("Hash");
-
-                    System.out.println("ZONE B: Checking for bad padding...");
 
                     boolean innerAuthentication = false;
                     try {
@@ -70,31 +66,15 @@ public class ReceiveAnswerThree implements Callable<String> {
                         boolean innerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
                                 innerCertificate, CRL_LOCATION);
 
-                        System.out.println("ZONE C: Authenticating response data...");
-
                         if (innerAuthentication && !innerRevoked) {
-                            System.out.println("RESULT 0: Fully authenticated response!");
                             serverSocket.close();
                             return innerAnswer;
                         } else {
                             AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
-                            System.out.println("RESULT 2: Bad digital signature!");
                         }
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
-                        System.out.println("RESULT 1: Bad padding!");
-
-                        boolean check = AuthenticationFunctions.checkRevocatedCertificate(
-                                outerCertificate, CRL_LOCATION);
-
-                        if (check) {
-                            System.out.println("It is in the CRL");
-                        } else {
-                            System.out.println("Not in the CRL");
-                        }
                     }
-                } else {
-                    System.out.println("Found in the CRL");
                 }
             }
         }
