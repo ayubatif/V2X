@@ -98,8 +98,8 @@ public class AnswerCounter {
     }
 
     public void importJSONLog() throws IOException {
-        File bfFile = new File(LOG_FILE_LOCATION+this.testNumber);
-        InputStream in = new FileInputStream(bfFile);
+        File jsonFile = new File(LOG_FILE_LOCATION+this.testNumber);
+        InputStream in = new FileInputStream(jsonFile);
 
         StringBuilder textBuilder = new StringBuilder();
         try (Reader reader = new BufferedReader(new InputStreamReader
