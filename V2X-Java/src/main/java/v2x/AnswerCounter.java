@@ -1,9 +1,20 @@
 package v2x;
 
+
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 public class AnswerCounter {
     private int answerZero = 0;
     private int answerOne = 0;
     private int answerTwo = 0;
+    private static final String LOG_FILE_LOCATION = "v2x-log.txt";
+    private JSONArray log = new JSONArray();
 
     /**
      * Takes in answer and counts how much is correct and incorrect.
@@ -67,5 +78,64 @@ public class AnswerCounter {
         System.out.println(this.answerOne);
         System.out.println("Answer type two amount:");
         System.out.println(this.answerTwo);
+    }
+
+    public void logAnswers() {
+        double[] answer = getPercentage();
+        JSONObject jo;
+        for (int i = 0; i < answer.length; i++) {
+            jo = new JSONObject();
+            jo.put("RATIO_"+i, answer[i]);
+            log.put(jo);
+        }
+    }
+
+    private JSONArray getLog() {
+        return this.log;
+    }
+
+    public void importJSONLog() throws IOException {
+        File bfFile = new File(LOG_FILE_LOCATION);
+        InputStream in = new FileInputStream(bfFile);
+
+        StringBuilder textBuilder = new StringBuilder();
+        try (Reader reader = new BufferedReader(new InputStreamReader
+                (in, Charset.forName(StandardCharsets.UTF_8.name())))) {
+            int c = 0;
+            while ((c = reader.read()) != -1) {
+                textBuilder.append((char) c);
+            }
+        }
+
+        log = new JSONArray(textBuilder.toString());
+        in.close();
+    }
+
+    public void exportJSONLog() throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE_LOCATION));
+        writer.write(log.toString());
+
+        writer.close();
+    }
+
+    public static void main(String[] args) {
+        AnswerCounter answerCounter1 = new AnswerCounter();
+        AnswerCounter answerCounter2 = new AnswerCounter();
+        int notSoRandomNumber = DNSBloomFilterFunctions.generateRandomHostname().length() * DNSBloomFilterFunctions.generateRandomHostname().length();
+        for(int i = 0; i < notSoRandomNumber; i++) {
+            answerCounter1.addAnswer(Integer.valueOf(i % 3).toString());
+        }
+        answerCounter1.printAnswer();
+        answerCounter1.printMath();
+        answerCounter1.logAnswers();
+        try {
+            System.out.println("Expected: "+answerCounter1.getLog().toString());
+            answerCounter1.exportJSONLog();
+            answerCounter2.importJSONLog();
+            System.out.println("Actual: "+answerCounter2.getLog().toString());
+        } catch (IOException e) {
+            System.out.println("Check if ./v2x-log.txt exists");
+            System.err.println(e);
+        }
     }
 }
