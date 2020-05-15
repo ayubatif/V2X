@@ -28,7 +28,12 @@ public class AnswerCounter {
         }
     }
 
-    private int[] getPercentage() {
+    /**
+     * Calculates the percentages of the answers received
+     *
+     * @return <code>int[]</code> an array of the percentages
+     */
+    public int[] getPercentage() {
         int[] answer = new int[3];
         int totalAnswers = this.answerZero + this.answerOne + this.answerTwo;
         answer[0] = (this.answerZero / totalAnswers) * 100;
@@ -38,6 +43,9 @@ public class AnswerCounter {
         return answer;
     }
 
+    /**
+     * Prints the math related answers
+     */
     public void printMath() {
         int[] answer = getPercentage();
         for (int i = 0; i < answer.length; i++) {
