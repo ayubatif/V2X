@@ -121,7 +121,9 @@ public class Querier {
     private static void runFirstTest(int testAmount) throws IOException, ClassNotFoundException, InterruptedException {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter(1);
-        ValidityCounter validityCounter = new ValidityCounter();
+        ValidityCounter validityCounter = new ValidityCounter(1);
+        answerCounter.importJSONLog();
+        validityCounter.importJSONLog();
         while (counter < testAmount) {
             sendQueryTest1();
             ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -142,6 +144,10 @@ public class Querier {
         answerCounter.printMath();
         validityCounter.printValidity();
         validityCounter.printMath();
+        answerCounter.logAnswers();
+        validityCounter.logAnswers();
+        answerCounter.exportJSONLog();
+        validityCounter.exportJSONLog();
     }
 
     /**
@@ -201,7 +207,9 @@ public class Querier {
             InvalidKeySpecException {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter(2);
-        ValidityCounter validityCounter = new ValidityCounter();
+        ValidityCounter validityCounter = new ValidityCounter(2);
+        answerCounter.importJSONLog();
+        validityCounter.importJSONLog();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
         AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
@@ -232,6 +240,10 @@ public class Querier {
         answerCounter.printMath();
         validityCounter.printValidity();
         validityCounter.printMath();
+        answerCounter.logAnswers();
+        validityCounter.logAnswers();
+        answerCounter.exportJSONLog();
+        validityCounter.exportJSONLog();
     }
 
     /**
@@ -289,7 +301,9 @@ public class Querier {
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter(3);
-        ValidityCounter validityCounter = new ValidityCounter();
+        ValidityCounter validityCounter = new ValidityCounter(3);
+        answerCounter.importJSONLog();
+        validityCounter.importJSONLog();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         while (counter < testAmount) {
             sendQueryTest3();
@@ -321,6 +335,10 @@ public class Querier {
         answerCounter.printMath();
         validityCounter.printValidity();
         validityCounter.printMath();
+        answerCounter.logAnswers();
+        validityCounter.logAnswers();
+        answerCounter.exportJSONLog();
+        validityCounter.exportJSONLog();
     }
 
     /**
@@ -376,7 +394,9 @@ public class Querier {
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter(4);
-        ValidityCounter validityCounter = new ValidityCounter();
+        ValidityCounter validityCounter = new ValidityCounter(4);
+        answerCounter.importJSONLog();
+        validityCounter.importJSONLog();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         DNSBloomFilter dnsBloomFilter = DNSBloomFilterFunctions.generateRandomBloomFilter(1000);
         while (counter < testAmount) {
@@ -409,6 +429,10 @@ public class Querier {
         answerCounter.printMath();
         validityCounter.printValidity();
         validityCounter.printMath();
+        answerCounter.logAnswers();
+        validityCounter.logAnswers();
+        answerCounter.exportJSONLog();
+        validityCounter.exportJSONLog();
     }
 
     private static void test(int testAmount) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
