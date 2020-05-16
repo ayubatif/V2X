@@ -8,7 +8,7 @@ public class PseudonymAuthority {
     static int CERTIFICATE_AMOUNT = 10;
 
     //TODO Can use pre gen pseudonyms if a la carte no work
-    public static synchronized void genPseudonyms() throws IOException, InterruptedException {
+    public static synchronized void genPseudonymsX() throws IOException, InterruptedException {
         File f = new File("Authentication");
         if (!f.mkdir()) {
             System.err.println("Couldn't create dir...");
@@ -17,10 +17,6 @@ public class PseudonymAuthority {
         String[][] cmdsX2 = new String[CERTIFICATE_AMOUNT][9];
         String[][] cmdsX3 = new String[CERTIFICATE_AMOUNT][15];
         String[][] cmdsX4 = new String[CERTIFICATE_AMOUNT][12];
-        String[][] cmdsN1 = new String[CERTIFICATE_AMOUNT][5];
-        String[][] cmdsN2 = new String[CERTIFICATE_AMOUNT][9];
-        String[][] cmdsN3 = new String[CERTIFICATE_AMOUNT][15];
-        String[][] cmdsN4 = new String[CERTIFICATE_AMOUNT][12];
         for(int c = 0; c < CERTIFICATE_AMOUNT; c++) {
             cmdsX1[c][0] = ("openssl");
             cmdsX1[c][1] = ("genrsa");
@@ -66,7 +62,48 @@ public class PseudonymAuthority {
             cmdsX4[c][9] = ("DER");
             cmdsX4[c][10] = ("-out");
             cmdsX4[c][11] = ("OBU-X-private-key"+c+".der");
+        }
 
+        ProcessBuilder builder;
+        Process currentProcess;
+        for(int c = 0; c < CERTIFICATE_AMOUNT; c++) {
+            builder= new ProcessBuilder(cmdsX1[c]);
+            builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
+            builder.redirectErrorStream(true);
+            currentProcess =  builder.start();
+            currentProcess.waitFor();
+
+            builder = new ProcessBuilder(cmdsX2[c]);
+            builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
+            builder.redirectErrorStream(true);
+            currentProcess =  builder.start();
+            currentProcess.waitFor();
+
+            builder = new ProcessBuilder(cmdsX3[c]);
+            builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
+            builder.redirectErrorStream(true);
+            currentProcess =  builder.start();
+            currentProcess.waitFor();
+
+            builder = new ProcessBuilder(cmdsX4[c]);
+            builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
+            builder.redirectErrorStream(true);
+            currentProcess =  builder.start();
+            currentProcess.waitFor();
+        }
+
+    }
+
+    public static synchronized void genPseudonymsN() throws IOException, InterruptedException {
+        File f = new File("Authentication");
+        if (!f.mkdir()) {
+            System.err.println("Couldn't create dir...");
+        }
+        String[][] cmdsN1 = new String[CERTIFICATE_AMOUNT][5];
+        String[][] cmdsN2 = new String[CERTIFICATE_AMOUNT][9];
+        String[][] cmdsN3 = new String[CERTIFICATE_AMOUNT][15];
+        String[][] cmdsN4 = new String[CERTIFICATE_AMOUNT][12];
+        for(int c = 0; c < CERTIFICATE_AMOUNT; c++) {
             cmdsN1[c][0] = ("openssl");
             cmdsN1[c][1] = ("genrsa");
             cmdsN1[c][2] = ("-out");
@@ -116,30 +153,6 @@ public class PseudonymAuthority {
         ProcessBuilder builder;
         Process currentProcess;
         for(int c = 0; c < CERTIFICATE_AMOUNT; c++) {
-            builder= new ProcessBuilder(cmdsX1[c]);
-            builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
-            builder.redirectErrorStream(true);
-            currentProcess =  builder.start();
-            currentProcess.waitFor();
-
-            builder = new ProcessBuilder(cmdsX2[c]);
-            builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
-            builder.redirectErrorStream(true);
-            currentProcess =  builder.start();
-            currentProcess.waitFor();
-
-            builder = new ProcessBuilder(cmdsX3[c]);
-            builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
-            builder.redirectErrorStream(true);
-            currentProcess =  builder.start();
-            currentProcess.waitFor();
-
-            builder = new ProcessBuilder(cmdsX4[c]);
-            builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
-            builder.redirectErrorStream(true);
-            currentProcess =  builder.start();
-            currentProcess.waitFor();
-
             builder = new ProcessBuilder(cmdsN1[c]);
             builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
             builder.redirectErrorStream(true);
@@ -169,7 +182,9 @@ public class PseudonymAuthority {
 
     public static void main(String[] args) {
         try {
-            genPseudonyms();
+            if (args[0].equals('x')) genPseudonymsX();
+            else if (args[0].equals('n')) genPseudonymsN();
+            else System.err.println("PLEASE TYPE ARG x OR n");
         } catch (IOException | InterruptedException e) {
             System.out.println("Error running cmd");
             System.err.println(e);
