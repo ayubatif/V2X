@@ -6,7 +6,7 @@ mkdir obuA-setup
 cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar obuA-setup/
 java -cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar v2x.PseudonymAuthority a
 for file in CADNS/*; do cp "$file" "${obuA-setup/Authentication/}";done
-for file in Log/*; do cp "$file" "${obuA-setup/Authentication/}";done
+for file in Log/*; do cp "$file" "${obuA-setup/}";done
 
 mkdir obuX-setup
 cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar obuX-setup/
