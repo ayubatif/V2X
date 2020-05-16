@@ -17,6 +17,7 @@ public class AnswerCounter {
     private static final String LOG_FILE_NAME= "v2x-data-log";
     private static final String LOG_FILE_EXTENSION= ".txt";
     private int testNumber;
+    private int pseudoRate;
     private JSONArray log = new JSONArray();
 
     /**
@@ -25,6 +26,17 @@ public class AnswerCounter {
      */
     public AnswerCounter(int testnum) {
         this.testNumber = testnum;
+        this.pseudoRate = 0;
+    }
+
+    /**
+     *
+     * @param testnum which test
+     * @param rate pseudo change rate
+     */
+    public AnswerCounter(int testnum, int rate) {
+        this.testNumber = testnum;
+        this.pseudoRate = rate;
     }
 
     /**
@@ -97,6 +109,9 @@ public class AnswerCounter {
         int totalAnswers = this.answerZero + this.answerOne;
         JSONObject jo;
         jo = new JSONObject();
+        if (this.pseudoRate > 0) {
+            jo.put("PSEUDO_RATE", this.pseudoRate);
+        }
         jo.put("TOTAL", totalAnswers);
         for (int i = 0; i < answer.length; i++) {
             jo = new JSONObject();
@@ -151,8 +166,8 @@ public class AnswerCounter {
     }
 
     public static void main(String[] args) {
-        AnswerCounter answerCounter1 = new AnswerCounter(3);
-        AnswerCounter answerCounter2 = new AnswerCounter(3);
+        AnswerCounter answerCounter1 = new AnswerCounter(3, 10);
+        AnswerCounter answerCounter2 = new AnswerCounter(3, 10);
         int notSoRandomNumber = DNSBloomFilterFunctions.generateRandomHostname().length() * DNSBloomFilterFunctions.generateRandomHostname().length();
         for(int i = 0; i < notSoRandomNumber; i++) {
             answerCounter1.addAnswer(Integer.valueOf(i % 2).toString());

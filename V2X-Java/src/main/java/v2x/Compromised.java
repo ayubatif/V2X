@@ -13,7 +13,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
 import static v2x.PseudonymAuthority.CERTIFICATE_AMOUNT;
-import static v2x.PseudonymAuthority.PSEUDONYM_RATE;
 
 public class Compromised {
     static final int MULTICAST_PORT = 2020;
@@ -46,15 +45,12 @@ public class Compromised {
                 break;
             case 3:
                 System.out.println("running test 3");
-                runThirdTest();
+                runThirdTest(Integer.parseInt(args[1]));
                 break;
             case 4:
                 System.out.println("running test 4");
-                runFourthTest();
+                runFourthTest(Integer.parseInt(args[1]));
                 break;
-            case 0:
-                System.out.println("running test 0");
-                runCertTest();
         }
     }
 
@@ -320,7 +316,7 @@ public class Compromised {
      * @throws InvalidKeyException
      * @throws InvalidKeySpecException
      */
-    private static synchronized void runThirdTest() throws IOException, ClassNotFoundException, CertificateException,
+    private static synchronized void runThirdTest(int rate) throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
         int counter = 0;
@@ -331,7 +327,7 @@ public class Compromised {
             if (number > CERTIFICATE_AMOUNT - 2) {
                 System.out.println("certificate limit reached");
             }
-            else if (counter != 0 && counter % PSEUDONYM_RATE == 0) {
+            else if (counter != 0 && counter % rate == 0) {
                 System.out.println("changing certificate");
                 number++;
             }
@@ -400,7 +396,7 @@ public class Compromised {
         clientSocket.close();
     }
 
-    private static synchronized void runFourthTest() throws IOException, ClassNotFoundException, CertificateException,
+    private static synchronized void runFourthTest(int rate) throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
         int counter = 0;
@@ -411,52 +407,11 @@ public class Compromised {
             if (number > CERTIFICATE_AMOUNT - 2) {
                 System.out.println("certificate limit reached");
             }
-            else if (counter != 0 && counter % PSEUDONYM_RATE == 0) {
+            else if (counter != 0 && counter % rate == 0) {
                 System.out.println("changing certificate");
                 number++;
             }
             counter++;
         }
-    }
-
-    private static void runCertTest() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, CertificateException {
-        String userCertificate = AuthenticationFunctions
-                .getCertificate("Authentication/OBU-X-certificate" + 14 + ".crt");
-        PrivateKey userPrivateKey = AuthenticationFunctions
-                .getPrivateKey("Authentication/OBU-X-private-key" + 14 + ".der");
-        PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(DNS_PRIVATE_KEY);
-
-        String innerAnswer = "0";
-        String innerHash = AuthenticationFunctions.hashMessage(innerAnswer);
-        String innerEncryptedHash = AuthenticationFunctions.encryptMessage(innerHash, dnsPrivateKey);
-
-        Message innerMessage = new Message();
-        innerMessage.putValue("Answer", innerAnswer);
-        innerMessage.putValue("Hash", innerEncryptedHash);
-
-        byte[] innerMessageByte = CommunicationFunctions.messageToByteArray(innerMessage);
-        byte[] innerMessageByteBase64 = Base64.getEncoder().encode(innerMessageByte);
-        String innerMessageString = new String(innerMessageByteBase64);
-
-        String outerHash = AuthenticationFunctions.hashMessage(innerMessageString);
-        String outerEncryptedHash = AuthenticationFunctions.encryptMessage(outerHash, userPrivateKey);
-
-        Message outerMessage = new Message();
-        outerMessage.putValue("Answer", innerMessageString);
-        outerMessage.putValue("Hash", outerEncryptedHash);
-        outerMessage.putValue("Certificate", userCertificate);
-
-        /**    ============================================     */
-
-        String outerAnswer = outerMessage.getValue("Answer");
-
-        String outerCertificate = outerMessage.getValue("Certificate");
-        outerEncryptedHash = outerMessage.getValue("Hash");
-
-        boolean outerAuthentication = AuthenticationFunctions.authenticateMessage(
-                outerAnswer, outerEncryptedHash, outerCertificate, CA_CERTIFICATE_LOCATION);
-
-        if (outerAuthentication) System.out.println("It works");
-        else System.out.println("This aint it");
     }
 }

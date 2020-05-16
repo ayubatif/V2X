@@ -15,6 +15,7 @@ public class ValidityCounter {
     private static final String LOG_FILE_NAME = "v2x-validity-log";
     private static final String LOG_FILE_EXTENSION = ".txt";
     private int testNumber;
+    private int pseudoRate;
     private JSONArray log = new JSONArray();
 
     /**
@@ -23,6 +24,16 @@ public class ValidityCounter {
      */
     public ValidityCounter(int testnum) {
         this.testNumber = testnum;
+    }
+
+    /**
+     *
+     * @param testnum which test
+     * @param rate the pseudo change rate
+     */
+    public ValidityCounter(int testnum, int rate) {
+        this.testNumber = testnum;
+        this.pseudoRate = rate;
     }
 
     /**
@@ -98,6 +109,9 @@ public class ValidityCounter {
         int totalAnswers = this.outerMessageAuthenticationFail + this.innerMessageAuthenticationFail + this.allValid;
         JSONObject jo;
         jo = new JSONObject();
+        if (this.pseudoRate > 0) {
+            jo.put("PSEUDO_RATE", this.pseudoRate);
+        }
         jo.put("TOTAL", totalAnswers);
         for (int i = 0; i < answer.length; i++) {
             jo = new JSONObject();
@@ -152,8 +166,8 @@ public class ValidityCounter {
     }
 
     public static void main(String[] args) {
-        ValidityCounter validityCounter1 = new ValidityCounter(3);
-        ValidityCounter validityCounter2 = new ValidityCounter(3);
+        ValidityCounter validityCounter1 = new ValidityCounter(3, 10);
+        ValidityCounter validityCounter2 = new ValidityCounter(3, 10);
         int notSoRandomNumber = DNSBloomFilterFunctions.generateRandomHostname().length() * DNSBloomFilterFunctions.generateRandomHostname().length();
         for(int i = 0; i < notSoRandomNumber; i++) {
             validityCounter1.addValidity(Integer.valueOf(i % 3).toString());

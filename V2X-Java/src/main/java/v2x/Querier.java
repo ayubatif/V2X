@@ -22,9 +22,9 @@ import java.util.concurrent.TimeUnit;
 public class Querier {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "Authentication/OBU-A-certificate.crt";
+    static final String OWN_CERTIFICATE_LOCATION = "Authentication/OBU-A-certificate0.crt";
     static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
-    static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-A-private-key.der";
+    static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-A-private-key0.der";
     static final String CRL_LOCATION = "Authentication/CRL-A.crl";
     static final String OBU_X_CERTIFICATE_LOCATION = "Authentication/OBU-X-certificate.crt";
     static final String DNS_CERTIFICATE_LOCATION = "Authentication/DNS-certificate.crt";
@@ -52,11 +52,11 @@ public class Querier {
                 break;
             case 3:
                 System.out.println("running test 3");
-                runThirdTest(testAmount);
+                runThirdTest(testAmount, Integer.parseInt(args[2]));
                 break;
             case 4:
                 System.out.println("running test 4");
-                runFourthTest(testAmount);
+                runFourthTest(testAmount, Integer.parseInt(args[2]));
                 break;
             case 0:
                 System.out.println("running test 0");
@@ -295,13 +295,13 @@ public class Querier {
      * @throws InvalidKeySpecException
      * @throws InterruptedException
      */
-    private static void runThirdTest(int testAmount)
+    private static void runThirdTest(int testAmount, int rate)
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
-        AnswerCounter answerCounter = new AnswerCounter(3);
-        ValidityCounter validityCounter = new ValidityCounter(3);
+        AnswerCounter answerCounter = new AnswerCounter(3, rate);
+        ValidityCounter validityCounter = new ValidityCounter(3, rate);
         answerCounter.importJSONLog();
         validityCounter.importJSONLog();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
@@ -388,13 +388,13 @@ public class Querier {
      * @throws InvalidKeySpecException
      * @throws InterruptedException
      */
-    private static void runFourthTest(int testAmount)
+    private static void runFourthTest(int testAmount, int rate)
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
-        AnswerCounter answerCounter = new AnswerCounter(4);
-        ValidityCounter validityCounter = new ValidityCounter(4);
+        AnswerCounter answerCounter = new AnswerCounter(4, rate);
+        ValidityCounter validityCounter = new ValidityCounter(4, rate);
         answerCounter.importJSONLog();
         validityCounter.importJSONLog();
         new PrintWriter(CRL_LOCATION).close(); // empty the file

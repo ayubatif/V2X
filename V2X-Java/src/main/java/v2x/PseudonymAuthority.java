@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class PseudonymAuthority {
-    static final int PSEUDONYM_RATE = 10;
-    static int CERTIFICATE_AMOUNT = 15;
+    static int CERTIFICATE_AMOUNT = 1000;
 
     //TODO Can use pre gen pseudonyms if a la carte no work
     public static synchronized void genPseudonymsX() throws IOException, InterruptedException {

@@ -13,7 +13,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
 import static v2x.PseudonymAuthority.CERTIFICATE_AMOUNT;
-import static v2x.PseudonymAuthority.PSEUDONYM_RATE;
 
 public class NonCompromised {
     static final int MULTICAST_PORT = 2020;
@@ -44,11 +43,11 @@ public class NonCompromised {
                 break;
             case 3:
                 System.out.println("running test 3");
-                runThirdTest();
+                runThirdTest(Integer.parseInt(args[1]));
                 break;
             case 4:
                 System.out.println("running test 4");
-                runFourthTest();
+                runFourthTest(Integer.parseInt(args[1]));
                 break;
         }
     }
@@ -310,7 +309,7 @@ public class NonCompromised {
      * @throws InvalidKeyException
      * @throws InvalidKeySpecException
      */
-    private static synchronized void  runThirdTest() throws IOException, ClassNotFoundException, CertificateException,
+    private static synchronized void  runThirdTest(int rate) throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
         int counter = 0;
@@ -321,7 +320,7 @@ public class NonCompromised {
             if (number > CERTIFICATE_AMOUNT - 2) {
                 System.out.println("certificate limit reached");
             }
-            else if (counter != 0 && counter % PSEUDONYM_RATE == 0) {
+            else if (counter != 0 && counter % rate == 0) {
                 System.out.println("changing certificate");
                 number++;
             }
@@ -391,7 +390,7 @@ public class NonCompromised {
         clientSocket.close();
     }
 
-    private static synchronized void runFourthTest() throws IOException, ClassNotFoundException, CertificateException,
+    private static synchronized void runFourthTest(int rate) throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
         int counter = 0;
@@ -402,7 +401,7 @@ public class NonCompromised {
             if (number > CERTIFICATE_AMOUNT - 2) {
                 System.out.println("certificate limit reached");
             }
-            else if (counter != 0 && counter % PSEUDONYM_RATE == 0) {
+            else if (counter != 0 && counter % rate == 0) {
                 System.out.println("changing certificate");
                 number++;
             }
