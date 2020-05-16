@@ -52,6 +52,9 @@ public class Compromised {
                 System.out.println("running test 4");
                 runFourthTest();
                 break;
+            case 0:
+                System.out.println("running test 0");
+                runCertTest();
         }
     }
 
@@ -414,5 +417,46 @@ public class Compromised {
             }
             counter++;
         }
+    }
+
+    private static void runCertTest() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, CertificateException {
+        String userCertificate = AuthenticationFunctions
+                .getCertificate("Authentication/OBU-X-certificate" + 14 + ".crt");
+        PrivateKey userPrivateKey = AuthenticationFunctions
+                .getPrivateKey("Authentication/OBU-X-private-key" + 14 + ".der");
+        PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(DNS_PRIVATE_KEY);
+
+        String innerAnswer = "0";
+        String innerHash = AuthenticationFunctions.hashMessage(innerAnswer);
+        String innerEncryptedHash = AuthenticationFunctions.encryptMessage(innerHash, dnsPrivateKey);
+
+        Message innerMessage = new Message();
+        innerMessage.putValue("Answer", innerAnswer);
+        innerMessage.putValue("Hash", innerEncryptedHash);
+
+        byte[] innerMessageByte = CommunicationFunctions.messageToByteArray(innerMessage);
+        byte[] innerMessageByteBase64 = Base64.getEncoder().encode(innerMessageByte);
+        String innerMessageString = new String(innerMessageByteBase64);
+
+        String outerHash = AuthenticationFunctions.hashMessage(innerMessageString);
+        String outerEncryptedHash = AuthenticationFunctions.encryptMessage(outerHash, userPrivateKey);
+
+        Message outerMessage = new Message();
+        outerMessage.putValue("Answer", innerMessageString);
+        outerMessage.putValue("Hash", outerEncryptedHash);
+        outerMessage.putValue("Certificate", userCertificate);
+
+        /**    ============================================     */
+
+        String outerAnswer = outerMessage.getValue("Answer");
+
+        String outerCertificate = outerMessage.getValue("Certificate");
+        outerEncryptedHash = outerMessage.getValue("Hash");
+
+        boolean outerAuthentication = AuthenticationFunctions.authenticateMessage(
+                outerAnswer, outerEncryptedHash, outerCertificate, CA_CERTIFICATE_LOCATION);
+
+        if (outerAuthentication) System.out.println("It works");
+        else System.out.println("This aint it");
     }
 }
