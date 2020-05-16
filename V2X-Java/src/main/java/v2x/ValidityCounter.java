@@ -11,7 +11,8 @@ public class ValidityCounter {
     private int outerMessageAuthenticationFail = 0;
     private int innerMessageAuthenticationFail = 0;
     private int allValid = 0;
-    private static final String LOG_FILE_LOCATION = "v2x-log.txt";
+    private static final String LOG_FILE_NAME = "v2x-validity-log";
+    private static final String LOG_FILE_EXTENSION = ".txt";
     private int testNumber;
     private JSONArray log = new JSONArray();
 
@@ -117,7 +118,7 @@ public class ValidityCounter {
      * @throws IOException
      */
     public void importJSONLog() throws IOException {
-        File jsonFile = new File(LOG_FILE_LOCATION+this.testNumber);
+        File jsonFile = new File(LOG_FILE_NAME+this.testNumber+LOG_FILE_EXTENSION);
         InputStream in = new FileInputStream(jsonFile);
 
         StringBuilder textBuilder = new StringBuilder();
@@ -139,7 +140,7 @@ public class ValidityCounter {
      * @throws IOException
      */
     public void exportJSONLog() throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE_LOCATION+this.testNumber));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE_NAME+this.testNumber+LOG_FILE_EXTENSION));
         writer.write(log.toString());
 
         writer.close();
@@ -161,7 +162,7 @@ public class ValidityCounter {
             validityCounter2.importJSONLog();
             System.out.println("Actual: "+validityCounter2.getLog().toString());
         } catch (IOException e) {
-            System.out.println("Check if ./v2x-log.txt"+validityCounter1.testNumber+" exists");
+            System.out.println("Check if "+LOG_FILE_NAME+validityCounter1.testNumber+LOG_FILE_EXTENSION+" exists");
             System.err.println(e);
         }
     }

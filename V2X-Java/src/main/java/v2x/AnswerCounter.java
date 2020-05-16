@@ -13,7 +13,8 @@ public class AnswerCounter {
     private int answerNull = 0;
     private int answerZero = 0;
     private int answerOne = 0;
-    private static final String LOG_FILE_LOCATION = "v2x-log.txt";
+    private static final String LOG_FILE_NAME= "v2x-data-log";
+    private static final String LOG_FILE_EXTENSION= ".txt";
     private int testNumber;
     private JSONArray log = new JSONArray();
 
@@ -116,7 +117,7 @@ public class AnswerCounter {
      * @throws IOException
      */
     public void importJSONLog() throws IOException {
-        File jsonFile = new File(LOG_FILE_LOCATION+this.testNumber);
+        File jsonFile = new File(LOG_FILE_NAME+this.testNumber+LOG_FILE_EXTENSION);
         InputStream in = new FileInputStream(jsonFile);
 
         StringBuilder textBuilder = new StringBuilder();
@@ -138,7 +139,7 @@ public class AnswerCounter {
      * @throws IOException
      */
     public void exportJSONLog() throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE_LOCATION+this.testNumber));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE_NAME+this.testNumber+LOG_FILE_EXTENSION));
         writer.write(log.toString());
 
         writer.close();
@@ -160,7 +161,7 @@ public class AnswerCounter {
             answerCounter2.importJSONLog();
             System.out.println("Actual: "+answerCounter2.getLog().toString());
         } catch (IOException e) {
-            System.out.println("Check if ./v2x-log.txt"+answerCounter1.testNumber+" exists");
+            System.out.println("Check if "+LOG_FILE_NAME+answerCounter1.testNumber+LOG_FILE_EXTENSION+" exists");
             System.err.println(e);
         }
     }
