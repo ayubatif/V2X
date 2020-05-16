@@ -1,0 +1,54 @@
+package v2x;
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
+
+// https://stackoverflow.com/questions/2275443/how-to-timeout-a-thread
+
+/**
+ * Waits for an answer that is authenticated and returns it for the second test. Now built for timeouts
+ */
+class ReceiveAnswerTwo implements Callable<String[]> {
+    static final int UNICAST_PORT = 2021;
+    static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
+    static final String CRL_LOCATION = "Authentication/CRL-A.crl";
+
+    private final DatagramSocket serverSocket;
+
+    public ReceiveAnswerTwo(DatagramSocket serverSocket) {
+        this.serverSocket = serverSocket;
+    }
+
+    @Override
+    public String[] call() throws Exception {
+        byte[] buffer = new byte[65508];
+        int counter = 1;
+        String[] allAnswer = new String[500];
+        while (true) {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            serverSocket.receive(packet);
+            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
+            String answer = message.getValue("Answer");
+            if (!answer.equals(null)) {
+                String certificate = message.getValue("Certificate");
+                String encryptedHash = message.getValue("Hash");
+                boolean revoked = AuthenticationFunctions.checkRevocatedCertificate(certificate, CRL_LOCATION);
+                boolean authenticated = AuthenticationFunctions.authenticateMessage(answer, encryptedHash,
+                        certificate, CA_CERTIFICATE_LOCATION);
+                if (authenticated && !revoked) {
+                    allAnswer[0] = answer;
+                    allAnswer[counter] = "2";
+                    counter++;
+                    allAnswer[counter] = "-2";
+                    return allAnswer;
+                } else {
+                    allAnswer[0] = "-1";
+                    allAnswer[counter] = "0";
+                    counter++;
+                }
+            }
+        }
+    }
+}
