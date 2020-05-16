@@ -1,24 +1,26 @@
 #!/bin/bash
 # Mvn compile then copy auth and bash to target
-mvn clean compile assembly:single
+#mvn clean compile assembly:single
 
-mkdir obuA-setup
-cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar obuA-setup/
-java -cp obuA-setup/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar v2x.PseudonymAuthority a
-for file in CADNS/*; do cp "$file" "${obuA-setup/Authentication/}";done
-for file in Log/*; do cp "$file" "${obuA-setup/}";done
+whoami
 
-mkdir obuX-setup
-cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar obuX-setup/
-java -cp obuX-setup/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar v2x.PseudonymAuthority x
-for file in CADNS/*; do cp "$file" "${obuX-setup/Authentication/}";done
-for file in Log/*; do cp "$file" "${obuX-setup/}";done
+mkdir obuASetup
+cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar obuASetup/
+java -cp obuASetup/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar v2x.PseudonymAuthority a
+for file in CADNS/*; do cp "$file" "${obuASetup/Authentication/}";done
+for file in Log/*; do cp "$file" "${obuASetup/}";done
 
-mkdir obuN-setup
-cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar obuN-setup/
-java -cp obuN-setup/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar v2x.PseudonymAuthority n
-for file in CADNS/*; do cp "$file" "${obuN-setup/Authentication/}";done
-for file in Log/*; do cp "$file" "${obuN-setup/}";done
+mkdir obuXSetup
+cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar obuXSetup/
+java -cp obuXSetup/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar v2x.PseudonymAuthority x
+for file in CADNS/*; do cp "$file" "${obuXSetup/Authentication/}";done
+for file in Log/*; do cp "$file" "${obuXSetup/}";done
+
+mkdir obuNSetup
+cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar obuNSetup/
+java -cp obuNSetup/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar v2x.PseudonymAuthority n
+for file in CADNS/*; do cp "$file" "${obuNSetup/Authentication/}";done
+for file in Log/*; do cp "$file" "${obuNSetup/}";done
 
 exit
 
