@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class PseudonymAuthority {
     static final int PSEUDONYM_RATE = 10;
-    static int CERTIFICATE_AMOUNT = 10;
+    static int CERTIFICATE_AMOUNT = 10000;
 
     //TODO Can use pre gen pseudonyms if a la carte no work
     public static synchronized void genPseudonymsX() throws IOException, InterruptedException {
@@ -182,9 +182,9 @@ public class PseudonymAuthority {
 
     public static void main(String[] args) {
         try {
-            if (args[0].equals('x')) genPseudonymsX();
-            else if (args[0].equals('n')) genPseudonymsN();
-            else System.err.println("PLEASE TYPE ARG x OR n");
+            if (args[0].equals("x") || args[0].equals("X")) genPseudonymsX();
+            else if (args[0].equals("n") || args[0].equals("N")) genPseudonymsN();
+            else System.err.println("PLEASE TYPE ARG x, X, n, OR N");
         } catch (IOException | InterruptedException e) {
             System.out.println("Error running cmd");
             System.err.println(e);
