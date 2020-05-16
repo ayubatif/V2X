@@ -5,10 +5,10 @@ import java.io.IOException;
 
 public class PseudonymAuthority {
     static final int PSEUDONYM_RATE = 10;
+    static int CERTIFICATE_AMOUNT = 10;
 
     //TODO Can use pre gen pseudonyms if a la carte no work
-    public static synchronized void genPseudonyms(int certAmount) throws IOException, InterruptedException {
-        int CERTIFICATE_AMOUNT = certAmount;
+    public static synchronized void genPseudonyms() throws IOException, InterruptedException {
         File f = new File("Authentication");
         if (!f.mkdir()) {
             System.err.println("Couldn't create dir...");
@@ -169,7 +169,7 @@ public class PseudonymAuthority {
 
     public static void main(String[] args) {
         try {
-            genPseudonyms(Integer.parseInt(args[0]));
+            genPseudonyms();
         } catch (IOException | InterruptedException e) {
             System.out.println("Error running cmd");
             System.err.println(e);
