@@ -100,9 +100,9 @@ public class PseudonymAuthority {
             System.err.println("Couldn't create dir...");
         }
         String[][] cmdsN1 = new String[CERTIFICATE_AMOUNT][5];
-        String[][] cmdsA2 = new String[CERTIFICATE_AMOUNT][9];
+        String[][] cmdsN2 = new String[CERTIFICATE_AMOUNT][9];
         String[][] cmdsN3 = new String[CERTIFICATE_AMOUNT][15];
-        String[][] cmdsA4 = new String[CERTIFICATE_AMOUNT][12];
+        String[][] cmdsN4 = new String[CERTIFICATE_AMOUNT][12];
         for(int c = 0; c < CERTIFICATE_AMOUNT; c++) {
             cmdsN1[c][0] = ("openssl");
             cmdsN1[c][1] = ("genrsa");
@@ -110,15 +110,15 @@ public class PseudonymAuthority {
             cmdsN1[c][3] = ("OBU-N-private-key"+c+".pem");
             cmdsN1[c][4] = ("2048");
 
-            cmdsA2[c][0] = ("openssl");
-            cmdsA2[c][1] = ("req");
-            cmdsA2[c][2] = ("-new");
-            cmdsA2[c][3] = ("-key");
-            cmdsA2[c][4] = ("OBU-N-private-key"+c+".pem");
-            cmdsA2[c][5] = ("-out");
-            cmdsA2[c][6] = ("OBU-N"+c+".csr");
-            cmdsA2[c][7] = ("-subj");
-            cmdsA2[c][8] = ("\"/C=SE/ST=Stockholm/L=Stockholm/O=KTH Thesis/OU=V2X Thesis/CN=test/emailAddress=arieltan@kth.se\"");
+            cmdsN2[c][0] = ("openssl");
+            cmdsN2[c][1] = ("req");
+            cmdsN2[c][2] = ("-new");
+            cmdsN2[c][3] = ("-key");
+            cmdsN2[c][4] = ("OBU-N-private-key"+c+".pem");
+            cmdsN2[c][5] = ("-out");
+            cmdsN2[c][6] = ("OBU-N"+c+".csr");
+            cmdsN2[c][7] = ("-subj");
+            cmdsN2[c][8] = ("\"/C=SE/ST=Stockholm/L=Stockholm/O=KTH Thesis/OU=V2X Thesis/CN=test/emailAddress=arieltan@kth.se\"");
 
             cmdsN3[c][0] = ("openssl");
             cmdsN3[c][1] = ("x509");
@@ -136,18 +136,18 @@ public class PseudonymAuthority {
             cmdsN3[c][13] = ("OBU-N-certificate"+c+".crt");
             cmdsN3[c][14] = ("-sha256");
 
-            cmdsA4[c][0] = ("openssl");
-            cmdsA4[c][1] = ("pkcs8");
-            cmdsA4[c][2] = ("-nocrypt");
-            cmdsA4[c][3] = ("-topk8");
-            cmdsA4[c][4] = ("-inform");
-            cmdsA4[c][5] = ("PEM");
-            cmdsA4[c][6] = ("-in");
-            cmdsA4[c][7] = ("OBU-N-private-key"+c+".pem");
-            cmdsA4[c][8] = ("-outform");
-            cmdsA4[c][9] = ("DER");
-            cmdsA4[c][10] = ("-out");
-            cmdsA4[c][11] = ("OBU-N-private-key"+c+".der");
+            cmdsN4[c][0] = ("openssl");
+            cmdsN4[c][1] = ("pkcs8");
+            cmdsN4[c][2] = ("-nocrypt");
+            cmdsN4[c][3] = ("-topk8");
+            cmdsN4[c][4] = ("-inform");
+            cmdsN4[c][5] = ("PEM");
+            cmdsN4[c][6] = ("-in");
+            cmdsN4[c][7] = ("OBU-N-private-key"+c+".pem");
+            cmdsN4[c][8] = ("-outform");
+            cmdsN4[c][9] = ("DER");
+            cmdsN4[c][10] = ("-out");
+            cmdsN4[c][11] = ("OBU-N-private-key"+c+".der");
         }
 
         ProcessBuilder builder;
@@ -159,7 +159,7 @@ public class PseudonymAuthority {
             currentProcess =  builder.start();
             currentProcess.waitFor();
 
-            builder = new ProcessBuilder(cmdsA2[c]);
+            builder = new ProcessBuilder(cmdsN2[c]);
             builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
             builder.redirectErrorStream(true);
             currentProcess =  builder.start();
@@ -171,7 +171,7 @@ public class PseudonymAuthority {
             currentProcess =  builder.start();
             currentProcess.waitFor();
 
-            builder = new ProcessBuilder(cmdsA4[c]);
+            builder = new ProcessBuilder(cmdsN4[c]);
             builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
             builder.redirectErrorStream(true);
             currentProcess =  builder.start();
@@ -186,25 +186,25 @@ public class PseudonymAuthority {
             System.err.println("Couldn't create dir...");
         }
         String[][] cmdsA1 = new String[1][5];
-        String[][] cmdsN2 = new String[1][9];
+        String[][] cmdsA2 = new String[1][9];
         String[][] cmdsA3 = new String[1][15];
         String[][] cmdsA4 = new String[1][12];
         for(int c = 0; c < 1; c++) {
             cmdsA1[c][0] = ("openssl");
             cmdsA1[c][1] = ("genrsa");
             cmdsA1[c][2] = ("-out");
-            cmdsA1[c][3] = ("OBU-N-private-key"+c+".pem");
+            cmdsA1[c][3] = ("OBU-A-private-key"+c+".pem");
             cmdsA1[c][4] = ("2048");
 
-            cmdsN2[c][0] = ("openssl");
-            cmdsN2[c][1] = ("req");
-            cmdsN2[c][2] = ("-new");
-            cmdsN2[c][3] = ("-key");
-            cmdsN2[c][4] = ("OBU-A-private-key"+c+".pem");
-            cmdsN2[c][5] = ("-out");
-            cmdsN2[c][6] = ("OBU-N"+c+".csr");
-            cmdsN2[c][7] = ("-subj");
-            cmdsN2[c][8] = ("\"/C=SE/ST=Stockholm/L=Stockholm/O=KTH Thesis/OU=V2X Thesis/CN=test/emailAddress=arieltan@kth.se\"");
+            cmdsA2[c][0] = ("openssl");
+            cmdsA2[c][1] = ("req");
+            cmdsA2[c][2] = ("-new");
+            cmdsA2[c][3] = ("-key");
+            cmdsA2[c][4] = ("OBU-A-private-key"+c+".pem");
+            cmdsA2[c][5] = ("-out");
+            cmdsA2[c][6] = ("OBU-A"+c+".csr");
+            cmdsA2[c][7] = ("-subj");
+            cmdsA2[c][8] = ("\"/C=SE/ST=Stockholm/L=Stockholm/O=KTH Thesis/OU=V2X Thesis/CN=test/emailAddress=arieltan@kth.se\"");
 
             cmdsA3[c][0] = ("openssl");
             cmdsA3[c][1] = ("x509");
@@ -212,14 +212,14 @@ public class PseudonymAuthority {
             cmdsA3[c][3] = ("-days");
             cmdsA3[c][4] = ("365");
             cmdsA3[c][5] = ("-in");
-            cmdsA3[c][6] = ("OBU-N"+c+".csr");
+            cmdsA3[c][6] = ("OBU-A"+c+".csr");
             cmdsA3[c][7] = ("-CA");
             cmdsA3[c][8] = ("CA-certificate.crt");
             cmdsA3[c][9] = ("-CAkey");
             cmdsA3[c][10] = ("CA-private-key.pem");
             cmdsA3[c][11] = ("-CAcreateserial");
             cmdsA3[c][12] = ("-out");
-            cmdsA3[c][13] = ("OBU-N-certificate"+c+".crt");
+            cmdsA3[c][13] = ("OBU-A-certificate"+c+".crt");
             cmdsA3[c][14] = ("-sha256");
 
             cmdsA4[c][0] = ("openssl");
@@ -229,11 +229,11 @@ public class PseudonymAuthority {
             cmdsA4[c][4] = ("-inform");
             cmdsA4[c][5] = ("PEM");
             cmdsA4[c][6] = ("-in");
-            cmdsA4[c][7] = ("OBU-N-private-key"+c+".pem");
+            cmdsA4[c][7] = ("OBU-A-private-key"+c+".pem");
             cmdsA4[c][8] = ("-outform");
             cmdsA4[c][9] = ("DER");
             cmdsA4[c][10] = ("-out");
-            cmdsA4[c][11] = ("OBU-N-private-key"+c+".der");
+            cmdsA4[c][11] = ("OBU-A-private-key"+c+".der");
         }
 
         ProcessBuilder builder;
@@ -245,7 +245,7 @@ public class PseudonymAuthority {
             currentProcess =  builder.start();
             currentProcess.waitFor();
 
-            builder = new ProcessBuilder(cmdsN2[c]);
+            builder = new ProcessBuilder(cmdsA2[c]);
             builder.directory(new File("Authentication").getAbsoluteFile() ); // this is where you set the root folder for the executable to run with
             builder.redirectErrorStream(true);
             currentProcess =  builder.start();
@@ -267,10 +267,23 @@ public class PseudonymAuthority {
 
     public static void main(String[] args) {
         try {
-            if (args[0].equals("x") || args[0].equals("X")) genPseudonymsX();
-            else if (args[0].equals("n") || args[0].equals("N")) genPseudonymsN();
-            else if (args[0].equals("a") || args[0].equals("A")) genPseudonymsA();
-            else System.err.println("PLEASE TYPE ARG a, A, x, X, n, OR N");
+            switch (args[0]) {
+                case "x":
+                case "X":
+                    genPseudonymsX();
+                    break;
+                case "n":
+                case "N":
+                    genPseudonymsN();
+                    break;
+                case "a":
+                case "A":
+                    genPseudonymsA();
+                    break;
+                default:
+                    System.err.println("PLEASE TYPE ARG a, A, x, X, n, OR N");
+                    break;
+            }
         } catch (IOException | InterruptedException e) {
             System.out.println("Error running cmd");
             System.err.println(e);
