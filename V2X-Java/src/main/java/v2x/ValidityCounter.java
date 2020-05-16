@@ -1,6 +1,7 @@
 package v2x;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
@@ -130,7 +131,11 @@ public class ValidityCounter {
             }
         }
 
-        log = new JSONArray(textBuilder.toString());
+        try {
+            log = new JSONArray(textBuilder.toString());
+        } catch (JSONException e) {
+            System.err.println("Empty file isn't quite an empty JSON file");
+        }
 
         in.close();
     }
