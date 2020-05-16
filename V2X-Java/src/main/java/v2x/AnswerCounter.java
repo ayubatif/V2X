@@ -17,6 +17,10 @@ public class AnswerCounter {
     private int testNumber;
     private JSONArray log = new JSONArray();
 
+    /**
+     *
+     * @param testnum which test is being run
+     */
     public AnswerCounter(int testnum) {
         this.testNumber = testnum;
     }
@@ -83,20 +87,34 @@ public class AnswerCounter {
         System.out.println(this.answerNull);
     }
 
+    /**
+     * Replaces and fills the JSON log with the current state of answers
+     */
     public void logAnswers() {
         double[] answer = getPercentage();
+        int totalAnswers = this.answerZero + this.answerOne;
         JSONObject jo;
+        jo = new JSONObject();
+        jo.put("TOTAL", totalAnswers);
         for (int i = 0; i < answer.length; i++) {
             jo = new JSONObject();
-            jo.put("RATIO_"+i, answer[i]);
+            jo.put("DATA"+i, answer[i]);
             log.put(jo);
         }
     }
 
+    /**
+     *
+     * @return JSONArray containing answer percentages
+     */
     private JSONArray getLog() {
         return this.log;
     }
 
+    /**
+     * imports the JSON log, but applicability is scarce in our scenario. Able to store different runs of test I suppose
+     * @throws IOException
+     */
     public void importJSONLog() throws IOException {
         File jsonFile = new File(LOG_FILE_LOCATION+this.testNumber);
         InputStream in = new FileInputStream(jsonFile);
@@ -111,9 +129,14 @@ public class AnswerCounter {
         }
 
         log = new JSONArray(textBuilder.toString());
+
         in.close();
     }
 
+    /**
+     * Writes the log in JSON to a test specific file
+     * @throws IOException
+     */
     public void exportJSONLog() throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE_LOCATION+this.testNumber));
         writer.write(log.toString());
@@ -126,7 +149,7 @@ public class AnswerCounter {
         AnswerCounter answerCounter2 = new AnswerCounter(3);
         int notSoRandomNumber = DNSBloomFilterFunctions.generateRandomHostname().length() * DNSBloomFilterFunctions.generateRandomHostname().length();
         for(int i = 0; i < notSoRandomNumber; i++) {
-            answerCounter1.addAnswer(Integer.valueOf(i % 3).toString());
+            answerCounter1.addAnswer(Integer.valueOf(i % 2).toString());
         }
         answerCounter1.printAnswer();
         answerCounter1.printMath();
