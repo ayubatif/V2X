@@ -14,29 +14,16 @@ class ReceiveAnswerOne extends Thread {
     private final DatagramSocket serverSocket;
     private AnswerCounter answerCounter;
     private ValidityCounter validityCounter;
-    private Vector<String> messages;
     private int testAmount;
 
     public ReceiveAnswerOne(DatagramSocket serverSocket,
                             AnswerCounter answerCounter,
                             ValidityCounter validityCounter,
-                            Vector<String> messages,
                             int testAmount) {
         this.serverSocket = serverSocket;
         this.answerCounter = answerCounter;
         this.validityCounter = validityCounter;
-        this.messages = messages;
         this.testAmount = testAmount;
-    }
-
-    private String getMessageTime() {
-        notify();
-        String message = messages.firstElement();
-        long timer = Long.parseLong(message);
-        long time = System.currentTimeMillis();
-        long result = time - timer;
-        String totalTime = String.valueOf(result);
-        return totalTime;
     }
 
     @Override
@@ -62,6 +49,17 @@ class ReceiveAnswerOne extends Thread {
 
 //                System.out.println(getMessageTime());
 
+                if (answer.equals("0")) {
+                    String time = message.getValue("Time");
+                    long startTime = Long.parseLong(time);
+                    long endTime = System.currentTimeMillis();
+                    long totalTime = startTime - endTime;
+
+//                    System.out.println("start time" + startTime);
+//                    System.out.println("end time" + endTime);
+//                    System.out.println("total time" + totalTime);
+                }
+
                 answerCounter.addAnswer(answer);
                 validityCounter.addValidity("2");
 
@@ -70,6 +68,7 @@ class ReceiveAnswerOne extends Thread {
                 }
 
                 counter++;
+                buffer = new byte[65508];
 
             } catch (Exception e) {
                 System.out.println("error two");
@@ -77,7 +76,7 @@ class ReceiveAnswerOne extends Thread {
             }
         }
 
-        answerCounter.printAnswer();
+        System.out.println(answerCounter.printAnswer());
         answerCounter.printMath();
         validityCounter.printValidity();
         validityCounter.printMath();
@@ -86,5 +85,6 @@ class ReceiveAnswerOne extends Thread {
 //        validityCounter.logAnswers();
 //        answerCounter.exportJSONLog();
 //        validityCounter.exportJSONLog();
+        serverSocket.close();
     }
 }

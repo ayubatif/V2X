@@ -1,9 +1,15 @@
 package v2x;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
-public class Run {
-    public static void main(String args[]) throws InterruptedException, IOException, ClassNotFoundException {
+public class RunQuerier {
+    public static void main(String args[]) {
         int mode = Integer.parseInt(args[0]);
         int testAmount = Integer.parseInt(args[1]);
         System.out.println(System.getProperty("user.dir"));
@@ -11,12 +17,20 @@ public class Run {
         switch (mode) {
             case 1:
                 System.out.println("running test 1");
-                querier.runFirstTest(testAmount);
+                try {
+                    querier.runFirstTest(testAmount);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
                 break;
-//            case 2:
-//                System.out.println("running test 2");
-//                querier.runSecondTest(testAmount);
-//                break;
+            case 2:
+                System.out.println("running test 2");
+                try {
+                    querier.runSecondTest(testAmount);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+                break;
 //            case 3:
 //                System.out.println("running test 3");
 //                querier.runThirdTest(testAmount, Integer.parseInt(args[2]));
@@ -27,18 +41,18 @@ public class Run {
 //                break;
 //            case 0:
 //                System.out.println("running test 0");
-//                test(testAmount);
+//                querier.test(testAmount);
 //                break;
 //            case -1:
 //                System.out.println("running test -1");
-//                crlTest();
+//                querier.crlTest();
 //                break;
 //            case -2:
 //                System.out.println("running test -2");
-//                bloomFilterTest();
+//                querier.bloomFilterTest();
 //                break;
-//            case -3:
-//                System.out.println(System.getProperty("user.dir"));
+            case -3:
+                System.out.println(System.getProperty("user.dir"));
         }
     }
 }

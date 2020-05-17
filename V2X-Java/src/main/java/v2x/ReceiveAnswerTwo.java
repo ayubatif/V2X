@@ -10,45 +10,98 @@ import java.util.concurrent.Callable;
 /**
  * Waits for an answer that is authenticated and returns it for the second test. Now built for timeouts
  */
-class ReceiveAnswerTwo implements Callable<String[]> {
-    static final int UNICAST_PORT = 2021;
+class ReceiveAnswerTwo extends Thread {
     static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
     static final String CRL_LOCATION = "Authentication/CRL-A.crl";
 
     private final DatagramSocket serverSocket;
+    private AnswerCounter answerCounter;
+    private ValidityCounter validityCounter;
+    private int testAmount;
 
-    public ReceiveAnswerTwo(DatagramSocket serverSocket) {
+    public ReceiveAnswerTwo(DatagramSocket serverSocket,
+                            AnswerCounter answerCounter,
+                            ValidityCounter validityCounter,
+                            int testAmount) {
         this.serverSocket = serverSocket;
+        this.answerCounter = answerCounter;
+        this.validityCounter = validityCounter;
+        this.testAmount = testAmount;
     }
 
     @Override
-    public String[] call() throws Exception {
+    public void run() {
         byte[] buffer = new byte[65508];
-        int counter = 1;
-        String[] allAnswer = new String[500];
-        while (true) {
+
+        try {
+            answerCounter.importJSONLog();
+            validityCounter.importJSONLog();
+        } catch (Exception e) {
+            System.out.println("error one");
+            e.printStackTrace();
+        }
+
+        int counter = 0;
+        boolean run = true;
+
+        while (run) {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            serverSocket.receive(packet);
-            Message message = CommunicationFunctions.byteArrayToMessage(buffer);
-            String answer = message.getValue("Answer");
-            if (!answer.equals(null)) {
+
+            try {
+                serverSocket.receive(packet);
+                Message message = CommunicationFunctions.byteArrayToMessage(buffer);
+                String answer = message.getValue("Answer");
+
                 String certificate = message.getValue("Certificate");
                 String encryptedHash = message.getValue("Hash");
                 boolean revoked = AuthenticationFunctions.checkRevocatedCertificate(certificate, CRL_LOCATION);
                 boolean authenticated = AuthenticationFunctions.authenticateMessage(answer, encryptedHash,
                         certificate, CA_CERTIFICATE_LOCATION);
+
                 if (authenticated && !revoked) {
-                    allAnswer[0] = answer;
-                    allAnswer[counter] = "2";
+
+                    if (answer.equals("0")) {
+                        String time = message.getValue("Time");
+                        long startTime = Long.parseLong(time);
+                        long endTime = System.currentTimeMillis();
+                        long totalTime = startTime - endTime;
+
+//                    System.out.println("start time" + startTime);
+//                    System.out.println("end time" + endTime);
+                    System.out.println("total time" + totalTime);
+                    }
+
+                    answerCounter.addAnswer(answer);
+                    validityCounter.addValidity("2");
+
+                    System.out.println("counter " + counter);
+
+                    if (counter >= testAmount - 1) {
+                        run = false;
+                    }
+
                     counter++;
-                    allAnswer[counter] = "-2";
-                    return allAnswer;
+                    buffer = new byte[65508];
+
                 } else {
-                    allAnswer[0] = "-1";
-                    allAnswer[counter] = "0";
-                    counter++;
+                    validityCounter.addValidity("1");
                 }
+
+            } catch (Exception e) {
+                System.out.println("error two");
+                e.printStackTrace();
             }
         }
+
+        System.out.println(answerCounter.printAnswer());
+        answerCounter.printMath();
+        validityCounter.printValidity();
+        validityCounter.printMath();
+
+//        answerCounter.logAnswers();
+//        validityCounter.logAnswers();
+//        answerCounter.exportJSONLog();
+//        validityCounter.exportJSONLog();
+        serverSocket.close();
     }
 }

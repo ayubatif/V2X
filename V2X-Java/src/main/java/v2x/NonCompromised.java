@@ -59,7 +59,7 @@ public class NonCompromised {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    private static String receiveQueryTest1() throws IOException, ClassNotFoundException {
+    private static String[] receiveQueryTest1() throws IOException, ClassNotFoundException {
         MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
         InetAddress group = InetAddress.getByName("225.0.0.0");
         serverSocket.joinGroup(group);
@@ -73,7 +73,9 @@ public class NonCompromised {
                 System.out.println("query received");
                 String inetAddress = packet.getAddress().getHostAddress();
                 serverSocket.close();
-                return inetAddress;
+                String time = message.getValue("Time");
+                String[] answer = new String[] {inetAddress, time};
+                return answer;
             }
         }
     }
@@ -84,11 +86,12 @@ public class NonCompromised {
      * @param returnIPAddress a string that is the IP address of who to send to
      * @throws IOException
      */
-    private static void sendAnswerTest1(String returnIPAddress) throws IOException {
+    private static void sendAnswerTest1(String returnIPAddress, String time) throws IOException {
         InetAddress address = InetAddress.getByName(returnIPAddress);
         DatagramSocket clientSocket = new DatagramSocket();
         Message answer = new Message();
         answer.putValue("Answer", "0");
+        answer.putValue("Time", time);
         byte[] data = CommunicationFunctions.messageToByteArray(answer);
         DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
         clientSocket.send(answerPacket);
@@ -104,8 +107,10 @@ public class NonCompromised {
      */
     private static void runFirstTest() throws IOException, ClassNotFoundException {
         while (true) {
-            String returnIPAddress = receiveQueryTest1();
-            sendAnswerTest1(returnIPAddress);
+            String[] answer = receiveQueryTest1();
+            String returnIPAddress = answer[0];
+            String time = answer[1];
+            sendAnswerTest1(returnIPAddress, time);
         }
     }
 
@@ -122,7 +127,7 @@ public class NonCompromised {
      * @throws NoSuchPaddingException
      * @throws InvalidKeyException
      */
-    private static String receiveQueryTest2() throws IOException, ClassNotFoundException, CertificateException,
+    private static String[] receiveQueryTest2() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
             NoSuchPaddingException, InvalidKeyException {
         MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
@@ -142,7 +147,9 @@ public class NonCompromised {
                         certificate, CA_CERTIFICATE_LOCATION)) {
                     String inetAddress = packet.getAddress().getHostAddress();
                     serverSocket.close();
-                    return inetAddress;
+                    String time = message.getValue("Time");
+                    String[] answer = new String[] {inetAddress, time};
+                    return answer;
                 }
             }
         }
@@ -161,7 +168,7 @@ public class NonCompromised {
      * @throws BadPaddingException
      * @throws NoSuchPaddingException
      */
-    private static void sendAnswerTest2(String returnIPAddress) throws IOException, InvalidKeySpecException,
+    private static void sendAnswerTest2(String returnIPAddress, String time) throws IOException, InvalidKeySpecException,
             NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException,
             BadPaddingException, NoSuchPaddingException {
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
@@ -175,6 +182,7 @@ public class NonCompromised {
         answer.putValue("Answer", message);
         answer.putValue("Certificate", userCertificate);
         answer.putValue("Hash", authentication);
+        answer.putValue("Time", time);
         byte[] data = CommunicationFunctions.messageToByteArray(answer);
         DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
         clientSocket.send(answerPacket);
@@ -199,8 +207,10 @@ public class NonCompromised {
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
         while (true) {
-            String returnIPAddress = receiveQueryTest2();
-            sendAnswerTest2(returnIPAddress);
+            String[] answer = receiveQueryTest2();
+            String returnIPAddress = answer[0];
+            String time = answer[1];
+            sendAnswerTest2(returnIPAddress, time);
         }
     }
 
