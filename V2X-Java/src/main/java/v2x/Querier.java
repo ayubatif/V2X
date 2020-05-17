@@ -140,14 +140,16 @@ public class Querier {
             }
             executorService.shutdownNow();
         }
-        answerCounter.printAnswer();
-        answerCounter.printMath();
-        validityCounter.printValidity();
-        validityCounter.printMath();
+        System.out.println(answerCounter.printAnswer());
+        System.out.println(answerCounter.printMath());
+        System.out.println(validityCounter.printValidity());
+        System.out.println(validityCounter.printMath());
         answerCounter.logAnswers();
         validityCounter.logAnswers();
         answerCounter.exportJSONLog();
         validityCounter.exportJSONLog();
+        answerCounter.exportLogOutput();
+        validityCounter.exportLogOutput();
     }
 
     /**
@@ -236,14 +238,16 @@ public class Querier {
             }
             executorService.shutdownNow();
         }
-        answerCounter.printAnswer();
-        answerCounter.printMath();
-        validityCounter.printValidity();
-        validityCounter.printMath();
+        System.out.println(answerCounter.printAnswer());
+        System.out.println(answerCounter.printMath());
+        System.out.println(validityCounter.printValidity());
+        System.out.println(validityCounter.printMath());
         answerCounter.logAnswers();
         validityCounter.logAnswers();
         answerCounter.exportJSONLog();
         validityCounter.exportJSONLog();
+        answerCounter.exportLogOutput();
+        validityCounter.exportLogOutput();
     }
 
     /**
@@ -331,14 +335,16 @@ public class Querier {
             executorService.shutdownNow();
             Thread.sleep(1000);
         }
-        answerCounter.printAnswer();
-        answerCounter.printMath();
-        validityCounter.printValidity();
-        validityCounter.printMath();
+        System.out.println(answerCounter.printAnswer());
+        System.out.println(answerCounter.printMath());
+        System.out.println(validityCounter.printValidity());
+        System.out.println(validityCounter.printMath());
         answerCounter.logAnswers();
         validityCounter.logAnswers();
         answerCounter.exportJSONLog();
         validityCounter.exportJSONLog();
+        answerCounter.exportLogOutput();
+        validityCounter.exportLogOutput();
     }
 
     /**
@@ -425,14 +431,16 @@ public class Querier {
             executorService.shutdownNow();
             Thread.sleep(1000);
         }
-        answerCounter.printAnswer();
-        answerCounter.printMath();
-        validityCounter.printValidity();
-        validityCounter.printMath();
+        System.out.println(answerCounter.printAnswer());
+        System.out.println(answerCounter.printMath());
+        System.out.println(validityCounter.printValidity());
+        System.out.println(validityCounter.printMath());
         answerCounter.logAnswers();
         validityCounter.logAnswers();
         answerCounter.exportJSONLog();
         validityCounter.exportJSONLog();
+        answerCounter.exportLogOutput();
+        validityCounter.exportLogOutput();
     }
 
     private static void test(int testAmount) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
