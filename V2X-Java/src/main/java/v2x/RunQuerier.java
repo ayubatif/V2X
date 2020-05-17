@@ -20,7 +20,7 @@ public class RunQuerier {
                 try {
                     querier.runFirstTest(testAmount);
                 } catch (Exception e) {
-                    System.out.println(e);
+                    e.printStackTrace();
                 }
                 break;
             case 2:
@@ -28,13 +28,17 @@ public class RunQuerier {
                 try {
                     querier.runSecondTest(testAmount);
                 } catch (Exception e) {
-                    System.out.println(e);
+                    e.printStackTrace();
                 }
                 break;
-//            case 3:
-//                System.out.println("running test 3");
-//                querier.runThirdTest(testAmount, Integer.parseInt(args[2]));
-//                break;
+            case 3:
+                System.out.println("running test 3");
+                try {
+                    querier.runThirdTest(testAmount, Integer.parseInt(args[2]));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
 //            case 4:
 //                System.out.println("running test 4");
 //                querier.runFourthTest(testAmount, Integer.parseInt(args[2]));

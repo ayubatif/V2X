@@ -12,30 +12,50 @@ import java.util.concurrent.Callable;
  * Waits for an answer that is authenticated and returns it for the third test. If the message is untrustworhy, the
  * certificate is put into the revocation list.
  */
-public class ReceiveAnswerThree implements Callable<String[]> {
+public class ReceiveAnswerThree extends Thread {
     static final int UNICAST_PORT = 2021;
     static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
     static final String CRL_LOCATION = "Authentication/CRL-A.crl";
     static final String DNS_CERTIFICATE_LOCATION = "Authentication/DNS-certificate.crt";
 
     private final DatagramSocket serverSocket;
+    private AnswerCounter answerCounter;
+    private ValidityCounter validityCounter;
+    private int testAmount;
 
-    public ReceiveAnswerThree(DatagramSocket serverSocket) {
+    public ReceiveAnswerThree(DatagramSocket serverSocket,
+                            AnswerCounter answerCounter,
+                            ValidityCounter validityCounter,
+                            int testAmount) {
         this.serverSocket = serverSocket;
+        this.answerCounter = answerCounter;
+        this.validityCounter = validityCounter;
+        this.testAmount = testAmount;
     }
 
     @Override
-    public String[] call() throws Exception {
+    public void run() {
         byte[] buffer = new byte[65508];
-        int counter = 1;
-        String[] allAnswer = new String[500];
-        while (true) {
-            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
-            serverSocket.receive(receivePacket);
-            Message outerMessage = CommunicationFunctions.byteArrayToMessage(buffer);
-            String outerAnswer = outerMessage.getValue("Answer");
 
-            if (!outerAnswer.equals(null)) {
+        try {
+            answerCounter.importJSONLog();
+            validityCounter.importJSONLog();
+        } catch (Exception e) {
+            System.out.println("error one");
+            e.printStackTrace();
+        }
+
+        int counter = 0;
+        boolean run = true;
+
+        while (run) {
+            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
+
+            try {
+                serverSocket.receive(receivePacket);
+                Message outerMessage = CommunicationFunctions.byteArrayToMessage(buffer);
+                String outerAnswer = outerMessage.getValue("Answer");
+
                 String outerCertificate = outerMessage.getValue("Certificate");
                 String outerEncryptedHash = outerMessage.getValue("Hash");
 
@@ -43,7 +63,6 @@ public class ReceiveAnswerThree implements Callable<String[]> {
                         outerAnswer, outerEncryptedHash, outerCertificate, CA_CERTIFICATE_LOCATION);
                 boolean outerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
                         outerCertificate, CRL_LOCATION);
-
                 if (outerAuthentication && !outerRevoked) {
                     byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
                     Message innerMessage = CommunicationFunctions.byteArrayToMessage(decodedInnerAnswer);
@@ -69,27 +88,53 @@ public class ReceiveAnswerThree implements Callable<String[]> {
                                 innerCertificate, CRL_LOCATION);
 
                         if (innerAuthentication && !innerRevoked) {
-                            allAnswer[0] = innerAnswer;
-                            allAnswer[counter] = "2";
+                            if (innerAnswer.equals("0")) {
+                                String time = outerMessage.getValue("Time");
+                                long startTime = Long.parseLong(time);
+                                long endTime = System.currentTimeMillis();
+                                long totalTime = startTime - endTime;
+
+//                    System.out.println("start time" + startTime);
+//                    System.out.println("end time" + endTime);
+                                System.out.println("total time" + totalTime);
+                            }
+
+                            answerCounter.addAnswer(innerAnswer);
+                            validityCounter.addValidity("2");
+
+                            System.out.println("counter " + counter);
+
+                            if (counter >= testAmount - 1) {
+                                run = false;
+                            }
+
                             counter++;
-                            allAnswer[counter] = "-2";
-                            return allAnswer;
+                            buffer = new byte[65508];
                         } else {
-                            AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
-                            allAnswer[counter] = "1";
-                            counter++;
+                            validityCounter.addValidity("1");
                         }
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
-                        allAnswer[counter] = "1";
-                        counter++;
+                        validityCounter.addValidity("1");
                     }
                 } else {
-                    allAnswer[0] = "-1";
-                    allAnswer[counter] = "0";
-                    counter++;
+                    validityCounter.addValidity("0");
                 }
+            } catch (Exception e) {
+                System.out.println("error two");
+                e.printStackTrace();
             }
         }
+
+        System.out.println(answerCounter.printAnswer());
+        System.out.println(answerCounter.printMath());
+        System.out.println(validityCounter.printValidity());
+        System.out.println(validityCounter.printMath());
+
+//        answerCounter.logAnswers();
+//        validityCounter.logAnswers();
+//        answerCounter.exportJSONLog();
+//        validityCounter.exportJSONLog();
+        serverSocket.close();
     }
 }

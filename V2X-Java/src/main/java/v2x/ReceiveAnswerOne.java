@@ -77,9 +77,9 @@ class ReceiveAnswerOne extends Thread {
         }
 
         System.out.println(answerCounter.printAnswer());
-        answerCounter.printMath();
-        validityCounter.printValidity();
-        validityCounter.printMath();
+        System.out.println(answerCounter.printMath());
+        System.out.println(validityCounter.printValidity());
+        System.out.println(validityCounter.printMath());
 
 //        answerCounter.logAnswers();
 //        validityCounter.logAnswers();

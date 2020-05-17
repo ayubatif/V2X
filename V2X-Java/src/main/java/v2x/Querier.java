@@ -215,7 +215,7 @@ public class Querier extends Thread {
      * @throws BadPaddingException
      * @throws NoSuchPaddingException
      */
-    private static void sendQueryTest3()
+    private void sendQueryTest3()
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
             IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
@@ -230,6 +230,9 @@ public class Querier extends Thread {
         query.putValue("Query", message);
         query.putValue("Certificate", userCertificate);
         query.putValue("Hash", authentication);
+        long currentTime = System.currentTimeMillis();
+        String time = String.valueOf(currentTime);
+        query.putValue("Time", time);
         byte[] data = CommunicationFunctions.messageToByteArray(query);
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
@@ -253,52 +256,26 @@ public class Querier extends Thread {
      * @throws InvalidKeySpecException
      * @throws InterruptedException
      */
-    private static void runThirdTest(int testAmount, int rate)
+    public void runThirdTest(int testAmount, int rate)
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
+        DatagramSocket serverSocket = new DatagramSocket(2021);
         AnswerCounter answerCounter = new AnswerCounter(3, rate);
         ValidityCounter validityCounter = new ValidityCounter(3, rate);
-        answerCounter.importJSONLog();
-        validityCounter.importJSONLog();
         new PrintWriter(CRL_LOCATION).close(); // empty the file
+        String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
+        AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
+        ReceiveAnswerThree receiveAnswerThree = new ReceiveAnswerThree(serverSocket, answerCounter,
+                validityCounter, testAmount);
+        receiveAnswerThree.start();
+
         while (counter < testAmount) {
             sendQueryTest3();
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            DatagramSocket serverSocket = new DatagramSocket(UNICAST_PORT);
-            Future<String[]> future = executorService.submit(new ReceiveAnswerThree(serverSocket));
-            try {
-                String[] answer = future.get(1000, TimeUnit.MILLISECONDS);
-                answerCounter.addAnswer(answer[0]);
-                for (int i = 0; i < answer.length; i++) {
-                    if (answer[i].equals("-2")) {
-                        break;
-                    }
-                    validityCounter.addValidity(answer[i]);
-                }
-                System.out.println("answer");
-                System.out.println(answer[0]);
-                counter++;
-                serverSocket.close();
-            } catch (Exception e) {
-                System.out.println("timeout");
-                serverSocket.close();
-                System.out.println(e);
-            }
-            executorService.shutdownNow();
-            Thread.sleep(1000);
+            counter++;
+            Thread.sleep(1500);
         }
-        System.out.println(answerCounter.printAnswer());
-        System.out.println(answerCounter.printMath());
-        System.out.println(validityCounter.printValidity());
-        System.out.println(validityCounter.printMath());
-        answerCounter.logAnswers();
-        validityCounter.logAnswers();
-        answerCounter.exportJSONLog();
-        validityCounter.exportJSONLog();
-        answerCounter.exportLogOutput();
-        validityCounter.exportLogOutput();
     }
 
     /**
