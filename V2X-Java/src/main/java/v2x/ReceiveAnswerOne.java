@@ -81,10 +81,15 @@ class ReceiveAnswerOne extends Thread {
         System.out.println(validityCounter.printValidity());
         System.out.println(validityCounter.printMath());
 
-//        answerCounter.logAnswers();
-//        validityCounter.logAnswers();
-//        answerCounter.exportJSONLog();
-//        validityCounter.exportJSONLog();
+        answerCounter.logAnswers();
+        validityCounter.logAnswers();
+        try {
+            answerCounter.exportJSONLog();
+            validityCounter.exportJSONLog();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         serverSocket.close();
     }
 }
