@@ -267,14 +267,35 @@ public class Querier extends Thread {
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
         AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
-        ReceiveAnswerThree receiveAnswerThree = new ReceiveAnswerThree(serverSocket, answerCounter,
-                validityCounter, testAmount);
-        receiveAnswerThree.start();
 
         while (counter < testAmount) {
+            ReceiveAnswerThree receiveAnswerThree = new ReceiveAnswerThree(serverSocket, answerCounter,
+                    validityCounter, testAmount);
+            receiveAnswerThree.start();
             sendQueryTest3();
             counter++;
-            Thread.sleep(1500);
+
+            if (counter == 0) {
+                Thread.sleep(2000);
+            }
+            Thread.sleep(500);
+            serverSocket.close();
+            Thread.sleep(500);
+            serverSocket = new DatagramSocket(2021);
+        }
+
+        System.out.println(answerCounter.printAnswer());
+        System.out.println(answerCounter.printMath());
+        System.out.println(validityCounter.printValidity());
+        System.out.println(validityCounter.printMath());
+
+        answerCounter.logAnswers();
+        validityCounter.logAnswers();
+        try {
+            answerCounter.exportJSONLog();
+            validityCounter.exportJSONLog();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
