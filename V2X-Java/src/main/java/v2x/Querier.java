@@ -14,12 +14,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class Querier {
+public class Querier extends Thread {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
     static final String OWN_CERTIFICATE_LOCATION = "Authentication/OBU-A-certificate0.crt";
@@ -29,13 +30,14 @@ public class Querier {
     static final String OBU_X_CERTIFICATE_LOCATION = "Authentication/OBU-X-certificate.crt";
     static final String DNS_CERTIFICATE_LOCATION = "Authentication/DNS-certificate.crt";
     static final String BLOOM_FILTER_LOCATION = "Authentication/DNS-bloom-filter.bf";
+    private Vector<String> messages = new Vector<String>();
 
     /**
      * Handles the initialization of the program to see which experiment it is running.
      *
      * @param args input from the command line when running the program
      */
-    public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException,
+    public void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
             NoSuchPaddingException, InvalidKeyException, InvalidKeySpecException, CertificateException {
         int mode = Integer.parseInt(args[0]);
@@ -75,6 +77,11 @@ public class Querier {
         }
     }
 
+    private synchronized void putMessage(String message) {
+        this.messages.addElement(message);
+        notify();
+    }
+
     // https://stackoverflow.com/questions/2836646/java-serializable-object-to-byte-array
     // https://www.developer.com/java/data/how-to-multicast-using-java-sockets.html
 
@@ -83,7 +90,7 @@ public class Querier {
      *
      * @throws IOException
      */
-    private static void sendQueryTest1() throws IOException {
+    private void sendQueryTest1() throws IOException {
         MulticastSocket multicastSocket = new MulticastSocket(MULTICAST_PORT);
         InetAddress groupIP = InetAddress.getByName("225.0.0.0");
         multicastSocket.joinGroup(groupIP);
@@ -103,7 +110,7 @@ public class Querier {
      * @param message A Message received by the OBU
      * @return <code>String</code> a string of the answer
      */
-    private static String parseMessageTest1(Message message) {
+    private String parseMessageTest1(Message message) {
         String answer = message.getValue("Answer");
         return answer;
     }
@@ -118,36 +125,54 @@ public class Querier {
      * @throws ClassNotFoundException
      * @throws InterruptedException
      */
-    private static void runFirstTest(int testAmount) throws IOException, ClassNotFoundException, InterruptedException {
+    public synchronized void runFirstTest(int testAmount) throws IOException, ClassNotFoundException, InterruptedException {
         int counter = 0;
+
+        DatagramSocket serverSocket = new DatagramSocket(2021);
         AnswerCounter answerCounter = new AnswerCounter(1);
         ValidityCounter validityCounter = new ValidityCounter(1);
-        answerCounter.importJSONLog();
-        validityCounter.importJSONLog();
+        ReceiveAnswerOne receiveAnswerOne = new ReceiveAnswerOne(serverSocket, answerCounter,
+                validityCounter, messages, testAmount);
+        receiveAnswerOne.start();
+
         while (counter < testAmount) {
+            long time = System.currentTimeMillis();
+            String timer = String.valueOf(time);
+            putMessage(timer);
             sendQueryTest1();
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            Future<Message> future = executorService.submit(new ReceiveAnswerOne());
-            try {
-                Message message = future.get(50, TimeUnit.MILLISECONDS);
-                String answer = parseMessageTest1(message);
-                answerCounter.addAnswer(answer);
-                validityCounter.addValidity("2");
-                System.out.println(answer);
-                counter++;
-            } catch (Exception e) {
-                System.out.println("timeout");
-            }
-            executorService.shutdownNow();
+            counter++;
+            Thread.sleep(500);
         }
-        answerCounter.printAnswer();
-        answerCounter.printMath();
-        validityCounter.printValidity();
-        validityCounter.printMath();
-        answerCounter.logAnswers();
-        validityCounter.logAnswers();
-        answerCounter.exportJSONLog();
-        validityCounter.exportJSONLog();
+
+//        int counter = 0;
+//        AnswerCounter answerCounter = new AnswerCounter(1);
+//        ValidityCounter validityCounter = new ValidityCounter(1);
+//        answerCounter.importJSONLog();
+//        validityCounter.importJSONLog();
+//        while (counter < testAmount) {
+//            sendQueryTest1();
+//            ExecutorService executorService = Executors.newSingleThreadExecutor();
+//            Future<Message> future = executorService.submit(new ReceiveAnswerOne());
+//            try {
+//                Message message = future.get(50, TimeUnit.MILLISECONDS);
+//                String answer = parseMessageTest1(message);
+//                answerCounter.addAnswer(answer);
+//                validityCounter.addValidity("2");
+//                System.out.println(answer);
+//                counter++;
+//            } catch (Exception e) {
+//                System.out.println("timeout");
+//            }
+//            executorService.shutdownNow();
+//        }
+//        answerCounter.printAnswer();
+//        answerCounter.printMath();
+//        validityCounter.printValidity();
+//        validityCounter.printMath();
+//        answerCounter.logAnswers();
+//        validityCounter.logAnswers();
+//        answerCounter.exportJSONLog();
+//        validityCounter.exportJSONLog();
     }
 
     /**
