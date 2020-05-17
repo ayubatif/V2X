@@ -343,7 +343,7 @@ public class NonCompromised {
         }
     }
     
-    private static String receiveQueryTest4() throws IOException, ClassNotFoundException, CertificateException,
+    private static String[] receiveQueryTest4() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
             NoSuchPaddingException, InvalidKeyException {
         MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
@@ -363,13 +363,16 @@ public class NonCompromised {
                         certificate, CA_CERTIFICATE_LOCATION)) {
                     String inetAddress = packet.getAddress().getHostAddress();
                     serverSocket.close();
-                    return inetAddress;
+                    String time = message.getValue("Time");
+                    String[] answer = new String[] {inetAddress, time};
+                    return answer;
                 }
             }
         }
     }
 
-    private static void sendAnswerTest4(String returnIPAddress, int number) throws IOException, InvalidKeySpecException,
+    private static void sendAnswerTest4(String returnIPAddress, int number, String time)
+            throws IOException, InvalidKeySpecException,
             NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException,
             BadPaddingException, NoSuchPaddingException {
         String userCertificate = AuthenticationFunctions
@@ -394,6 +397,7 @@ public class NonCompromised {
         outerMessage.putValue("Answer", innerMessageString);
         outerMessage.putValue("Hash", outerEncryptedHash);
         outerMessage.putValue("Certificate", userCertificate);
+        outerMessage.putValue("Time", time);
 
         byte[] outerMessageByte = CommunicationFunctions.messageToByteArray(outerMessage);
         InetAddress address = InetAddress.getByName(returnIPAddress);
@@ -411,8 +415,10 @@ public class NonCompromised {
         int counter = 0;
         int number = 0;
         while (true) {
-            String returnIPAddress = receiveQueryTest4();
-            sendAnswerTest4(returnIPAddress, number);
+            String[] answer = receiveQueryTest4();
+            String returnIPAddress = answer[0];
+            String time = answer[1];
+            sendAnswerTest4(returnIPAddress, number, time);
             if (number > CERTIFICATE_AMOUNT - 2) {
                 System.out.println("certificate limit reached");
             }

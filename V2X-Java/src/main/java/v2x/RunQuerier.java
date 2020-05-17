@@ -39,10 +39,14 @@ public class RunQuerier {
                     e.printStackTrace();
                 }
                 break;
-//            case 4:
-//                System.out.println("running test 4");
-//                querier.runFourthTest(testAmount, Integer.parseInt(args[2]));
-//                break;
+            case 4:
+                System.out.println("running test 4");
+                try {
+                    querier.runFourthTest(testAmount, Integer.parseInt(args[2]));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
 //            case 0:
 //                System.out.println("running test 0");
 //                querier.test(testAmount);

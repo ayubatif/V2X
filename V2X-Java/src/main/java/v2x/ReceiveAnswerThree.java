@@ -111,6 +111,7 @@ public class ReceiveAnswerThree extends Thread {
                             counter++;
                             buffer = new byte[65508];
                         } else {
+                            AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                             validityCounter.addValidity("1");
                         }
                     } catch (Exception e) {
