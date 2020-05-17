@@ -15,6 +15,7 @@ public class AnswerCounter {
     private int answerZero = 0;
     private int answerOne = 0;
     private static final String LOG_FILE_NAME= "v2x-data-log";
+    private static final String PRINT_LOG_FILE_NAME= "v2x-data-print-log";
     private static final String LOG_FILE_EXTENSION= ".txt";
     private int testNumber;
     private int pseudoRate;
@@ -74,31 +75,46 @@ public class AnswerCounter {
         return answer;
     }
 
+    public void exportLogOutput() throws IOException {
+        StringBuilder stringBuilder = new StringBuilder("\n ^(o.o)^ ^(o.o)^ ^(o.o)^ ^(o.o)^ TEST START ^(o.o)^ ^(o.o)^ ^(o.o)^ ^(o.o)^ \n");
+        stringBuilder.append(printAnswer());
+        stringBuilder.append(printMath());
+        String str = stringBuilder.toString();
+        BufferedWriter writer = new BufferedWriter(new FileWriter(PRINT_LOG_FILE_NAME+this.testNumber+LOG_FILE_EXTENSION, true));
+        writer.append(str);
+
+        writer.close();
+    }
+
     /**
      * Prints the math related answers
      */
-    public void printMath() {
+    public String printMath() {
+        StringBuilder stringBuilder = new StringBuilder();
         double[] answer = getPercentage();
 
         for (int i = 0; i < answer.length; i++) {
-            System.out.println("Percentage of answer type " + (i + 1) + ":");
-            System.out.println(answer[i]);
+            stringBuilder.append("Percentage of answer type ").append(i + 1).append(":\n");
+            stringBuilder.append(answer[i]).append("\n");
         }
+        return stringBuilder.toString();
     }
 
     /**
      * Prints out the answers that it has been given.
      */
-    public void printAnswer() {
-        System.out.println("Total answers received:");
+    public String printAnswer() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Total answers received:\n");
         int totalAnswers = this.answerZero + this.answerOne;
-        System.out.println(totalAnswers);
-        System.out.println("Answer type 0 amount:");
-        System.out.println(this.answerZero);
-        System.out.println("Answer type 1 amount:");
-        System.out.println(this.answerOne);
-        System.out.println("No answers received amount:");
-        System.out.println(this.answerNull);
+        stringBuilder.append(totalAnswers).append("\n");
+        stringBuilder.append("Answer type 0 amount:\n");
+        stringBuilder.append(this.answerZero).append("\n");
+        stringBuilder.append("Answer type 1 amount:\n");
+        stringBuilder.append(this.answerOne).append("\n");
+        stringBuilder.append("No answers received amount:\n");
+        stringBuilder.append(this.answerNull).append("\n");
+        return stringBuilder.toString();
     }
 
     /**
@@ -107,17 +123,15 @@ public class AnswerCounter {
     public void logAnswers() {
         double[] answer = getPercentage();
         int totalAnswers = this.answerZero + this.answerOne;
-        JSONObject jo;
-        jo = new JSONObject();
+        JSONObject jo = new JSONObject();
         if (this.pseudoRate > 0) {
             jo.put("PSEUDO_RATE", this.pseudoRate);
         }
         jo.put("TOTAL", totalAnswers);
         for (int i = 0; i < answer.length; i++) {
-            jo = new JSONObject();
             jo.put("DATA"+i, answer[i]);
-            log.put(jo);
         }
+        log.put(jo);
     }
 
     /**

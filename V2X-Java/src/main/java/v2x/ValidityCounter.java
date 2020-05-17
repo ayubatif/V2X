@@ -13,6 +13,7 @@ public class ValidityCounter {
     private int innerMessageAuthenticationFail = 0;
     private int allValid = 0;
     private static final String LOG_FILE_NAME = "v2x-validity-log";
+    private static final String PRINT_LOG_FILE_NAME= "v2x-data-print-log";
     private static final String LOG_FILE_EXTENSION = ".txt";
     private int testNumber;
     private int pseudoRate;
@@ -72,33 +73,47 @@ public class ValidityCounter {
         return answer;
     }
 
+    public void exportLogOutput() throws IOException {
+        StringBuilder stringBuilder = new StringBuilder("\n");
+        stringBuilder.append(printValidity());
+        stringBuilder.append(printMath());
+        String str = stringBuilder.toString();
+        BufferedWriter writer = new BufferedWriter(new FileWriter(PRINT_LOG_FILE_NAME+this.testNumber+LOG_FILE_EXTENSION, true));
+        writer.append(str);
+
+        writer.close();
+    }
+
     /**
      * Prints the math related answers
      */
-    public void printMath() {
+    public String printMath() {
+        StringBuilder stringBuilder = new StringBuilder();
         double[] answer = getPercentage();
-
-        System.out.println("Percentage of outer message issue");
-        System.out.println(answer[0]);
-        System.out.println("Percentage of inner message issue:");
-        System.out.println(answer[1]);
-        System.out.println("Percentage of no issues:");
-        System.out.println(answer[2]);
+        stringBuilder.append("Percentage of outer message issue").append("\n");
+        stringBuilder.append(answer[0]).append("\n");
+        stringBuilder.append("Percentage of inner message issue:").append("\n");
+        stringBuilder.append(answer[1]).append("\n");
+        stringBuilder.append("Percentage of no issues:").append("\n");
+        stringBuilder.append(answer[2]).append("\n");
+        return stringBuilder.toString();
     }
 
     /**
      * Prints out the answers that it has been given.
      */
-    public void printValidity() {
-        System.out.println("Total validations attempted:");
+    public String printValidity() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Total validations attempted:").append("\n");
         int totalAnswers = this.outerMessageAuthenticationFail + this.innerMessageAuthenticationFail + this.allValid;
-        System.out.println(totalAnswers);
-        System.out.println("Outer message issue");
-        System.out.println(this.outerMessageAuthenticationFail);
-        System.out.println("Inner message issue:");
-        System.out.println(this.innerMessageAuthenticationFail);
-        System.out.println("No issues:");
-        System.out.println(this.allValid);
+        stringBuilder.append(totalAnswers).append("\n");
+        stringBuilder.append("Outer message issue").append("\n");
+        stringBuilder.append(this.outerMessageAuthenticationFail).append("\n");
+        stringBuilder.append("Inner message issue:").append("\n");
+        stringBuilder.append(this.innerMessageAuthenticationFail).append("\n");
+        stringBuilder.append("No issues:").append("\n");
+        stringBuilder.append(this.allValid).append("\n");
+        return stringBuilder.toString();
     }
 
     /**
@@ -107,17 +122,15 @@ public class ValidityCounter {
     public void logAnswers() {
         double[] answer = getPercentage();
         int totalAnswers = this.outerMessageAuthenticationFail + this.innerMessageAuthenticationFail + this.allValid;
-        JSONObject jo;
-        jo = new JSONObject();
+        JSONObject jo = new JSONObject();
         if (this.pseudoRate > 0) {
             jo.put("PSEUDO_RATE", this.pseudoRate);
         }
         jo.put("TOTAL", totalAnswers);
         for (int i = 0; i < answer.length; i++) {
-            jo = new JSONObject();
             jo.put("VALIDITY"+i, answer[i]);
-            log.put(jo);
         }
+        log.put(jo);
     }
 
     /**
