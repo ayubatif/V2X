@@ -93,14 +93,15 @@ public class ReceiveAnswerFour extends Thread {
                             answerCounter.addAnswer(answer);
                             validityCounter.addValidity("2");
 
-                            System.out.println("counter " + counter);
+//                            System.out.println("counter " + counter);
 
-                            if (counter >= testAmount - 1) {
-                                run = false;
-                            }
-
+//                            if (counter >= testAmount - 1) {
+//                                run = false;
+//                            }
+//
                             counter++;
-                            buffer = new byte[65508];
+//                            buffer = new byte[65508];
+                            run = false;
                         } else {
                             AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                             validityCounter.addValidity("1");
@@ -115,23 +116,24 @@ public class ReceiveAnswerFour extends Thread {
             } catch (Exception e) {
                 System.out.println("error two");
                 e.printStackTrace();
+                run = false;
             }
         }
 
-        System.out.println(answerCounter.printAnswer());
-        System.out.println(answerCounter.printMath());
-        System.out.println(validityCounter.printValidity());
-        System.out.println(validityCounter.printMath());
-
-        answerCounter.logAnswers();
-        validityCounter.logAnswers();
-        try {
-            answerCounter.exportJSONLog();
-            validityCounter.exportJSONLog();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        serverSocket.close();
+//        System.out.println(answerCounter.printAnswer());
+//        System.out.println(answerCounter.printMath());
+//        System.out.println(validityCounter.printValidity());
+//        System.out.println(validityCounter.printMath());
+//
+//        answerCounter.logAnswers();
+//        validityCounter.logAnswers();
+//        try {
+//            answerCounter.exportJSONLog();
+//            validityCounter.exportJSONLog();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        serverSocket.close();
     }
 }

@@ -49,7 +49,7 @@ public class ReceiveAnswerThree extends Thread {
         boolean run = true;
 
         while (run) {
-            System.out.println("ddg");
+            System.out.println(counter);
             DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 
             try {
@@ -103,13 +103,13 @@ public class ReceiveAnswerThree extends Thread {
                             answerCounter.addAnswer(innerAnswer);
                             validityCounter.addValidity("2");
 
-                            System.out.println("counter " + counter);
+//                            System.out.println("counter " + counter);
 
 //                            if (counter >= testAmount - 1) {
 //                                run = false;
 //                            }
-
-                            counter++;
+//
+//                            counter++;
 //                            buffer = new byte[65508];
                             run = false;
                         } else {
@@ -125,6 +125,7 @@ public class ReceiveAnswerThree extends Thread {
                 }
             } catch (Exception e) {
                 System.out.println("error two");
+                System.out.println("crashes at counter: " + testAmount);
                 e.printStackTrace();
                 run = false;
             }
@@ -143,7 +144,7 @@ public class ReceiveAnswerThree extends Thread {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-
+//
 //        serverSocket.close();
     }
 }
