@@ -43,7 +43,6 @@ class ReceiveAnswerTwo extends Thread {
 
         while (run) {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
             try {
                 serverSocket.receive(packet);
                 Message message = CommunicationFunctions.byteArrayToMessage(buffer);

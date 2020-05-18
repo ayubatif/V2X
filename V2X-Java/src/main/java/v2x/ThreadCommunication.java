@@ -7,11 +7,11 @@ public class ThreadCommunication {
         this.ready = ready;
     }
 
-    public void setReady(boolean ready) {
+    public synchronized void setReady(boolean ready) {
         this.ready = ready;
     }
 
-    public boolean getReady() {
+    public synchronized boolean getReady() {
         return this.ready;
     }
 }
