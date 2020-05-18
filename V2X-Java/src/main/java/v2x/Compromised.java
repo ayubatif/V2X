@@ -172,7 +172,7 @@ public class Compromised {
             InvalidKeyException, BadPaddingException, NoSuchPaddingException {
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
         PrivateKey userPrivateKey = AuthenticationFunctions.getPrivateKey(OWN_PRIVATE_KEY_LOCATION);
-        String message = DNSBloomFilter.exampleAAAA;
+        String message = "1";
         String hash = AuthenticationFunctions.hashMessage(message);
         String authentication = AuthenticationFunctions.encryptMessage(hash, userPrivateKey);
         InetAddress address = InetAddress.getByName(returnIPAddress);

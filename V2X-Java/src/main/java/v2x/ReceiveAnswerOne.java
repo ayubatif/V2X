@@ -15,15 +15,18 @@ class ReceiveAnswerOne extends Thread {
     private AnswerCounter answerCounter;
     private ValidityCounter validityCounter;
     private int testAmount;
+    private ThreadCommunication threadCommunication;
 
     public ReceiveAnswerOne(DatagramSocket serverSocket,
                             AnswerCounter answerCounter,
                             ValidityCounter validityCounter,
-                            int testAmount) {
+                            int testAmount,
+                            ThreadCommunication threadCommunication) {
         this.serverSocket = serverSocket;
         this.answerCounter = answerCounter;
         this.validityCounter = validityCounter;
         this.testAmount = testAmount;
+        this.threadCommunication = threadCommunication;
     }
 
     @Override
@@ -34,7 +37,7 @@ class ReceiveAnswerOne extends Thread {
             validityCounter.importJSONLog();
         } catch (Exception e) {
             System.out.println("error one");
-            System.out.println(e);
+            e.printStackTrace();
         }
 
         int counter = 0;
@@ -47,7 +50,6 @@ class ReceiveAnswerOne extends Thread {
                 Message message = CommunicationFunctions.byteArrayToMessage(buffer);
                 String answer = message.getValue("Answer");
 
-//                System.out.println(getMessageTime());
 
                 if (answer.equals("0")) {
                     String time = message.getValue("Time");
@@ -57,39 +59,41 @@ class ReceiveAnswerOne extends Thread {
 
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
-//                    System.out.println("total time" + totalTime);
+                    System.out.println("total time" + totalTime);
                 }
 
                 answerCounter.addAnswer(answer);
                 validityCounter.addValidity("2");
 
-                if (counter >= testAmount - 1) {
-                    run = false;
-                }
+//                if (counter >= testAmount - 1) {
+//                    run = false;
+//                }
 
                 counter++;
-                buffer = new byte[65508];
-
+//                buffer = new byte[65508];
+                run = false;
+                serverSocket.close();
+                threadCommunication.setReady(true);
             } catch (Exception e) {
                 System.out.println("error two");
-                System.out.println(e);
+                e.printStackTrace();
             }
         }
 
-        System.out.println(answerCounter.printAnswer());
-        System.out.println(answerCounter.printMath());
-        System.out.println(validityCounter.printValidity());
-        System.out.println(validityCounter.printMath());
-
-        answerCounter.logAnswers();
-        validityCounter.logAnswers();
-        try {
-            answerCounter.exportJSONLog();
-            validityCounter.exportJSONLog();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        serverSocket.close();
+//        System.out.println(answerCounter.printAnswer());
+//        System.out.println(answerCounter.printMath());
+//        System.out.println(validityCounter.printValidity());
+//        System.out.println(validityCounter.printMath());
+//
+//        answerCounter.logAnswers();
+//        validityCounter.logAnswers();
+//        try {
+//            answerCounter.exportJSONLog();
+//            validityCounter.exportJSONLog();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        serverSocket.close();
     }
 }

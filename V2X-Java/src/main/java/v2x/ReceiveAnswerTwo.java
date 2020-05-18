@@ -18,15 +18,18 @@ class ReceiveAnswerTwo extends Thread {
     private AnswerCounter answerCounter;
     private ValidityCounter validityCounter;
     private int testAmount;
+    private ThreadCommunication threadCommunication;
 
     public ReceiveAnswerTwo(DatagramSocket serverSocket,
                             AnswerCounter answerCounter,
                             ValidityCounter validityCounter,
-                            int testAmount) {
+                            int testAmount,
+                            ThreadCommunication threadCommunication) {
         this.serverSocket = serverSocket;
         this.answerCounter = answerCounter;
         this.validityCounter = validityCounter;
         this.testAmount = testAmount;
+        this.threadCommunication = threadCommunication;
     }
 
     @Override
@@ -83,6 +86,8 @@ class ReceiveAnswerTwo extends Thread {
 //                    counter++;
 //                    buffer = new byte[65508];
                     run = false;
+                    serverSocket.close();
+                    threadCommunication.setReady(true);
 
                 } else {
                     validityCounter.addValidity("1");

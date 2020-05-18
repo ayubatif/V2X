@@ -23,15 +23,18 @@ public class ReceiveAnswerFour extends Thread {
     private AnswerCounter answerCounter;
     private ValidityCounter validityCounter;
     private int testAmount;
+    private ThreadCommunication threadCommunication;
 
     public ReceiveAnswerFour(DatagramSocket serverSocket,
                               AnswerCounter answerCounter,
                               ValidityCounter validityCounter,
-                              int testAmount) {
+                              int testAmount,
+                             ThreadCommunication threadCommunication) {
         this.serverSocket = serverSocket;
         this.answerCounter = answerCounter;
         this.validityCounter = validityCounter;
         this.testAmount = testAmount;
+        this.threadCommunication = threadCommunication;
     }
 
     @Override
@@ -102,6 +105,8 @@ public class ReceiveAnswerFour extends Thread {
                             counter++;
 //                            buffer = new byte[65508];
                             run = false;
+                            serverSocket.close();
+                            threadCommunication.setReady(true);
                         } else {
                             AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                             validityCounter.addValidity("1");

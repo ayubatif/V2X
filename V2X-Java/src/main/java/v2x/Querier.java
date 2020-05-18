@@ -113,18 +113,44 @@ public class Querier extends Thread {
      */
     public synchronized void runFirstTest(int testAmount) throws IOException, ClassNotFoundException, InterruptedException {
         int counter = 0;
-
-        DatagramSocket serverSocket = new DatagramSocket(2021);
         AnswerCounter answerCounter = new AnswerCounter(1);
         ValidityCounter validityCounter = new ValidityCounter(1);
-        ReceiveAnswerOne receiveAnswerOne = new ReceiveAnswerOne(serverSocket, answerCounter,
-                validityCounter, testAmount);
-        receiveAnswerOne.start();
+
+        DatagramSocket serverSocket = new DatagramSocket(2021);
+        ThreadCommunication threadCommunication = new ThreadCommunication(true);
 
         while (counter < testAmount) {
-            sendQueryTest1();
-            counter++;
-            Thread.sleep(500);
+            if (threadCommunication.getReady()) {
+                threadCommunication.setReady(false);
+                ReceiveAnswerOne receiveAnswerOne = new ReceiveAnswerOne(serverSocket, answerCounter,
+                        validityCounter, testAmount, threadCommunication);
+                receiveAnswerOne.start();
+                sendQueryTest1();
+                counter++;
+                if (counter % 25 == 0) {
+                    System.out.println("query number: " + counter);
+                }
+            }
+            Thread.sleep(100);
+            try {
+                serverSocket = new DatagramSocket(2021);
+            } catch (Exception e) {
+
+            }
+        }
+
+        System.out.println(answerCounter.printAnswer());
+        System.out.println(answerCounter.printMath());
+        System.out.println(validityCounter.printValidity());
+        System.out.println(validityCounter.printMath());
+
+        answerCounter.logAnswers();
+        validityCounter.logAnswers();
+        try {
+            answerCounter.exportJSONLog();
+            validityCounter.exportJSONLog();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -186,28 +212,33 @@ public class Querier extends Thread {
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
-        int counter = -1;
+        int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter(2);
         ValidityCounter validityCounter = new ValidityCounter(2);
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
         AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
         DatagramSocket serverSocket = new DatagramSocket(2021);
+        ThreadCommunication threadCommunication = new ThreadCommunication(true);
 
         while (counter < testAmount) {
-            ReceiveAnswerTwo receiveAnswerTwo = new ReceiveAnswerTwo(serverSocket, answerCounter,
-                    validityCounter, testAmount);
-            receiveAnswerTwo.start();
-            sendQueryTest2();
-            counter++;
-            if (counter == -1) {
-                Thread.sleep(2000);
-            } else {
-                Thread.sleep(1000);
+            if (threadCommunication.getReady()) {
+                threadCommunication.setReady(false);
+                ReceiveAnswerTwo receiveAnswerTwo = new ReceiveAnswerTwo(serverSocket, answerCounter,
+                        validityCounter, testAmount, threadCommunication);
+                receiveAnswerTwo.start();
+                sendQueryTest2();
+                counter++;
+                if (counter % 25 == 0) {
+                    System.out.println("query number: " + counter);
+                }
             }
-            serverSocket.close();
-            Thread.sleep(500);
-            serverSocket = new DatagramSocket(2021);
+            Thread.sleep(100);
+            try {
+                serverSocket = new DatagramSocket(2021);
+            } catch (Exception e) {
+
+            }
         }
 
         System.out.println(answerCounter.printAnswer());
@@ -223,8 +254,6 @@ public class Querier extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        serverSocket.close();
     }
 
     /**
@@ -283,27 +312,33 @@ public class Querier extends Thread {
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
-        int counter = -1;
+        int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter(3, rate);
         ValidityCounter validityCounter = new ValidityCounter(3, rate);
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
         AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
+        DatagramSocket serverSocket = new DatagramSocket(2021);
+        ThreadCommunication threadCommunication = new ThreadCommunication(true);
 
         while (counter < testAmount) {
-            DatagramSocket serverSocket = new DatagramSocket(2021);
-            ReceiveAnswerThree receiveAnswerThree = new ReceiveAnswerThree(serverSocket, answerCounter,
-                    validityCounter, testAmount);
-            receiveAnswerThree.start();
-            sendQueryTest3();
-            counter++;
-            if (counter == -1) {
-                Thread.sleep(2000);
-            } else {
-                Thread.sleep(1000);
+            if (threadCommunication.getReady()) {
+                threadCommunication.setReady(false);
+                ReceiveAnswerThree receiveAnswerThree = new ReceiveAnswerThree(serverSocket, answerCounter,
+                        validityCounter, testAmount, threadCommunication);
+                receiveAnswerThree.start();
+                sendQueryTest3();
+                counter++;
+                if (counter % 25 == 0) {
+                    System.out.println("query number: " + counter);
+                }
             }
-            serverSocket.close();
-            Thread.sleep(500);
+            Thread.sleep(100);
+            try {
+                serverSocket = new DatagramSocket(2021);
+            } catch (Exception e) {
+
+            }
         }
 
         System.out.println(answerCounter.printAnswer());
@@ -376,7 +411,7 @@ public class Querier extends Thread {
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
 
-        int counter = -1;
+        int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter(4, rate);
         ValidityCounter validityCounter = new ValidityCounter(4, rate);
         new PrintWriter(CRL_LOCATION).close(); // empty the file
@@ -385,21 +420,26 @@ public class Querier extends Thread {
         DNSBloomFilterFunctions.generateRandomBloomFilter(1000);
 
         DatagramSocket serverSocket = new DatagramSocket(2021);
+        ThreadCommunication threadCommunication = new ThreadCommunication(true);
 
         while (counter < testAmount) {
-            ReceiveAnswerFour receiveAnswerFour = new ReceiveAnswerFour(serverSocket, answerCounter,
-                    validityCounter, testAmount);
-            receiveAnswerFour.start();
-            sendQueryTest4();
-            counter++;
-            if (counter == -1) {
-                Thread.sleep(2000);
-            } else {
-                Thread.sleep(1000);
+            if (threadCommunication.getReady()) {
+                threadCommunication.setReady(false);
+                ReceiveAnswerFour receiveAnswerFour = new ReceiveAnswerFour(serverSocket, answerCounter,
+                        validityCounter, testAmount, threadCommunication);
+                receiveAnswerFour.start();
+                sendQueryTest4();
+                counter++;
+                if (counter % 25 == 0) {
+                    System.out.println("query number: " + counter);
+                }
             }
-            serverSocket.close();
-            Thread.sleep(500);
-            serverSocket = new DatagramSocket(2021);
+            Thread.sleep(100);
+            try {
+                serverSocket = new DatagramSocket(2021);
+            } catch (Exception e) {
+
+            }
         }
 
         System.out.println(answerCounter.printAnswer());
