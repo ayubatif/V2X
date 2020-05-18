@@ -113,6 +113,7 @@ public class Querier extends Thread {
      */
     public synchronized void runFirstTest(int testAmount) throws IOException, InterruptedException {
         int counter = 0;
+        TimeCounter timeCounter = new TimeCounter(1, testAmount);
         AnswerCounter answerCounter = new AnswerCounter(1);
         ValidityCounter validityCounter = new ValidityCounter(1);
 
@@ -123,7 +124,7 @@ public class Querier extends Thread {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
                 ReceiveAnswerOne receiveAnswerOne = new ReceiveAnswerOne(serverSocket, answerCounter,
-                        validityCounter, testAmount, threadCommunication);
+                        validityCounter, timeCounter, testAmount, threadCommunication);
                 receiveAnswerOne.start();
                 sendQueryTest1();
                 counter++;
@@ -145,12 +146,16 @@ public class Querier extends Thread {
         System.out.println(answerCounter.printMath());
         System.out.println(validityCounter.printValidity());
         System.out.println(validityCounter.printMath());
+        System.out.println("ALL_AVG_TIME: "+timeCounter.getPercentage());
+        System.out.println("NOT_AVG_TIME: "+timeCounter.getBiasedPercentage());
 
         answerCounter.logAnswers();
         validityCounter.logAnswers();
+        timeCounter.logAnswers();
         try {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
+            timeCounter.exportJSONLog();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -215,6 +220,7 @@ public class Querier extends Thread {
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
+        TimeCounter timeCounter = new TimeCounter(2, testAmount);
         AnswerCounter answerCounter = new AnswerCounter(2);
         ValidityCounter validityCounter = new ValidityCounter(2);
         new PrintWriter(CRL_LOCATION).close(); // empty the file
@@ -227,7 +233,7 @@ public class Querier extends Thread {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
                 ReceiveAnswerTwo receiveAnswerTwo = new ReceiveAnswerTwo(serverSocket, answerCounter,
-                        validityCounter, testAmount, threadCommunication);
+                        validityCounter, timeCounter, testAmount, threadCommunication);
                 receiveAnswerTwo.start();
                 sendQueryTest2();
                 counter++;
@@ -249,12 +255,16 @@ public class Querier extends Thread {
         System.out.println(answerCounter.printMath());
         System.out.println(validityCounter.printValidity());
         System.out.println(validityCounter.printMath());
+        System.out.println("ALL_AVG_TIME: "+timeCounter.getPercentage());
+        System.out.println("NOT_AVG_TIME: "+timeCounter.getBiasedPercentage());
 
         answerCounter.logAnswers();
         validityCounter.logAnswers();
+        timeCounter.logAnswers();
         try {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
+            timeCounter.exportJSONLog();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -317,6 +327,7 @@ public class Querier extends Thread {
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
+        TimeCounter timeCounter = new TimeCounter(2, rate, testAmount);
         AnswerCounter answerCounter = new AnswerCounter(3, rate);
         ValidityCounter validityCounter = new ValidityCounter(3, rate);
         new PrintWriter(CRL_LOCATION).close(); // empty the file
@@ -329,7 +340,7 @@ public class Querier extends Thread {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
                 ReceiveAnswerThree receiveAnswerThree = new ReceiveAnswerThree(serverSocket, answerCounter,
-                        validityCounter, testAmount, threadCommunication);
+                        validityCounter, timeCounter, testAmount, threadCommunication);
                 receiveAnswerThree.start();
                 sendQueryTest3();
                 counter++;
@@ -351,12 +362,16 @@ public class Querier extends Thread {
         System.out.println(answerCounter.printMath());
         System.out.println(validityCounter.printValidity());
         System.out.println(validityCounter.printMath());
+        System.out.println("ALL_AVG_TIME: "+timeCounter.getPercentage());
+        System.out.println("NOT_AVG_TIME: "+timeCounter.getBiasedPercentage());
 
         answerCounter.logAnswers();
         validityCounter.logAnswers();
+        timeCounter.logAnswers();
         try {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
+            timeCounter.exportJSONLog();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -418,6 +433,7 @@ public class Querier extends Thread {
             InvalidKeySpecException, InterruptedException {
 
         int counter = 0;
+        TimeCounter timeCounter = new TimeCounter(4, rate, testAmount);
         AnswerCounter answerCounter = new AnswerCounter(4, rate);
         ValidityCounter validityCounter = new ValidityCounter(4, rate);
         new PrintWriter(CRL_LOCATION).close(); // empty the file
@@ -432,7 +448,7 @@ public class Querier extends Thread {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
                 ReceiveAnswerFour receiveAnswerFour = new ReceiveAnswerFour(serverSocket, answerCounter,
-                        validityCounter, testAmount, threadCommunication);
+                        validityCounter, timeCounter, testAmount, threadCommunication);
                 receiveAnswerFour.start();
                 sendQueryTest4();
                 counter++;
@@ -454,12 +470,16 @@ public class Querier extends Thread {
         System.out.println(answerCounter.printMath());
         System.out.println(validityCounter.printValidity());
         System.out.println(validityCounter.printMath());
+        System.out.println("ALL_AVG_TIME: "+timeCounter.getPercentage());
+        System.out.println("NOT_AVG_TIME: "+timeCounter.getBiasedPercentage());
 
         answerCounter.logAnswers();
         validityCounter.logAnswers();
+        timeCounter.logAnswers();
         try {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
+            timeCounter.exportJSONLog();
         } catch (Exception e) {
             e.printStackTrace();
         }

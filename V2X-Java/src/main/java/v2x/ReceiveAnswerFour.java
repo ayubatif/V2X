@@ -22,17 +22,19 @@ public class ReceiveAnswerFour extends Thread {
     private final DatagramSocket serverSocket;
     private AnswerCounter answerCounter;
     private ValidityCounter validityCounter;
+    private TimeCounter timeCounter;
     private int testAmount;
     private ThreadCommunication threadCommunication;
 
     public ReceiveAnswerFour(DatagramSocket serverSocket,
-                              AnswerCounter answerCounter,
-                              ValidityCounter validityCounter,
-                              int testAmount,
+                             AnswerCounter answerCounter,
+                             ValidityCounter validityCounter,
+                             TimeCounter timeCounter, int testAmount,
                              ThreadCommunication threadCommunication) {
         this.serverSocket = serverSocket;
         this.answerCounter = answerCounter;
         this.validityCounter = validityCounter;
+        this.timeCounter = timeCounter;
         this.testAmount = testAmount;
         this.threadCommunication = threadCommunication;
     }
@@ -81,17 +83,18 @@ public class ReceiveAnswerFour extends Thread {
                                 .checkSignedAAAARecord(innerAnswer, signedIPs);
 
                         if (innerAuthentication) {
-                            boolean isResponseMalicious = !DNSBloomFilterFunctions.getFixedAAAA().equals(innerAnswer);
-                            String answer = isResponseMalicious ? "1" : "0";
-
+                            long endTime = System.currentTimeMillis();
                             String time = outerMessage.getValue("Time");
                             long startTime = Long.parseLong(time);
-                            long endTime = System.currentTimeMillis();
                             long totalTime = startTime - endTime;
 
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
                             System.out.println("total time" + totalTime);
+                            timeCounter.addTime(totalTime);
+
+                            boolean isResponseMalicious = !DNSBloomFilterFunctions.getFixedAAAA().equals(innerAnswer);
+                            String answer = isResponseMalicious ? "1" : "0";
 
                             answerCounter.addAnswer(answer);
                             validityCounter.addValidity("2");

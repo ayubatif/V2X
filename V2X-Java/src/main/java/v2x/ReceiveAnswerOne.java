@@ -14,17 +14,19 @@ class ReceiveAnswerOne extends Thread {
     private final DatagramSocket serverSocket;
     private AnswerCounter answerCounter;
     private ValidityCounter validityCounter;
+    private TimeCounter timeCounter;
     private int testAmount;
     private ThreadCommunication threadCommunication;
 
     public ReceiveAnswerOne(DatagramSocket serverSocket,
                             AnswerCounter answerCounter,
                             ValidityCounter validityCounter,
-                            int testAmount,
+                            TimeCounter timeCounter, int testAmount,
                             ThreadCommunication threadCommunication) {
         this.serverSocket = serverSocket;
         this.answerCounter = answerCounter;
         this.validityCounter = validityCounter;
+        this.timeCounter = timeCounter;
         this.testAmount = testAmount;
         this.threadCommunication = threadCommunication;
     }
@@ -52,18 +54,20 @@ class ReceiveAnswerOne extends Thread {
 
 
                 if (answer.equals("0")) {
+                    long endTime = System.currentTimeMillis();
                     String time = message.getValue("Time");
                     long startTime = Long.parseLong(time);
-                    long endTime = System.currentTimeMillis();
                     long totalTime = startTime - endTime;
 
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
                     System.out.println("total time" + totalTime);
+                    timeCounter.addTime(totalTime);
                 }
 
                 answerCounter.addAnswer(answer);
                 validityCounter.addValidity("2");
+
 
 //                if (counter >= testAmount - 1) {
 //                    run = false;

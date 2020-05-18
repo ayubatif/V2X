@@ -21,17 +21,19 @@ public class ReceiveAnswerThree extends Thread {
     private final DatagramSocket serverSocket;
     private AnswerCounter answerCounter;
     private ValidityCounter validityCounter;
+    private TimeCounter timeCounter;
     private int testAmount;
     private ThreadCommunication threadCommunication;
 
     public ReceiveAnswerThree(DatagramSocket serverSocket,
-                            AnswerCounter answerCounter,
-                            ValidityCounter validityCounter,
-                            int testAmount,
+                              AnswerCounter answerCounter,
+                              ValidityCounter validityCounter,
+                              TimeCounter timeCounter, int testAmount,
                               ThreadCommunication threadCommunication) {
         this.serverSocket = serverSocket;
         this.answerCounter = answerCounter;
         this.validityCounter = validityCounter;
+        this.timeCounter = timeCounter;
         this.testAmount = testAmount;
         this.threadCommunication = threadCommunication;
     }
@@ -93,14 +95,15 @@ public class ReceiveAnswerThree extends Thread {
 
                         if (innerAuthentication && !innerRevoked) {
                             if (innerAnswer.equals("0")) {
+                                long endTime = System.currentTimeMillis();
                                 String time = outerMessage.getValue("Time");
                                 long startTime = Long.parseLong(time);
-                                long endTime = System.currentTimeMillis();
                                 long totalTime = startTime - endTime;
 
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
                                 System.out.println("total time" + totalTime);
+                                timeCounter.addTime(totalTime);
                             }
 
                             answerCounter.addAnswer(innerAnswer);
