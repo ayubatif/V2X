@@ -22,6 +22,7 @@ public class TimeCounter {
         this.times = new long[testAmount];
         this.testNumber = testnum;
         this.numAdded = 0;
+        this.sumTimes = 0;
     }
 
     public TimeCounter(int testnum, int rate, int testAmount) {
@@ -29,10 +30,12 @@ public class TimeCounter {
         this.testNumber = testnum;
         this.pseudoRate = rate;
         this.numAdded = 0;
+        this.sumTimes = 0;
     }
 
     public void addTime(long time) {
         this.times[numAdded] = time;
+        sumTimes += time;
         if (numAdded < times.length - 1) this.numAdded++;
     }
 
