@@ -139,6 +139,8 @@ public class Querier extends Thread {
             }
         }
 
+        Thread.sleep(1000);
+
         System.out.println(answerCounter.printAnswer());
         System.out.println(answerCounter.printMath());
         System.out.println(validityCounter.printValidity());
@@ -241,6 +243,8 @@ public class Querier extends Thread {
             }
         }
 
+        Thread.sleep(1000);
+
         System.out.println(answerCounter.printAnswer());
         System.out.println(answerCounter.printMath());
         System.out.println(validityCounter.printValidity());
@@ -321,8 +325,6 @@ public class Querier extends Thread {
         DatagramSocket serverSocket = new DatagramSocket(2021);
         ThreadCommunication threadCommunication = new ThreadCommunication(true);
 
-        System.out.println(blacklistCertificate);
-
         while (counter < testAmount) {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
@@ -342,6 +344,8 @@ public class Querier extends Thread {
 
             }
         }
+
+        Thread.sleep(1000);
 
         System.out.println(answerCounter.printAnswer());
         System.out.println(answerCounter.printMath());
@@ -443,6 +447,8 @@ public class Querier extends Thread {
 
             }
         }
+
+        Thread.sleep(1000);
 
         System.out.println(answerCounter.printAnswer());
         System.out.println(answerCounter.printMath());
