@@ -2,6 +2,7 @@ package v2x;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.security.PublicKey;
 import java.util.Base64;
 import java.util.concurrent.Callable;
@@ -18,42 +19,25 @@ public class ReceiveAnswerThree extends Thread {
     static final String CRL_LOCATION = "Authentication/CRL-A.crl";
     static final String DNS_CERTIFICATE_LOCATION = "Authentication/DNS-certificate.crt";
 
-    private final DatagramSocket serverSocket;
     private AnswerCounter answerCounter;
     private ValidityCounter validityCounter;
-    private int testAmount;
+    byte[] buffer;
 
-    public ReceiveAnswerThree(DatagramSocket serverSocket,
-                            AnswerCounter answerCounter,
-                            ValidityCounter validityCounter,
-                            int testAmount) {
-        this.serverSocket = serverSocket;
+    public ReceiveAnswerThree(byte[] buffer,
+                              AnswerCounter answerCounter,
+                              ValidityCounter validityCounter
+    ) {
+        this.buffer = buffer;
         this.answerCounter = answerCounter;
         this.validityCounter = validityCounter;
-        this.testAmount = testAmount;
     }
 
     @Override
     public void run() {
-        byte[] buffer = new byte[65508];
-
-        try {
-            answerCounter.importJSONLog();
-            validityCounter.importJSONLog();
-        } catch (Exception e) {
-            System.out.println("error one");
-            e.printStackTrace();
-        }
-
-        int counter = 0;
         boolean run = true;
 
         while (run) {
-            System.out.println("ddg");
-            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
-
             try {
-                serverSocket.receive(receivePacket);
                 Message outerMessage = CommunicationFunctions.byteArrayToMessage(buffer);
                 String outerAnswer = outerMessage.getValue("Answer");
 
@@ -103,13 +87,9 @@ public class ReceiveAnswerThree extends Thread {
                             answerCounter.addAnswer(innerAnswer);
                             validityCounter.addValidity("2");
 
-                            System.out.println("counter " + counter);
-
 //                            if (counter >= testAmount - 1) {
 //                                run = false;
 //                            }
-
-                            counter++;
 //                            buffer = new byte[65508];
                             run = false;
                         } else {

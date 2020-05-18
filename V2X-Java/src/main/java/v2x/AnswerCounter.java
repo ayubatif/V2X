@@ -10,16 +10,21 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import com.google.common.util.concurrent.Monitor;
+
 public class AnswerCounter {
+    private int testAmount;
     private int answerNull = 0;
     private int answerZero = 0;
-    private int answerOne = 0;
+    public int answerOne = 0;
     private static final String LOG_FILE_NAME= "v2x-data-log";
     private static final String PRINT_LOG_FILE_NAME= "v2x-data-print-log";
     private static final String LOG_FILE_EXTENSION= ".txt";
     private int testNumber;
     private int pseudoRate;
     private JSONArray log = new JSONArray();
+    private Monitor mutex = new Monitor();
+    public boolean complete = false;
 
     /**
      *
@@ -40,6 +45,12 @@ public class AnswerCounter {
         this.pseudoRate = rate;
     }
 
+    public AnswerCounter(int testnum, int rate, int testAmount) {
+        this.testNumber = testnum;
+        this.pseudoRate = rate;
+        this.testAmount = testAmount;
+    }
+
     /**
      * Takes in answer and counts how much is correct, incorrect, and missing and answer.
      *
@@ -48,16 +59,23 @@ public class AnswerCounter {
     public void addAnswer(String answer) {
         int answerInt = Integer.parseInt(answer);
 
-        switch (answerInt) {
-            case -1:
-                this.answerNull++;
-                break;
-            case 0:
-                this.answerZero++;
-                break;
-            case 1:
-                this.answerOne++;
-                break;
+        mutex.enter();
+        try {
+            switch (answerInt) {
+                case -1:
+                    this.answerNull++;
+                    break;
+                case 0:
+                    this.answerZero++;
+                    break;
+                case 1:
+                    this.answerOne++;
+                    break;
+            }
+            if (this.answerZero > testNumber - 1 || (this.answerZero + this.answerOne) > (testNumber * 2) - 1)
+                this.complete = true;
+        } finally {
+            mutex.leave();
         }
     }
 

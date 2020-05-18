@@ -8,6 +8,8 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import com.google.common.util.concurrent.Monitor;
+
 public class ValidityCounter {
     private int outerMessageAuthenticationFail = 0;
     private int innerMessageAuthenticationFail = 0;
@@ -18,6 +20,7 @@ public class ValidityCounter {
     private int testNumber;
     private int pseudoRate;
     private JSONArray log = new JSONArray();
+    private Monitor mutex = new Monitor();
 
     /**
      *
@@ -45,16 +48,21 @@ public class ValidityCounter {
     public void addValidity(String validity) {
         int answerInt = Integer.parseInt(validity);
 
-        switch (answerInt) {
-            case 0:
-                this.outerMessageAuthenticationFail++;
-                break;
-            case 1:
-                this.innerMessageAuthenticationFail++;
-                break;
-            case 2:
-                this.allValid++;
-                break;
+        mutex.enter();
+        try {
+            switch (answerInt) {
+                case 0:
+                    this.outerMessageAuthenticationFail++;
+                    break;
+                case 1:
+                    this.innerMessageAuthenticationFail++;
+                    break;
+                case 2:
+                    this.allValid++;
+                    break;
+            }
+        } finally {
+            mutex.leave();
         }
     }
 

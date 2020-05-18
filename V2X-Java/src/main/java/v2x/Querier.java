@@ -14,11 +14,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Vector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 public class Querier extends Thread {
     static final int MULTICAST_PORT = 2020;
@@ -260,29 +255,36 @@ public class Querier extends Thread {
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
-        int counter = 0;
-        DatagramSocket serverSocket = new DatagramSocket(2021);
-        AnswerCounter answerCounter = new AnswerCounter(3, rate);
+        AnswerCounter answerCounter = new AnswerCounter(3, rate, testAmount);
         ValidityCounter validityCounter = new ValidityCounter(3, rate);
+
+        try {
+            answerCounter.importJSONLog();
+            validityCounter.importJSONLog();
+        } catch (Exception e) {
+            System.out.println("error importing jason");
+            e.printStackTrace();
+        }
+
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
         AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
+        DatagramSocket serverSocket = new DatagramSocket(2021);
 
-        while (counter < testAmount) {
-            ReceiveAnswerThree receiveAnswerThree = new ReceiveAnswerThree(serverSocket, answerCounter,
-                    validityCounter, testAmount);
-            receiveAnswerThree.start();
+        while (!answerCounter.complete) {
+            byte[] buffer = new byte[65508];
+            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
+
             sendQueryTest3();
-            counter++;
+            System.out.println("waiting for banana bread "+answerCounter.answerOne);
+            serverSocket.receive(receivePacket);
+            System.out.println("received banana bread "+answerCounter.answerOne);
 
-            if (counter == 0) {
-                Thread.sleep(2000);
-            }
-            Thread.sleep(500);
-            serverSocket.close();
-            Thread.sleep(500);
-            serverSocket = new DatagramSocket(2021);
+            ReceiveAnswerThree receiveAnswerThree = new ReceiveAnswerThree(buffer, answerCounter,
+                    validityCounter);
+            receiveAnswerThree.start();
         }
+        serverSocket.close();
 
         System.out.println(answerCounter.printAnswer());
         System.out.println(answerCounter.printMath());
