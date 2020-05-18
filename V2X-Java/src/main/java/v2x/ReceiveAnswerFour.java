@@ -44,14 +44,6 @@ public class ReceiveAnswerFour extends Thread {
 
         byte[] buffer = new byte[65508];
 
-        try {
-            answerCounter.importJSONLog();
-            validityCounter.importJSONLog();
-        } catch (Exception e) {
-            System.out.println("error one");
-            e.printStackTrace();
-        }
-
         int counter = 0;
         boolean run = true;
 
@@ -90,7 +82,7 @@ public class ReceiveAnswerFour extends Thread {
 
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
-                            System.out.println("total time" + totalTime);
+                            System.out.println("total time " + totalTime);
                             timeCounter.addTime(totalTime);
 
                             boolean isResponseMalicious = !DNSBloomFilterFunctions.getFixedAAAA().equals(innerAnswer);

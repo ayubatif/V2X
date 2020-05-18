@@ -112,14 +112,21 @@ public class Querier extends Thread {
      * @throws InterruptedException
      */
     public synchronized void runFirstTest(int testAmount) throws IOException, InterruptedException {
-        int counter = 0;
         TimeCounter timeCounter = new TimeCounter(1, testAmount);
         AnswerCounter answerCounter = new AnswerCounter(1);
         ValidityCounter validityCounter = new ValidityCounter(1);
 
+        try {
+            answerCounter.importJSONLog();
+            validityCounter.importJSONLog();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         DatagramSocket serverSocket = new DatagramSocket(2021);
         ThreadCommunication threadCommunication = new ThreadCommunication(true);
 
+        int counter = 0;
         while (counter < testAmount) {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
@@ -219,16 +226,24 @@ public class Querier extends Thread {
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
-        int counter = 0;
         TimeCounter timeCounter = new TimeCounter(2, testAmount);
         AnswerCounter answerCounter = new AnswerCounter(2);
         ValidityCounter validityCounter = new ValidityCounter(2);
+
+        try {
+            answerCounter.importJSONLog();
+            validityCounter.importJSONLog();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String blacklistCertificate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
         AuthenticationFunctions.addToCRL(blacklistCertificate, CRL_LOCATION);
         DatagramSocket serverSocket = new DatagramSocket(2021);
         ThreadCommunication threadCommunication = new ThreadCommunication(true);
 
+        int counter = 0;
         while (counter < testAmount) {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
@@ -326,16 +341,24 @@ public class Querier extends Thread {
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
-        int counter = 0;
         TimeCounter timeCounter = new TimeCounter(3, rate, testAmount);
         AnswerCounter answerCounter = new AnswerCounter(3, rate);
         ValidityCounter validityCounter = new ValidityCounter(3, rate);
+
+        try {
+            answerCounter.importJSONLog();
+            validityCounter.importJSONLog();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String blacklistCertificate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
         AuthenticationFunctions.addToCRL(blacklistCertificate, CRL_LOCATION);
         DatagramSocket serverSocket = new DatagramSocket(2021);
         ThreadCommunication threadCommunication = new ThreadCommunication(true);
 
+        int counter = 0;
         while (counter < testAmount) {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
@@ -431,11 +454,17 @@ public class Querier extends Thread {
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
-
-        int counter = 0;
         TimeCounter timeCounter = new TimeCounter(4, rate, testAmount);
         AnswerCounter answerCounter = new AnswerCounter(4, rate);
         ValidityCounter validityCounter = new ValidityCounter(4, rate);
+
+        try {
+            answerCounter.importJSONLog();
+            validityCounter.importJSONLog();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         new PrintWriter(CRL_LOCATION).close(); // empty the file
         String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
         AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
@@ -444,6 +473,7 @@ public class Querier extends Thread {
         DatagramSocket serverSocket = new DatagramSocket(2021);
         ThreadCommunication threadCommunication = new ThreadCommunication(true);
 
+        int counter = 0;
         while (counter < testAmount) {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
