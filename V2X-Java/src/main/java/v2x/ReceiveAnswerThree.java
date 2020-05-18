@@ -98,7 +98,7 @@ public class ReceiveAnswerThree extends Thread {
                                 long endTime = System.currentTimeMillis();
                                 String time = outerMessage.getValue("Time");
                                 long startTime = Long.parseLong(time);
-                                long totalTime = startTime - endTime;
+                                long totalTime = endTime - startTime;
 
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
