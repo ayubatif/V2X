@@ -251,7 +251,7 @@ public class Querier extends Thread {
      * @throws InvalidKeySpecException
      * @throws InterruptedException
      */
-    public void runThirdTest(int testAmount, int rate)
+    public synchronized void runThirdTest(int testAmount, int rate)
             throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
@@ -270,20 +270,25 @@ public class Querier extends Thread {
         String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
         AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
         DatagramSocket serverSocket = new DatagramSocket(2021);
+        int counter = 0;
+        byte[] buffer;
+        DatagramPacket receivePacket;
 
-        while (!answerCounter.complete) {
-            byte[] buffer = new byte[65508];
-            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
+        while (counter < testAmount) {
+            buffer = new byte[65508];
+            receivePacket = new DatagramPacket(buffer, buffer.length);
 
             sendQueryTest3();
-            System.out.println("waiting for banana bread "+answerCounter.answerOne);
+            System.out.println("waiting to get banana bread "+answerCounter.answerZero);
             serverSocket.receive(receivePacket);
-            System.out.println("received banana bread "+answerCounter.answerOne);
+            System.out.println("received banana bread "+answerCounter.answerZero);
 
             ReceiveAnswerThree receiveAnswerThree = new ReceiveAnswerThree(buffer, answerCounter,
                     validityCounter);
             receiveAnswerThree.start();
+            counter++;
         }
+        while(!answerCounter.isComplete()) {}
         serverSocket.close();
 
         System.out.println(answerCounter.printAnswer());

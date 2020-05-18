@@ -34,80 +34,70 @@ public class ReceiveAnswerThree extends Thread {
 
     @Override
     public void run() {
-        boolean run = true;
 
-        while (run) {
-            try {
-                Message outerMessage = CommunicationFunctions.byteArrayToMessage(buffer);
-                String outerAnswer = outerMessage.getValue("Answer");
+        try {
+            System.out.println("running banana bread "+answerCounter.answerZero);
+            Message outerMessage = CommunicationFunctions.byteArrayToMessage(buffer);
+            String outerAnswer = outerMessage.getValue("Answer");
 
-                String outerCertificate = outerMessage.getValue("Certificate");
-                String outerEncryptedHash = outerMessage.getValue("Hash");
+            String outerCertificate = outerMessage.getValue("Certificate");
+            String outerEncryptedHash = outerMessage.getValue("Hash");
 
-                boolean outerAuthentication = AuthenticationFunctions.authenticateMessage(
-                        outerAnswer, outerEncryptedHash, outerCertificate, CA_CERTIFICATE_LOCATION);
-                boolean outerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
-                        outerCertificate, CRL_LOCATION);
-                if (outerAuthentication && !outerRevoked) {
-                    byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
-                    Message innerMessage = CommunicationFunctions.byteArrayToMessage(decodedInnerAnswer);
+            boolean outerAuthentication = AuthenticationFunctions.authenticateMessage(
+                    outerAnswer, outerEncryptedHash, outerCertificate, CA_CERTIFICATE_LOCATION);
+            boolean outerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
+                    outerCertificate, CRL_LOCATION);
+            if (outerAuthentication && !outerRevoked) {
+                byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
+                Message innerMessage = CommunicationFunctions.byteArrayToMessage(decodedInnerAnswer);
 
-                    String innerAnswer = innerMessage.getValue("Answer");
-                    String innerCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
-                    String innerEncryptedHash = innerMessage.getValue("Hash");
+                String innerAnswer = innerMessage.getValue("Answer");
+                String innerCertificate = AuthenticationFunctions.getCertificate(DNS_CERTIFICATE_LOCATION);
+                String innerEncryptedHash = innerMessage.getValue("Hash");
 
-                    boolean innerAuthentication = false;
-                    try {
-                        String calculatedHash = AuthenticationFunctions.hashMessage(innerAnswer);
-                        PublicKey publicKey = AuthenticationFunctions.getPublicKey(innerCertificate);
-                        String decryptedHash = AuthenticationFunctions.decryptMessage(innerEncryptedHash, publicKey);
-                        boolean certificateVerification = AuthenticationFunctions.verifyCertificate(
-                                innerCertificate, CA_CERTIFICATE_LOCATION);
+                boolean innerAuthentication = false;
+                try {
+                    String calculatedHash = AuthenticationFunctions.hashMessage(innerAnswer);
+                    PublicKey publicKey = AuthenticationFunctions.getPublicKey(innerCertificate);
+                    String decryptedHash = AuthenticationFunctions.decryptMessage(innerEncryptedHash, publicKey);
+                    boolean certificateVerification = AuthenticationFunctions.verifyCertificate(
+                            innerCertificate, CA_CERTIFICATE_LOCATION);
 
-                        if (certificateVerification && calculatedHash.equals(decryptedHash)) {
-                            innerAuthentication = true;
-                        }
+                    if (certificateVerification && calculatedHash.equals(decryptedHash)) {
+                        innerAuthentication = true;
+                    }
 
-                        /* Check if DNS server is revocated */
-                        boolean innerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
-                                innerCertificate, CRL_LOCATION);
+                    /* Check if DNS server is revocated */
+                    boolean innerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
+                            innerCertificate, CRL_LOCATION);
 
-                        if (innerAuthentication && !innerRevoked) {
-                            if (innerAnswer.equals("0")) {
-                                String time = outerMessage.getValue("Time");
-                                long startTime = Long.parseLong(time);
-                                long endTime = System.currentTimeMillis();
-                                long totalTime = startTime - endTime;
+                    if (innerAuthentication && !innerRevoked) {
+                        if (innerAnswer.equals("0")) {
+                            answerCounter.addAnswer(innerAnswer);
+                            validityCounter.addValidity("2");
+                            String time = outerMessage.getValue("Time");
+                            long startTime = Long.parseLong(time);
+                            long endTime = System.currentTimeMillis();
+                            long totalTime = startTime - endTime;
 
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
-                                System.out.println("total time" + totalTime);
-                            }
-
-                            answerCounter.addAnswer(innerAnswer);
-                            validityCounter.addValidity("2");
-
-//                            if (counter >= testAmount - 1) {
-//                                run = false;
-//                            }
-//                            buffer = new byte[65508];
-                            run = false;
-                        } else {
-                            AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
-                            validityCounter.addValidity("1");
+                            System.out.println("total time" + totalTime);
                         }
-                    } catch (Exception e) {
+                    } else {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                         validityCounter.addValidity("1");
                     }
-                } else {
-                    validityCounter.addValidity("0");
+                } catch (Exception e) {
+                    AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
+                    validityCounter.addValidity("1");
                 }
-            } catch (Exception e) {
-                System.out.println("error two");
-                e.printStackTrace();
-                run = false;
+            } else {
+                validityCounter.addValidity("0");
             }
+        } catch (Exception e) {
+            System.out.println("error two");
+            e.printStackTrace();
         }
 
 //        System.out.println(answerCounter.printAnswer());

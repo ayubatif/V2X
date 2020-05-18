@@ -15,8 +15,8 @@ import com.google.common.util.concurrent.Monitor;
 public class AnswerCounter {
     private int testAmount;
     private int answerNull = 0;
-    private int answerZero = 0;
-    public int answerOne = 0;
+    public int answerZero = 0;
+    private int answerOne = 0;
     private static final String LOG_FILE_NAME= "v2x-data-log";
     private static final String PRINT_LOG_FILE_NAME= "v2x-data-print-log";
     private static final String LOG_FILE_EXTENSION= ".txt";
@@ -24,7 +24,7 @@ public class AnswerCounter {
     private int pseudoRate;
     private JSONArray log = new JSONArray();
     private Monitor mutex = new Monitor();
-    public boolean complete = false;
+    private boolean complete = false;
 
     /**
      *
@@ -72,7 +72,7 @@ public class AnswerCounter {
                     this.answerOne++;
                     break;
             }
-            if (this.answerZero > testNumber - 1 || (this.answerZero + this.answerOne) > (testNumber * 2) - 1)
+            if (this.answerZero > testAmount - 1 || (this.answerZero + this.answerOne) > (testAmount * 2) - 1)
                 this.complete = true;
         } finally {
             mutex.leave();
@@ -216,5 +216,13 @@ public class AnswerCounter {
             System.out.println("Check if "+LOG_FILE_NAME+answerCounter1.testNumber+LOG_FILE_EXTENSION+" exists");
             System.err.println(e);
         }
+    }
+
+    /**
+     * Check if all zero answers have been obtained
+     * @return true if all zero answers have been obtained
+     */
+    public boolean isComplete() {
+        return complete;
     }
 }
