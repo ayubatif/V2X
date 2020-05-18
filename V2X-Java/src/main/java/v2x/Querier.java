@@ -327,7 +327,7 @@ public class Querier extends Thread {
             IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException,
             InvalidKeySpecException, InterruptedException {
         int counter = 0;
-        TimeCounter timeCounter = new TimeCounter(2, rate, testAmount);
+        TimeCounter timeCounter = new TimeCounter(3, rate, testAmount);
         AnswerCounter answerCounter = new AnswerCounter(3, rate);
         ValidityCounter validityCounter = new ValidityCounter(3, rate);
         new PrintWriter(CRL_LOCATION).close(); // empty the file
