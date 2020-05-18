@@ -108,10 +108,11 @@ public class Compromised {
      * @throws ClassNotFoundException
      */
     private static void runFirstTest() throws IOException, ClassNotFoundException {
-        while (true) {
-            String returnIPAddress = receiveQueryTest1();
-            sendAnswerTest1(returnIPAddress);
-        }
+        MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
+        InetAddress group = InetAddress.getByName("225.0.0.0");
+        serverSocket.joinGroup(group);
+        WaitQueryOne waitQueryOne = new WaitQueryOne(serverSocket, UNICAST_PORT, "1");
+        waitQueryOne.start();
     }
 
     /**
@@ -204,10 +205,12 @@ public class Compromised {
     private static void runSecondTest() throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
-        while (true) {
-            String returnIPAddress = receiveQueryTest2();
-            sendAnswerTest2(returnIPAddress);
-        }
+        MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
+        InetAddress group = InetAddress.getByName("225.0.0.0");
+        serverSocket.joinGroup(group);
+        WaitQueryTwo waitQueryTwo = new WaitQueryTwo(serverSocket, UNICAST_PORT, "1",
+                CA_CERTIFICATE_LOCATION, OWN_CERTIFICATE_LOCATION, OWN_PRIVATE_KEY_LOCATION);
+        waitQueryTwo.start();
     }
 
     /**
@@ -319,20 +322,27 @@ public class Compromised {
     private static synchronized void runThirdTest(int rate) throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
-        int counter = 0;
-        int number = 0;
-        while (true) {
-            String returnIPAddress = receiveQueryTest3();
-            sendAnswerTest3(returnIPAddress, number);
-            if (number > CERTIFICATE_AMOUNT - 2) {
-                System.out.println("certificate limit reached");
-            }
-            else if (counter != 0 && counter % rate == 0) {
-                System.out.println("changing certificate");
-                number++;
-            }
-            counter++;
-        }
+        MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
+        InetAddress group = InetAddress.getByName("225.0.0.0");
+        serverSocket.joinGroup(group);
+        WaitQueryThree waitQueryThree = new WaitQueryThree(serverSocket, UNICAST_PORT, "1",
+                CA_CERTIFICATE_LOCATION, OWN_CERTIFICATE_LOCATION, OWN_PRIVATE_KEY_LOCATION, rate, DNS_PRIVATE_KEY);
+        waitQueryThree.start();
+
+//        int counter = 0;
+//        int number = 0;
+//        while (true) {
+//            String returnIPAddress = receiveQueryTest3();
+//            sendAnswerTest3(returnIPAddress, number);
+//            if (number > CERTIFICATE_AMOUNT - 2) {
+//                System.out.println("certificate limit reached");
+//            }
+//            else if (counter != 0 && counter % rate == 0) {
+//                System.out.println("changing certificate");
+//                number++;
+//            }
+//            counter++;
+//        }
     }
 
     private static String receiveQueryTest4()
@@ -399,19 +409,26 @@ public class Compromised {
     private static synchronized void runFourthTest(int rate) throws IOException, ClassNotFoundException, CertificateException,
             NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             InvalidKeyException, InvalidKeySpecException {
-        int counter = 0;
-        int number = 0;
-        while (true) {
-            String returnIPAddress = receiveQueryTest4();
-            sendAnswerTest4(returnIPAddress, number);
-            if (number > CERTIFICATE_AMOUNT - 2) {
-                System.out.println("certificate limit reached");
-            }
-            else if (counter != 0 && counter % rate == 0) {
-                System.out.println("changing certificate");
-                number++;
-            }
-            counter++;
-        }
+        MulticastSocket serverSocket = new MulticastSocket(MULTICAST_PORT);
+        InetAddress group = InetAddress.getByName("225.0.0.0");
+        serverSocket.joinGroup(group);
+        WaitQueryFour waitQueryFour = new WaitQueryFour(serverSocket, UNICAST_PORT,
+                MALICIOUS_DNS_RESPONSE,
+                CA_CERTIFICATE_LOCATION, OWN_CERTIFICATE_LOCATION, OWN_PRIVATE_KEY_LOCATION, rate, DNS_PRIVATE_KEY);
+        waitQueryFour.start();
+//        int counter = 0;
+//        int number = 0;
+//        while (true) {
+//            String returnIPAddress = receiveQueryTest4();
+//            sendAnswerTest4(returnIPAddress, number);
+//            if (number > CERTIFICATE_AMOUNT - 2) {
+//                System.out.println("certificate limit reached");
+//            }
+//            else if (counter != 0 && counter % rate == 0) {
+//                System.out.println("changing certificate");
+//                number++;
+//            }
+//            counter++;
+//        }
     }
 }

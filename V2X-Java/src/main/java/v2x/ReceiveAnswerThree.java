@@ -46,7 +46,6 @@ public class ReceiveAnswerThree extends Thread {
         boolean run = true;
 
         while (run) {
-            System.out.println(counter);
             DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 
             try {
