@@ -90,7 +90,7 @@ class ReceiveAnswerTwo extends Thread {
                     threadCommunication.setReady(true);
 
                 } else {
-                    validityCounter.addValidity("1");
+                    validityCounter.addValidity("0");
                 }
 
             } catch (Exception e) {

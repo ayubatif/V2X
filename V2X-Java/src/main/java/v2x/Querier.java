@@ -111,7 +111,7 @@ public class Querier extends Thread {
      * @throws ClassNotFoundException
      * @throws InterruptedException
      */
-    public synchronized void runFirstTest(int testAmount) throws IOException, ClassNotFoundException, InterruptedException {
+    public synchronized void runFirstTest(int testAmount) throws IOException, InterruptedException {
         int counter = 0;
         AnswerCounter answerCounter = new AnswerCounter(1);
         ValidityCounter validityCounter = new ValidityCounter(1);
@@ -216,8 +216,8 @@ public class Querier extends Thread {
         AnswerCounter answerCounter = new AnswerCounter(2);
         ValidityCounter validityCounter = new ValidityCounter(2);
         new PrintWriter(CRL_LOCATION).close(); // empty the file
-        String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
-        AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
+        String blacklistCertificate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
+        AuthenticationFunctions.addToCRL(blacklistCertificate, CRL_LOCATION);
         DatagramSocket serverSocket = new DatagramSocket(2021);
         ThreadCommunication threadCommunication = new ThreadCommunication(true);
 
@@ -316,10 +316,12 @@ public class Querier extends Thread {
         AnswerCounter answerCounter = new AnswerCounter(3, rate);
         ValidityCounter validityCounter = new ValidityCounter(3, rate);
         new PrintWriter(CRL_LOCATION).close(); // empty the file
-        String blacklistCertifiate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
-        AuthenticationFunctions.addToCRL(blacklistCertifiate, CRL_LOCATION);
+        String blacklistCertificate = AuthenticationFunctions.getCertificate(OBU_X_CERTIFICATE_LOCATION);
+        AuthenticationFunctions.addToCRL(blacklistCertificate, CRL_LOCATION);
         DatagramSocket serverSocket = new DatagramSocket(2021);
         ThreadCommunication threadCommunication = new ThreadCommunication(true);
+
+        System.out.println(blacklistCertificate);
 
         while (counter < testAmount) {
             if (threadCommunication.getReady()) {

@@ -6,22 +6,22 @@ mkdir obuASetup
 mkdir obuASetup/Authentication/
 cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar obuASetup/
 #java -cp obuASetup/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar v2x.PseudonymAuthority a
-#for file in CADNS/*; do cp "$file" "obuASetup/Authentication/";done
-#for file in Log/*; do cp "$file" "obuASetup/";done
+for file in CADNS/*; do cp "$file" "obuASetup/Authentication/";done
+for file in Log/*; do cp "$file" "obuASetup/";done
 
 mkdir obuXSetup
 mkdir obuXSetup/Authentication/
 cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar obuXSetup/
 #java -cp obuXSetup/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar v2x.PseudonymAuthority x
-#for file in CADNS/*; do cp "$file" "obuXSetup/Authentication/";done
-#for file in Log/*; do cp "$file" "obuXSetup/";done
+for file in CADNS/*; do cp "$file" "obuXSetup/Authentication/";done
+for file in Log/*; do cp "$file" "obuXSetup/";done
 
 mkdir obuNSetup
 mkdir obuNSetup/Authentication/
 cp target/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar obuNSetup/
 #java -cp obuNSetup/V2X-Java-1.0-SNAPSHOT-jar-with-dependencies.jar v2x.PseudonymAuthority n
-#for file in CADNS/*; do cp "$file" "obuNSetup/Authentication/";done
-#for file in Log/*; do cp "$file" "obuNSetup/";done
+for file in CADNS/*; do cp "$file" "obuNSetup/Authentication/";done
+for file in Log/*; do cp "$file" "obuNSetup/";done
 
 exit
 
