@@ -46,14 +46,11 @@ public class WaitQueryFour extends Thread {
                     if (AuthenticationFunctions.authenticateMessage(request, encryptedHash,
                             certificate, caCertificateLocation)) {
                         String inetAddress = packet.getAddress().getHostAddress();
-                        serverSocket.close();
                         String time = message.getValue("Time");
                         ReturnQueryFour returnQueryFour =
                                 new ReturnQueryFour(inetAddress, time, unicastPort, answer,
                                         ownCertificateLocation, ownPrivateKeyLocation, number, dnsPrivateKeylocation);
                         returnQueryFour.start();
-//                        String[] answer = new String[] {inetAddress, time};
-//                        return answer;
                         if (number > CERTIFICATE_AMOUNT - 2) {
                             System.out.println("certificate limit reached");
                         }

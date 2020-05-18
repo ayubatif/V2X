@@ -60,6 +60,7 @@ public class ReceiveAnswerThree extends Thread {
                         outerAnswer, outerEncryptedHash, outerCertificate, CA_CERTIFICATE_LOCATION);
                 boolean outerRevoked = AuthenticationFunctions.checkRevocatedCertificate(
                         outerCertificate, CRL_LOCATION);
+
                 if (outerAuthentication && !outerRevoked) {
                     byte[] decodedInnerAnswer = Base64.getDecoder().decode(outerAnswer);
                     Message innerMessage = CommunicationFunctions.byteArrayToMessage(decodedInnerAnswer);
@@ -100,14 +101,6 @@ public class ReceiveAnswerThree extends Thread {
                             answerCounter.addAnswer(innerAnswer);
                             validityCounter.addValidity("2");
 
-//                            System.out.println("counter " + counter);
-
-//                            if (counter >= testAmount - 1) {
-//                                run = false;
-//                            }
-//
-//                            counter++;
-//                            buffer = new byte[65508];
                             run = false;
                             serverSocket.close();
                             threadCommunication.setReady(true);
@@ -129,21 +122,5 @@ public class ReceiveAnswerThree extends Thread {
                 run = false;
             }
         }
-
-//        System.out.println(answerCounter.printAnswer());
-//        System.out.println(answerCounter.printMath());
-//        System.out.println(validityCounter.printValidity());
-//        System.out.println(validityCounter.printMath());
-//
-//        answerCounter.logAnswers();
-//        validityCounter.logAnswers();
-//        try {
-//            answerCounter.exportJSONLog();
-//            validityCounter.exportJSONLog();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        serverSocket.close();
     }
 }

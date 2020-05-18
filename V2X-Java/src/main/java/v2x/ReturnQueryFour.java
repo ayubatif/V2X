@@ -32,10 +32,13 @@ public class ReturnQueryFour extends Thread {
     @Override
     public void run() {
         try {
+            String[] certLocation = ownCertificateLocation.split("\\.");
+            String[] privKeyLocation = ownPrivateKeyLocation.split("\\.");
+
             String userCertificate = AuthenticationFunctions
-                    .getCertificate("Authentication/OBU-N-certificate" + number + ".crt");
+                    .getCertificate(certLocation[0] + number + "." + certLocation[1]);
             PrivateKey userPrivateKey = AuthenticationFunctions
-                    .getPrivateKey("Authentication/OBU-N-private-key" + number + ".der");
+                    .getPrivateKey(privKeyLocation[0] + number + "." + privKeyLocation[1]);
             PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(dnsPrivateKeylocation);
 
             String innerAnswer = answer;
