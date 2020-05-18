@@ -41,11 +41,6 @@ public class ReturnQueryThree extends Thread {
                     .getPrivateKey(privKeyLocation[0] + number + "." + privKeyLocation[1]);
             PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(dnsPrivateKeylocation);
 
-            System.out.println(certLocation[0]);
-            System.out.println(privKeyLocation[0]);
-            System.out.println(certLocation[1]);
-            System.out.println(privKeyLocation[1]);
-
             String innerAnswer = answer;
             String innerHash = AuthenticationFunctions.hashMessage(innerAnswer);
             String innerEncryptedHash = AuthenticationFunctions.encryptMessage(innerHash, dnsPrivateKey);

@@ -58,6 +58,7 @@ public class WaitQueryFour extends Thread {
                             System.out.println("changing certificate");
                             number++;
                         }
+                        counter++;
                     }
                 }
         } catch (Exception e) {
