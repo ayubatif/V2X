@@ -97,7 +97,7 @@ public class Querier extends Thread {
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
         multicastSocket.send(queryPacket);
-        System.out.println("query sent");
+        //System.out.println("query sent");
         multicastSocket.close();
     }
 
@@ -151,7 +151,7 @@ public class Querier extends Thread {
                 serverSocket.close();
             }
             if (System.currentTimeMillis() - startTime > 5000) {
-                System.out.println("timeout");
+                //System.out.println("timeout");
                 threadCommunication.setReady(true);
                 counter--;
             }
@@ -212,7 +212,7 @@ public class Querier extends Thread {
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
         multicastSocket.send(queryPacket);
-        System.out.println("query sent");
+        //System.out.println("query sent");
         multicastSocket.close();
     }
 
@@ -341,7 +341,7 @@ public class Querier extends Thread {
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
         multicastSocket.send(queryPacket);
-        System.out.println("query sent");
+        //System.out.println("query sent");
         multicastSocket.close();
     }
 
@@ -468,7 +468,7 @@ public class Querier extends Thread {
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
         multicastSocket.send(queryPacket);
-        System.out.println("query sent");
+        //System.out.println("query sent");
         multicastSocket.close();
     }
 

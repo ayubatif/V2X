@@ -83,7 +83,7 @@ public class ReceiveAnswerFour extends Thread {
 
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
-                            System.out.println("total time " + totalTime);
+                            //System.out.println("total time " + totalTime);
                             timeCounter.addTime(totalTime);
 
                             boolean isResponseMalicious = !DNSBloomFilterFunctions.getFixedAAAA().equals(innerAnswer);
@@ -115,10 +115,10 @@ public class ReceiveAnswerFour extends Thread {
                     validityCounter.addValidity("0");
                 }
             } catch (SocketException e) {
-                System.out.println("Thread ended");
+                //System.out.println("Thread ended");
                 run = false;
             } catch (Exception e) {
-                System.out.println("error two");
+                //System.out.println("error two");
                 e.printStackTrace();
             }
         }

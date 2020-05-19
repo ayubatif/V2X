@@ -28,7 +28,7 @@ public class ReturnQueryOne extends Thread{
             byte[] data = CommunicationFunctions.messageToByteArray(message);
             DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, unicastPort);
             clientSocket.send(answerPacket);
-            System.out.println("answer sent");
+            //System.out.println("answer sent");
             clientSocket.close();
         } catch (Exception e) {
             e.printStackTrace();

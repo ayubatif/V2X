@@ -68,7 +68,7 @@ public class ReturnQueryThree extends Thread {
                     unicastPort);
             DatagramSocket clientSocket = new DatagramSocket();
             clientSocket.send(answerPacket);
-            System.out.println("answer sent");
+            //System.out.println("answer sent");
             clientSocket.close();
         } catch (Exception e) {
             e.printStackTrace();

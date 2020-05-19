@@ -24,7 +24,7 @@ public class WaitQueryOne extends Thread{
                 Message message = CommunicationFunctions.byteArrayToMessage(buffer);
                 String request = message.getValue("Query");
                 if (request.equals("Query")) {
-                    System.out.println("query received");
+                    //System.out.println("query received");
                     String inetAddress = packet.getAddress().getHostAddress();
                     String time = message.getValue("Time");
                     ReturnQueryOne returnQueryOne = new ReturnQueryOne(inetAddress, time, unicastPort, answer);

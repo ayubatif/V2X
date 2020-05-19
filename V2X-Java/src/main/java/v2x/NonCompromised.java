@@ -71,7 +71,7 @@ public class NonCompromised {
             Message message = CommunicationFunctions.byteArrayToMessage(buffer);
             String request = message.getValue("Query");
             if (request.equals("Query")) {
-                System.out.println("query received");
+                //System.out.println("query received");
                 String inetAddress = packet.getAddress().getHostAddress();
                 serverSocket.close();
                 String time = message.getValue("Time");
@@ -96,7 +96,7 @@ public class NonCompromised {
         byte[] data = CommunicationFunctions.messageToByteArray(answer);
         DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
         clientSocket.send(answerPacket);
-        System.out.println("answer sent");
+        //System.out.println("answer sent");
         clientSocket.close();
     }
 
@@ -140,7 +140,7 @@ public class NonCompromised {
             Message message = CommunicationFunctions.byteArrayToMessage(buffer);
             String request = message.getValue("Query");
             if (request.equals("Query")) {
-                System.out.println("query received");
+                //System.out.println("query received");
                 String certificate = message.getValue("Certificate");
                 String encryptedHash = message.getValue("Hash");
                 if (AuthenticationFunctions.authenticateMessage(request, encryptedHash,
@@ -186,7 +186,7 @@ public class NonCompromised {
         byte[] data = CommunicationFunctions.messageToByteArray(answer);
         DatagramPacket answerPacket = new DatagramPacket(data, data.length, address, UNICAST_PORT);
         clientSocket.send(answerPacket);
-        System.out.println("answer sent");
+        //System.out.println("answer sent");
         clientSocket.close();
     }
 
@@ -242,7 +242,7 @@ public class NonCompromised {
             Message message = CommunicationFunctions.byteArrayToMessage(buffer);
             String request = message.getValue("Query");
             if (request.equals("Query")) {
-                System.out.println("query received");
+                //System.out.println("query received");
                 String certificate = message.getValue("Certificate");
                 String encryptedHash = message.getValue("Hash");
                 if (AuthenticationFunctions.authenticateMessage(request, encryptedHash,
@@ -306,7 +306,7 @@ public class NonCompromised {
                 address, UNICAST_PORT);
         DatagramSocket clientSocket = new DatagramSocket();
         clientSocket.send(answerPacket);
-        System.out.println("answer sent");
+        //System.out.println("answer sent");
         clientSocket.close();
     }
 
@@ -364,7 +364,7 @@ public class NonCompromised {
             Message message = CommunicationFunctions.byteArrayToMessage(buffer);
             String request = message.getValue("Query");
             if (request.equals("Query")) {
-                System.out.println("query received");
+                //System.out.println("query received");
                 String certificate = message.getValue("Certificate");
                 String encryptedHash = message.getValue("Hash");
                 if (AuthenticationFunctions.authenticateMessage(request, encryptedHash,
@@ -413,7 +413,7 @@ public class NonCompromised {
                 address, UNICAST_PORT);
         DatagramSocket clientSocket = new DatagramSocket();
         clientSocket.send(answerPacket);
-        System.out.println("answer sent");
+        //System.out.println("answer sent");
         clientSocket.close();
     }
 

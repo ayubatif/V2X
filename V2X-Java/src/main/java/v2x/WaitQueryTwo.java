@@ -32,7 +32,7 @@ public class WaitQueryTwo extends Thread {
                     Message message = CommunicationFunctions.byteArrayToMessage(buffer);
                     String request = message.getValue("Query");
                     if (request.equals("Query")) {
-                        System.out.println("query received");
+                        //System.out.println("query received");
                         String certificate = message.getValue("Certificate");
                         String encryptedHash = message.getValue("Hash");
                         if (AuthenticationFunctions.authenticateMessage(request, encryptedHash,

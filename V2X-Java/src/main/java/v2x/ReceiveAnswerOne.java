@@ -55,7 +55,7 @@ class ReceiveAnswerOne extends Thread {
 
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
-                    System.out.println("total time " + totalTime);
+                    //System.out.println("total time " + totalTime);
                     timeCounter.addTime(totalTime);
                 }
 
@@ -67,10 +67,10 @@ class ReceiveAnswerOne extends Thread {
                 serverSocket.close();
                 threadCommunication.setReady(true);
             } catch (SocketException e) {
-                System.out.println("Thread ended");
+                //System.out.println("Thread ended");
                 run = false;
             } catch (Exception e) {
-                System.out.println("error two");
+                //System.out.println("error two");
                 e.printStackTrace();
             }
         }
