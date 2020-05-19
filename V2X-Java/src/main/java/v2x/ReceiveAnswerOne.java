@@ -2,6 +2,7 @@ package v2x;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
@@ -65,6 +66,9 @@ class ReceiveAnswerOne extends Thread {
                 run = false;
                 serverSocket.close();
                 threadCommunication.setReady(true);
+            } catch (SocketException e) {
+                System.out.println("Thread ended");
+                run = false;
             } catch (Exception e) {
                 System.out.println("error two");
                 e.printStackTrace();

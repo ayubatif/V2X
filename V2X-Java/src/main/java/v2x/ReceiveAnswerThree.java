@@ -2,6 +2,7 @@ package v2x;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.security.PublicKey;
 import java.util.Base64;
 import java.util.concurrent.Callable;
@@ -115,11 +116,12 @@ public class ReceiveAnswerThree extends Thread {
                 } else {
                     validityCounter.addValidity("0");
                 }
+            } catch (SocketException e) {
+                System.out.println("Thread ended");
+                run = false;
             } catch (Exception e) {
                 System.out.println("error two");
-                System.out.println("crashes at counter: " + counter);
                 e.printStackTrace();
-                run = false;
             }
         }
     }
