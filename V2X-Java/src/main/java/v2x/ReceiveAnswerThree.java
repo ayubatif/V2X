@@ -22,19 +22,19 @@ public class ReceiveAnswerThree extends Thread {
     private AnswerCounter answerCounter;
     private ValidityCounter validityCounter;
     private TimeCounter timeCounter;
-    private int testAmount;
+    private int counter;
     private ThreadCommunication threadCommunication;
 
     public ReceiveAnswerThree(DatagramSocket serverSocket,
                               AnswerCounter answerCounter,
                               ValidityCounter validityCounter,
-                              TimeCounter timeCounter, int testAmount,
+                              TimeCounter timeCounter, int counter,
                               ThreadCommunication threadCommunication) {
         this.serverSocket = serverSocket;
         this.answerCounter = answerCounter;
         this.validityCounter = validityCounter;
         this.timeCounter = timeCounter;
-        this.testAmount = testAmount;
+        this.counter = counter;
         this.threadCommunication = threadCommunication;
     }
 
@@ -117,7 +117,7 @@ public class ReceiveAnswerThree extends Thread {
                 }
             } catch (Exception e) {
                 System.out.println("error two");
-                System.out.println("crashes at counter: " + testAmount);
+                System.out.println("crashes at counter: " + counter);
                 e.printStackTrace();
                 run = false;
             }

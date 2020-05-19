@@ -18,19 +18,19 @@ class ReceiveAnswerTwo extends Thread {
     private AnswerCounter answerCounter;
     private ValidityCounter validityCounter;
     private TimeCounter timeCounter;
-    private int testAmount;
+    private int counter;
     private ThreadCommunication threadCommunication;
 
     public ReceiveAnswerTwo(DatagramSocket serverSocket,
                             AnswerCounter answerCounter,
                             ValidityCounter validityCounter,
-                            TimeCounter timeCounter, int testAmount,
+                            TimeCounter timeCounter, int counter,
                             ThreadCommunication threadCommunication) {
         this.serverSocket = serverSocket;
         this.answerCounter = answerCounter;
         this.validityCounter = validityCounter;
         this.timeCounter = timeCounter;
-        this.testAmount = testAmount;
+        this.counter = counter;
         this.threadCommunication = threadCommunication;
     }
 
@@ -45,7 +45,6 @@ class ReceiveAnswerTwo extends Thread {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             try {
                 serverSocket.receive(packet);
-//                System.out.println("listening: " + testAmount);
                 Message message = CommunicationFunctions.byteArrayToMessage(buffer);
                 String answer = message.getValue("Answer");
 
@@ -72,14 +71,6 @@ class ReceiveAnswerTwo extends Thread {
                     answerCounter.addAnswer(answer);
                     validityCounter.addValidity("2");
 
-//                    System.out.println("counter " + counter);
-
-//                    if (counter >= testAmount - 1) {
-//                        run = false;
-//                    }
-//
-//                    counter++;
-//                    buffer = new byte[65508];
                     run = false;
                     serverSocket.close();
                     threadCommunication.setReady(true);
@@ -93,21 +84,5 @@ class ReceiveAnswerTwo extends Thread {
                 e.printStackTrace();
             }
         }
-
-//        System.out.println(answerCounter.printAnswer());
-//        System.out.println(answerCounter.printMath());
-//        System.out.println(validityCounter.printValidity());
-//        System.out.println(validityCounter.printMath());
-//
-//        answerCounter.logAnswers();
-//        validityCounter.logAnswers();
-//        try {
-//            answerCounter.exportJSONLog();
-//            validityCounter.exportJSONLog();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        serverSocket.close();
     }
 }

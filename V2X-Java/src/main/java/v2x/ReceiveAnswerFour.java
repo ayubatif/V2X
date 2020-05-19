@@ -23,19 +23,19 @@ public class ReceiveAnswerFour extends Thread {
     private AnswerCounter answerCounter;
     private ValidityCounter validityCounter;
     private TimeCounter timeCounter;
-    private int testAmount;
+    private int counter;
     private ThreadCommunication threadCommunication;
 
     public ReceiveAnswerFour(DatagramSocket serverSocket,
                              AnswerCounter answerCounter,
                              ValidityCounter validityCounter,
-                             TimeCounter timeCounter, int testAmount,
+                             TimeCounter timeCounter, int counter,
                              ThreadCommunication threadCommunication) {
         this.serverSocket = serverSocket;
         this.answerCounter = answerCounter;
         this.validityCounter = validityCounter;
         this.timeCounter = timeCounter;
-        this.testAmount = testAmount;
+        this.counter = counter;
         this.threadCommunication = threadCommunication;
     }
 

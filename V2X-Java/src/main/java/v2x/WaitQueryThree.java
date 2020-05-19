@@ -47,6 +47,8 @@ public class WaitQueryThree extends Thread {
                             caCertificateLocation)) {
                         String inetAddress = packet.getAddress().getHostAddress();
                         String time = message.getValue("Time");
+                        String givenNumber = message.getValue("TestNumber");
+                        counter = Integer.parseInt(givenNumber);
                         ReturnQueryThree returnQueryThree =
                                 new ReturnQueryThree(inetAddress, time, unicastPort, answer,
                                         ownCertificateLocation, ownPrivateKeyLocation, number, dnsPrivateKeylocation);
@@ -58,7 +60,8 @@ public class WaitQueryThree extends Thread {
                             System.out.println("changing certificate");
                             number++;
                         }
-                        counter++;
+//                        System.out.println("received query: " + counter);
+//                        counter++;
                     }
                 }
         } catch (Exception e) {

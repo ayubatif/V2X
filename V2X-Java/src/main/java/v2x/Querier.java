@@ -125,13 +125,14 @@ public class Querier extends Thread {
 
         DatagramSocket serverSocket = new DatagramSocket(2021);
         ThreadCommunication threadCommunication = new ThreadCommunication(true);
+        long startTime = System.currentTimeMillis();
 
         int counter = 0;
         while (counter < testAmount) {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
                 ReceiveAnswerOne receiveAnswerOne = new ReceiveAnswerOne(serverSocket, answerCounter,
-                        validityCounter, timeCounter, testAmount, threadCommunication);
+                        validityCounter, timeCounter, counter, threadCommunication);
                 receiveAnswerOne.start();
                 sendQueryTest1();
                 counter++;
@@ -144,6 +145,11 @@ public class Querier extends Thread {
                 serverSocket = new DatagramSocket(2021);
             } catch (Exception e) {
 
+            }
+            if (System.currentTimeMillis() - startTime > 5000) {
+                System.out.println("timeout");
+                threadCommunication.setReady(true);
+                counter--;
             }
         }
 
@@ -242,13 +248,14 @@ public class Querier extends Thread {
         AuthenticationFunctions.addToCRL(blacklistCertificate, CRL_LOCATION);
         DatagramSocket serverSocket = new DatagramSocket(2021);
         ThreadCommunication threadCommunication = new ThreadCommunication(true);
+        long startTime = System.currentTimeMillis();
 
         int counter = 0;
         while (counter < testAmount) {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
                 ReceiveAnswerTwo receiveAnswerTwo = new ReceiveAnswerTwo(serverSocket, answerCounter,
-                        validityCounter, timeCounter, testAmount, threadCommunication);
+                        validityCounter, timeCounter, counter, threadCommunication);
                 receiveAnswerTwo.start();
                 sendQueryTest2();
                 counter++;
@@ -261,6 +268,11 @@ public class Querier extends Thread {
                 serverSocket = new DatagramSocket(2021);
             } catch (Exception e) {
 
+            }
+            if (System.currentTimeMillis() - startTime > 5000) {
+                System.out.println("timeout");
+                threadCommunication.setReady(true);
+                counter--;
             }
         }
 
@@ -296,7 +308,7 @@ public class Querier extends Thread {
      * @throws BadPaddingException
      * @throws NoSuchPaddingException
      */
-    private void sendQueryTest3()
+    private void sendQueryTest3(int counter)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
             IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
@@ -314,6 +326,8 @@ public class Querier extends Thread {
         long currentTime = System.currentTimeMillis();
         String time = String.valueOf(currentTime);
         query.putValue("Time", time);
+        query.putValue("TestNumber", String.valueOf(counter));
+        System.out.println(counter);
         byte[] data = CommunicationFunctions.messageToByteArray(query);
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
@@ -357,25 +371,32 @@ public class Querier extends Thread {
         AuthenticationFunctions.addToCRL(blacklistCertificate, CRL_LOCATION);
         DatagramSocket serverSocket = new DatagramSocket(2021);
         ThreadCommunication threadCommunication = new ThreadCommunication(true);
+        long startTime = System.currentTimeMillis();
 
         int counter = 0;
         while (counter < testAmount) {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
                 ReceiveAnswerThree receiveAnswerThree = new ReceiveAnswerThree(serverSocket, answerCounter,
-                        validityCounter, timeCounter, testAmount, threadCommunication);
+                        validityCounter, timeCounter, counter, threadCommunication);
                 receiveAnswerThree.start();
-                sendQueryTest3();
+                sendQueryTest3(counter);
                 counter++;
-                if (counter % 25 == 0) {
-                    System.out.println("query number: " + counter);
-                }
+//                if (counter % 25 == 0) {
+//                    System.out.println("query number: " + counter);
+//                }
+                startTime = System.currentTimeMillis();
             }
             Thread.sleep(100);
             try {
                 serverSocket = new DatagramSocket(2021);
             } catch (Exception e) {
 
+            }
+            if (System.currentTimeMillis() - startTime > 5000) {
+                System.out.println("timeout");
+                threadCommunication.setReady(true);
+                counter--;
             }
         }
 
@@ -411,7 +432,7 @@ public class Querier extends Thread {
      * @throws BadPaddingException
      * @throws NoSuchPaddingException
      */
-    private void sendQueryTest4()
+    private void sendQueryTest4(int counter)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
             IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
         String userCertificate = AuthenticationFunctions.getCertificate(OWN_CERTIFICATE_LOCATION);
@@ -429,6 +450,8 @@ public class Querier extends Thread {
         long currentTime = System.currentTimeMillis();
         String time = String.valueOf(currentTime);
         query.putValue("Time", time);
+        query.putValue("TestNumber", String.valueOf(counter));
+        System.out.println(counter);
         byte[] data = CommunicationFunctions.messageToByteArray(query);
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
@@ -472,15 +495,16 @@ public class Querier extends Thread {
 
         DatagramSocket serverSocket = new DatagramSocket(2021);
         ThreadCommunication threadCommunication = new ThreadCommunication(true);
+        long startTime = System.currentTimeMillis();
 
         int counter = 0;
         while (counter < testAmount) {
             if (threadCommunication.getReady()) {
                 threadCommunication.setReady(false);
                 ReceiveAnswerFour receiveAnswerFour = new ReceiveAnswerFour(serverSocket, answerCounter,
-                        validityCounter, timeCounter, testAmount, threadCommunication);
+                        validityCounter, timeCounter, counter, threadCommunication);
                 receiveAnswerFour.start();
-                sendQueryTest4();
+                sendQueryTest4(counter);
                 counter++;
                 if (counter % 25 == 0) {
                     System.out.println("query number: " + counter);
@@ -491,6 +515,11 @@ public class Querier extends Thread {
                 serverSocket = new DatagramSocket(2021);
             } catch (Exception e) {
 
+            }
+            if (System.currentTimeMillis() - startTime > 5000) {
+                System.out.println("timeout");
+                threadCommunication.setReady(true);
+                counter--;
             }
         }
 
