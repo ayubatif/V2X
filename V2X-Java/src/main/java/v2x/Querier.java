@@ -119,6 +119,7 @@ public class Querier extends Thread {
         try {
             answerCounter.importJSONLog();
             validityCounter.importJSONLog();
+			timeCounter.importJSONLog();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -243,6 +244,7 @@ public class Querier extends Thread {
         try {
             answerCounter.importJSONLog();
             validityCounter.importJSONLog();
+			timeCounter.importJSONLog();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -369,6 +371,7 @@ public class Querier extends Thread {
         try {
             answerCounter.importJSONLog();
             validityCounter.importJSONLog();
+			timeCounter.importJSONLog();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -493,6 +496,7 @@ public class Querier extends Thread {
         try {
             answerCounter.importJSONLog();
             validityCounter.importJSONLog();
+			timeCounter.importJSONLog();
         } catch (Exception e) {
             e.printStackTrace();
         }
