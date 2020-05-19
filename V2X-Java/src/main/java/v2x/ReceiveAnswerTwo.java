@@ -2,6 +2,7 @@ package v2x;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
@@ -78,7 +79,6 @@ class ReceiveAnswerTwo extends Thread {
                 } else {
                     validityCounter.addValidity("0");
                 }
-
             } catch (Exception e) {
                 System.out.println("error two");
                 e.printStackTrace();

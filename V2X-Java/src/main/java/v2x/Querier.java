@@ -139,17 +139,18 @@ public class Querier extends Thread {
                 if (counter % 25 == 0) {
                     System.out.println("query number: " + counter);
                 }
+                startTime = System.currentTimeMillis();
+            }
+            if (System.currentTimeMillis() - startTime > 5000) {
+                System.out.println("timeout");
+                threadCommunication.setReady(true);
+                counter--;
             }
             Thread.sleep(100);
             try {
                 serverSocket = new DatagramSocket(2021);
             } catch (Exception e) {
 
-            }
-            if (System.currentTimeMillis() - startTime > 5000) {
-                System.out.println("timeout");
-                threadCommunication.setReady(true);
-                counter--;
             }
         }
 
@@ -262,17 +263,18 @@ public class Querier extends Thread {
                 if (counter % 25 == 0) {
                     System.out.println("query number: " + counter);
                 }
-            }
-            Thread.sleep(100);
-            try {
-                serverSocket = new DatagramSocket(2021);
-            } catch (Exception e) {
-
+                startTime = System.currentTimeMillis();
             }
             if (System.currentTimeMillis() - startTime > 5000) {
                 System.out.println("timeout");
                 threadCommunication.setReady(true);
                 counter--;
+            }
+            Thread.sleep(100);
+            try {
+                serverSocket = new DatagramSocket(2021);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -327,7 +329,6 @@ public class Querier extends Thread {
         String time = String.valueOf(currentTime);
         query.putValue("Time", time);
         query.putValue("TestNumber", String.valueOf(counter));
-        System.out.println(counter);
         byte[] data = CommunicationFunctions.messageToByteArray(query);
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
@@ -382,21 +383,21 @@ public class Querier extends Thread {
                 receiveAnswerThree.start();
                 sendQueryTest3(counter);
                 counter++;
-//                if (counter % 25 == 0) {
-//                    System.out.println("query number: " + counter);
-//                }
+                if (counter % 25 == 0) {
+                    System.out.println("query number: " + counter);
+                }
                 startTime = System.currentTimeMillis();
+            }
+            if (System.currentTimeMillis() - startTime > 5000) {
+                System.out.println("timeout");
+                threadCommunication.setReady(true);
+                counter--;
             }
             Thread.sleep(100);
             try {
                 serverSocket = new DatagramSocket(2021);
             } catch (Exception e) {
 
-            }
-            if (System.currentTimeMillis() - startTime > 5000) {
-                System.out.println("timeout");
-                threadCommunication.setReady(true);
-                counter--;
             }
         }
 
@@ -451,7 +452,6 @@ public class Querier extends Thread {
         String time = String.valueOf(currentTime);
         query.putValue("Time", time);
         query.putValue("TestNumber", String.valueOf(counter));
-        System.out.println(counter);
         byte[] data = CommunicationFunctions.messageToByteArray(query);
         int randomPort = multicastSocket.getLocalPort();
         DatagramPacket queryPacket = new DatagramPacket(data, data.length, groupIP, randomPort);
@@ -509,17 +509,18 @@ public class Querier extends Thread {
                 if (counter % 25 == 0) {
                     System.out.println("query number: " + counter);
                 }
+                startTime = System.currentTimeMillis();
+            }
+            if (System.currentTimeMillis() - startTime > 5000) {
+                System.out.println("timeout");
+                threadCommunication.setReady(true);
+                counter--;
             }
             Thread.sleep(100);
             try {
                 serverSocket = new DatagramSocket(2021);
             } catch (Exception e) {
 
-            }
-            if (System.currentTimeMillis() - startTime > 5000) {
-                System.out.println("timeout");
-                threadCommunication.setReady(true);
-                counter--;
             }
         }
 
