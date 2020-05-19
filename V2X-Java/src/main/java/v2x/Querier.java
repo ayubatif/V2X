@@ -253,17 +253,25 @@ public class Querier extends Thread {
 
         int counter = 0;
         while (counter < testAmount) {
-            if (threadCommunication.getReady()) {
-                threadCommunication.setReady(false);
-                ReceiveAnswerTwo receiveAnswerTwo = new ReceiveAnswerTwo(serverSocket, answerCounter,
-                        validityCounter, timeCounter, counter, threadCommunication);
-                receiveAnswerTwo.start();
-                sendQueryTest2();
-                counter++;
-                if (counter % 25 == 0) {
-                    System.out.println("query number: " + counter);
+            try {
+                if (threadCommunication.getReady()) {
+                    if (counter != 0) {
+                        serverSocket = new DatagramSocket(2021);
+                    }
+                    threadCommunication.setReady(false);
+                    ReceiveAnswerTwo receiveAnswerTwo = new ReceiveAnswerTwo(serverSocket, answerCounter,
+                            validityCounter, timeCounter, counter, threadCommunication);
+                    receiveAnswerTwo.start();
+                    sendQueryTest2();
+                    counter++;
+                    if (counter % 25 == 0) {
+                        System.out.println("query number: " + counter);
+                    }
+                    startTime = System.currentTimeMillis();
                 }
-                startTime = System.currentTimeMillis();
+            } catch (Exception e) {
+                e.printStackTrace();
+                serverSocket.close();
             }
             if (System.currentTimeMillis() - startTime > 5000) {
                 System.out.println("timeout");
@@ -271,11 +279,6 @@ public class Querier extends Thread {
                 counter--;
             }
             Thread.sleep(100);
-            try {
-                serverSocket = new DatagramSocket(2021);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
         Thread.sleep(1000);

@@ -79,6 +79,10 @@ class ReceiveAnswerTwo extends Thread {
                 } else {
                     validityCounter.addValidity("0");
                 }
+
+            } catch (SocketException e) {
+                System.out.println("Thread ended");
+                run = false;
             } catch (Exception e) {
                 System.out.println("error two");
                 e.printStackTrace();
