@@ -18,9 +18,9 @@ import static v2x.PseudonymAuthority.CERTIFICATE_AMOUNT;
 public class NonCompromised {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "Authentication/OBU-N-certificate.crt";
+    static final String OWN_CERTIFICATE_LOCATION = "Authentication/OBU-N-certificate0.crt";
     static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
-    static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-N-private-key.der";
+    static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-N-private-key0.der";
     static final String CRL_LOCATION = "Authentication/CRL-N.crl";
     static final String DNS_PRIVATE_KEY = "Authentication/DNS-private-key.der";
 
@@ -330,7 +330,7 @@ public class NonCompromised {
         InetAddress group = InetAddress.getByName("225.0.0.0");
         serverSocket.joinGroup(group);
         WaitQueryThree waitQueryThree = new WaitQueryThree(serverSocket, UNICAST_PORT, "0",
-                CA_CERTIFICATE_LOCATION, OWN_CERTIFICATE_LOCATION, OWN_PRIVATE_KEY_LOCATION, rate, DNS_PRIVATE_KEY);
+                CA_CERTIFICATE_LOCATION, "Authentication/OBU-N-certificate.crt", "Authentication/OBU-N-private-key.der", rate, DNS_PRIVATE_KEY);
         waitQueryThree.start();
 
 //        int counter = 0;
@@ -425,7 +425,7 @@ public class NonCompromised {
         serverSocket.joinGroup(group);
         WaitQueryFour waitQueryFour = new WaitQueryFour(serverSocket, UNICAST_PORT,
                 DNSBloomFilterFunctions.getFixedAAAA(),
-                CA_CERTIFICATE_LOCATION, OWN_CERTIFICATE_LOCATION, OWN_PRIVATE_KEY_LOCATION, rate, DNS_PRIVATE_KEY);
+                CA_CERTIFICATE_LOCATION, "Authentication/OBU-N-certificate.crt", "Authentication/OBU-N-private-key.der", rate, DNS_PRIVATE_KEY);
         waitQueryFour.start();
 //        int counter = 0;
 //        int number = 0;

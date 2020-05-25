@@ -2,6 +2,7 @@ package v2x;
 
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
+import java.security.PrivateKey;
 
 import static v2x.PseudonymAuthority.CERTIFICATE_AMOUNT;
 

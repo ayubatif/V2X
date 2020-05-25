@@ -45,12 +45,15 @@ public class ReceiveAnswerThree extends Thread {
 
         int counter = 0;
         boolean run = true;
+        long TPRStart;
+        long TPREnd;
 
         while (run) {
             DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 
             try {
                 serverSocket.receive(receivePacket);
+                TPRStart = System.currentTimeMillis();
                 Message outerMessage = CommunicationFunctions.byteArrayToMessage(buffer);
                 String outerAnswer = outerMessage.getValue("Answer");
 
@@ -96,11 +99,14 @@ public class ReceiveAnswerThree extends Thread {
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
                                 //System.out.println("total time " + totalTime);
-                                timeCounter.addTime(totalTime);
+                                timeCounter.addTimeToQueryResolve(totalTime);
                             }
 
                             answerCounter.addAnswer(innerAnswer);
                             validityCounter.addValidity("2");
+
+                            TPREnd = System.currentTimeMillis();
+                            timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
 
                             run = false;
                             serverSocket.close();
@@ -108,13 +114,22 @@ public class ReceiveAnswerThree extends Thread {
                         } else {
                             AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                             validityCounter.addValidity("1");
+
+                            TPREnd = System.currentTimeMillis();
+                            timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
                         }
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
                         validityCounter.addValidity("1");
+
+                        TPREnd = System.currentTimeMillis();
+                        timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
                     }
                 } else {
                     validityCounter.addValidity("0");
+
+                    TPREnd = System.currentTimeMillis();
+                    timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
                 }
             } catch (SocketException e) {
                 //System.out.println("Thread ended");

@@ -41,11 +41,14 @@ class ReceiveAnswerTwo extends Thread {
 
         int counter = 0;
         boolean run = true;
+        long TPRStart;
+        long TPREnd;
 
         while (run) {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             try {
                 serverSocket.receive(packet);
+                TPRStart = System.currentTimeMillis();
                 Message message = CommunicationFunctions.byteArrayToMessage(buffer);
                 String answer = message.getValue("Answer");
 
@@ -66,11 +69,14 @@ class ReceiveAnswerTwo extends Thread {
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
                     //System.out.println("total time " + totalTime);
-                        timeCounter.addTime(totalTime);
+                        timeCounter.addTimeToQueryResolve(totalTime);
                     }
 
                     answerCounter.addAnswer(answer);
                     validityCounter.addValidity("2");
+
+                    TPREnd = System.currentTimeMillis();
+                    timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
 
                     run = false;
                     serverSocket.close();
@@ -78,6 +84,9 @@ class ReceiveAnswerTwo extends Thread {
 
                 } else {
                     validityCounter.addValidity("0");
+
+                    TPREnd = System.currentTimeMillis();
+                    timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
                 }
 
             } catch (SocketException e) {

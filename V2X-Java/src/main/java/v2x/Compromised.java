@@ -17,11 +17,11 @@ import static v2x.PseudonymAuthority.CERTIFICATE_AMOUNT;
 public class Compromised {
     static final int MULTICAST_PORT = 2020;
     static final int UNICAST_PORT = 2021;
-    static final String OWN_CERTIFICATE_LOCATION = "Authentication/OBU-X-certificate.crt";
+    static final String OWN_CERTIFICATE_LOCATION = "Authentication/OBU-X-certificate0.crt";
     static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
-    static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-X-private-key.der";
+    static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-X-private-key0.der";
     static final String CRL_LOCATION = "Authentication/CRL-X.crl";
-    static final String DNS_PRIVATE_KEY = "Authentication/OBU-N-private-key.der";
+    static final String DNS_PRIVATE_KEY = "Authentication/OBU-X-private-key0.der";
     static final String MALICIOUS_DNS_RESPONSE = "artoria.saber.fgo=2001:0db8:85a3:0000:0000:8a2e:0370:7334";
 
     /**
@@ -326,7 +326,7 @@ public class Compromised {
         InetAddress group = InetAddress.getByName("225.0.0.0");
         serverSocket.joinGroup(group);
         WaitQueryThree waitQueryThree = new WaitQueryThree(serverSocket, UNICAST_PORT, "1",
-                CA_CERTIFICATE_LOCATION, OWN_CERTIFICATE_LOCATION, OWN_PRIVATE_KEY_LOCATION, rate, DNS_PRIVATE_KEY);
+                CA_CERTIFICATE_LOCATION, "Authentication/OBU-X-certificate.crt", "Authentication/OBU-X-private-key.der", rate, DNS_PRIVATE_KEY);
         waitQueryThree.start();
 
 //        int counter = 0;
@@ -414,7 +414,7 @@ public class Compromised {
         serverSocket.joinGroup(group);
         WaitQueryFour waitQueryFour = new WaitQueryFour(serverSocket, UNICAST_PORT,
                 MALICIOUS_DNS_RESPONSE,
-                CA_CERTIFICATE_LOCATION, OWN_CERTIFICATE_LOCATION, OWN_PRIVATE_KEY_LOCATION, rate, DNS_PRIVATE_KEY);
+                CA_CERTIFICATE_LOCATION, "Authentication/OBU-X-certificate.crt", "Authentication/OBU-X-private-key.der", rate, DNS_PRIVATE_KEY);
         waitQueryFour.start();
 //        int counter = 0;
 //        int number = 0;

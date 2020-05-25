@@ -38,11 +38,14 @@ class ReceiveAnswerOne extends Thread {
 
         int counter = 0;
         boolean run = true;
+        long TPRStart;
+        long TPREnd;
 
         while (run) {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             try {
                 serverSocket.receive(packet);
+                TPRStart = System.currentTimeMillis();
                 Message message = CommunicationFunctions.byteArrayToMessage(buffer);
                 String answer = message.getValue("Answer");
 
@@ -56,7 +59,10 @@ class ReceiveAnswerOne extends Thread {
 //                    System.out.println("start time" + startTime);
 //                    System.out.println("end time" + endTime);
                     //System.out.println("total time " + totalTime);
-                    timeCounter.addTime(totalTime);
+                    timeCounter.addTimeToQueryResolve(totalTime);
+
+                    TPREnd = System.currentTimeMillis();
+                    timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
                 }
 
                 answerCounter.addAnswer(answer);

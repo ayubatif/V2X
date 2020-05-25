@@ -27,7 +27,7 @@ public class Querier extends Thread {
     static final String CA_CERTIFICATE_LOCATION = "Authentication/CA-certificate.crt";
     static final String OWN_PRIVATE_KEY_LOCATION = "Authentication/OBU-A-private-key0.der";
     static final String CRL_LOCATION = "Authentication/CRL-A.crl";
-    static final String OBU_X_CERTIFICATE_LOCATION = "Authentication/OBU-X-certificate.crt";
+    static final String OBU_X_CERTIFICATE_LOCATION = "Authentication/OBU-X-certificate0.crt";
     static final String DNS_CERTIFICATE_LOCATION = "Authentication/DNS-certificate.crt";
     static final String BLOOM_FILTER_LOCATION = "Authentication/DNS-bloom-filter.bf";
 
@@ -129,6 +129,8 @@ public class Querier extends Thread {
         long startTime = System.currentTimeMillis();
 
         int counter = 0;
+        long TSQStart;
+        long TSQEnd;
         while (counter < testAmount) {
             try {
                 if (threadCommunication.getReady()) {
@@ -139,7 +141,10 @@ public class Querier extends Thread {
                     ReceiveAnswerOne receiveAnswerOne = new ReceiveAnswerOne(serverSocket, answerCounter,
                             validityCounter, timeCounter, counter, threadCommunication);
                     receiveAnswerOne.start();
+                    TSQStart = System.currentTimeMillis();
                     sendQueryTest1();
+                    TSQEnd = System.currentTimeMillis();
+                    timeCounter.addTimeToSendQuery(TSQEnd - TSQStart);
                     counter++;
                     if (counter % 25 == 0) {
                         System.out.println("query number: " + counter);
@@ -164,8 +169,12 @@ public class Querier extends Thread {
         System.out.println(answerCounter.printMath());
         System.out.println(validityCounter.printValidity());
         System.out.println(validityCounter.printMath());
-        System.out.println("ALL_AVG_TIME: "+timeCounter.getPercentage());
-        System.out.println("NOT_AVG_TIME: "+timeCounter.getBiasedPercentage());
+        System.out.println("ALL_AVG_TQR_TIME: "+timeCounter.getPercentage1());
+        System.out.println("NOT_AVG_TQR_TIME: "+timeCounter.getBiasedPercentage1());
+        System.out.println("ALL_AVG_TSQ_TIME: "+timeCounter.getPercentage2());
+        System.out.println("NOT_AVG_TSQ_TIME: "+timeCounter.getBiasedPercentage2());
+        System.out.println("ALL_AVG_TPR_TIME: "+timeCounter.getPercentage3());
+        System.out.println("NOT_AVG_TPR_TIME: "+timeCounter.getBiasedPercentage3());
 
         answerCounter.logAnswers();
         validityCounter.logAnswers();
@@ -257,6 +266,8 @@ public class Querier extends Thread {
         long startTime = System.currentTimeMillis();
 
         int counter = 0;
+        long TSQStart;
+        long TSQEnd;
         while (counter < testAmount) {
             try {
                 if (threadCommunication.getReady()) {
@@ -267,7 +278,10 @@ public class Querier extends Thread {
                     ReceiveAnswerTwo receiveAnswerTwo = new ReceiveAnswerTwo(serverSocket, answerCounter,
                             validityCounter, timeCounter, counter, threadCommunication);
                     receiveAnswerTwo.start();
+                    TSQStart = System.currentTimeMillis();
                     sendQueryTest2();
+                    TSQEnd = System.currentTimeMillis();
+                    timeCounter.addTimeToSendQuery(TSQEnd - TSQStart);
                     counter++;
                     if (counter % 25 == 0) {
                         System.out.println("query number: " + counter);
@@ -292,8 +306,12 @@ public class Querier extends Thread {
         System.out.println(answerCounter.printMath());
         System.out.println(validityCounter.printValidity());
         System.out.println(validityCounter.printMath());
-        System.out.println("ALL_AVG_TIME: "+timeCounter.getPercentage());
-        System.out.println("NOT_AVG_TIME: "+timeCounter.getBiasedPercentage());
+        System.out.println("ALL_AVG_TQR_TIME: "+timeCounter.getPercentage1());
+        System.out.println("NOT_AVG_TQR_TIME: "+timeCounter.getBiasedPercentage1());
+        System.out.println("ALL_AVG_TSQ_TIME: "+timeCounter.getPercentage2());
+        System.out.println("NOT_AVG_TSQ_TIME: "+timeCounter.getBiasedPercentage2());
+        System.out.println("ALL_AVG_TPR_TIME: "+timeCounter.getPercentage3());
+        System.out.println("NOT_AVG_TPR_TIME: "+timeCounter.getBiasedPercentage3());
 
         answerCounter.logAnswers();
         validityCounter.logAnswers();
@@ -384,6 +402,8 @@ public class Querier extends Thread {
         long startTime = System.currentTimeMillis();
 
         int counter = 0;
+        long TSQStart;
+        long TSQEnd;
         while (counter < testAmount) {
             try {
                 if (threadCommunication.getReady()) {
@@ -394,7 +414,10 @@ public class Querier extends Thread {
                     ReceiveAnswerThree receiveAnswerThree = new ReceiveAnswerThree(serverSocket, answerCounter,
                             validityCounter, timeCounter, counter, threadCommunication);
                     receiveAnswerThree.start();
+                    TSQStart = System.currentTimeMillis();
                     sendQueryTest3(counter);
+                    TSQEnd = System.currentTimeMillis();
+                    timeCounter.addTimeToSendQuery(TSQEnd - TSQStart);
                     counter++;
                     if (counter % 25 == 0) {
                         System.out.println("query number: " + counter);
@@ -419,8 +442,12 @@ public class Querier extends Thread {
         System.out.println(answerCounter.printMath());
         System.out.println(validityCounter.printValidity());
         System.out.println(validityCounter.printMath());
-        System.out.println("ALL_AVG_TIME: "+timeCounter.getPercentage());
-        System.out.println("NOT_AVG_TIME: "+timeCounter.getBiasedPercentage());
+        System.out.println("ALL_AVG_TQR_TIME: "+timeCounter.getPercentage1());
+        System.out.println("NOT_AVG_TQR_TIME: "+timeCounter.getBiasedPercentage1());
+        System.out.println("ALL_AVG_TSQ_TIME: "+timeCounter.getPercentage2());
+        System.out.println("NOT_AVG_TSQ_TIME: "+timeCounter.getBiasedPercentage2());
+        System.out.println("ALL_AVG_TPR_TIME: "+timeCounter.getPercentage3());
+        System.out.println("NOT_AVG_TPR_TIME: "+timeCounter.getBiasedPercentage3());
 
         answerCounter.logAnswers();
         validityCounter.logAnswers();
@@ -511,6 +538,8 @@ public class Querier extends Thread {
         long startTime = System.currentTimeMillis();
 
         int counter = 0;
+        long TSQStart;
+        long TSQEnd;
         while (counter < testAmount) {
             try {
                 if (threadCommunication.getReady()) {
@@ -521,7 +550,10 @@ public class Querier extends Thread {
                     ReceiveAnswerFour receiveAnswerFour = new ReceiveAnswerFour(serverSocket, answerCounter,
                             validityCounter, timeCounter, counter, threadCommunication);
                     receiveAnswerFour.start();
+                    TSQStart = System.currentTimeMillis();
                     sendQueryTest4(counter);
+                    TSQEnd = System.currentTimeMillis();
+                    timeCounter.addTimeToSendQuery(TSQEnd - TSQStart);
                     counter++;
                     if (counter % 25 == 0) {
                         System.out.println("query number: " + counter);
@@ -546,8 +578,12 @@ public class Querier extends Thread {
         System.out.println(answerCounter.printMath());
         System.out.println(validityCounter.printValidity());
         System.out.println(validityCounter.printMath());
-        System.out.println("ALL_AVG_TIME: "+timeCounter.getPercentage());
-        System.out.println("NOT_AVG_TIME: "+timeCounter.getBiasedPercentage());
+        System.out.println("ALL_AVG_TQR_TIME: "+timeCounter.getPercentage1());
+        System.out.println("NOT_AVG_TQR_TIME: "+timeCounter.getBiasedPercentage1());
+        System.out.println("ALL_AVG_TSQ_TIME: "+timeCounter.getPercentage2());
+        System.out.println("NOT_AVG_TSQ_TIME: "+timeCounter.getBiasedPercentage2());
+        System.out.println("ALL_AVG_TPR_TIME: "+timeCounter.getPercentage3());
+        System.out.println("NOT_AVG_TPR_TIME: "+timeCounter.getBiasedPercentage3());
 
         answerCounter.logAnswers();
         validityCounter.logAnswers();
