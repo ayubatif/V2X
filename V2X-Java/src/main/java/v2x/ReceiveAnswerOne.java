@@ -60,9 +60,11 @@ class ReceiveAnswerOne extends Thread {
 //                    System.out.println("end time" + endTime);
                     //System.out.println("total time " + totalTime);
                     timeCounter.addTimeToQueryResolve(totalTime);
+                    timeCounter.addTimeToRawTQRData(totalTime);
 
                     TPREnd = System.currentTimeMillis();
                     timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
+                    timeCounter.addTimeToRawTPRData(TPREnd - TPRStart);
                 }
 
                 answerCounter.addAnswer(answer);

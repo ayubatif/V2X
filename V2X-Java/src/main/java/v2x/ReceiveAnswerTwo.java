@@ -70,6 +70,7 @@ class ReceiveAnswerTwo extends Thread {
 //                    System.out.println("end time" + endTime);
                     //System.out.println("total time " + totalTime);
                         timeCounter.addTimeToQueryResolve(totalTime);
+                        timeCounter.addTimeToRawTQRData(totalTime);
                     }
 
                     answerCounter.addAnswer(answer);
@@ -77,6 +78,7 @@ class ReceiveAnswerTwo extends Thread {
 
                     TPREnd = System.currentTimeMillis();
                     timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
+                    timeCounter.addTimeToRawTPRData(TPREnd - TPRStart);
 
                     run = false;
                     serverSocket.close();
@@ -87,6 +89,7 @@ class ReceiveAnswerTwo extends Thread {
 
                     TPREnd = System.currentTimeMillis();
                     timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
+                    timeCounter.addTimeToRawTPRData(TPREnd - TPRStart);
                 }
 
             } catch (SocketException e) {

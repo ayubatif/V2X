@@ -100,6 +100,7 @@ public class ReceiveAnswerThree extends Thread {
 //                    System.out.println("end time" + endTime);
                                 //System.out.println("total time " + totalTime);
                                 timeCounter.addTimeToQueryResolve(totalTime);
+                                timeCounter.addTimeToRawTQRData(totalTime);
                             }
 
                             answerCounter.addAnswer(innerAnswer);
@@ -107,6 +108,7 @@ public class ReceiveAnswerThree extends Thread {
 
                             TPREnd = System.currentTimeMillis();
                             timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
+                            timeCounter.addTimeToRawTPRData(TPREnd - TPRStart);
 
                             run = false;
                             serverSocket.close();
@@ -117,6 +119,7 @@ public class ReceiveAnswerThree extends Thread {
 
                             TPREnd = System.currentTimeMillis();
                             timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
+                            timeCounter.addTimeToRawTPRData(TPREnd - TPRStart);
                         }
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
@@ -124,12 +127,14 @@ public class ReceiveAnswerThree extends Thread {
 
                         TPREnd = System.currentTimeMillis();
                         timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
+                        timeCounter.addTimeToRawTPRData(TPREnd - TPRStart);
                     }
                 } else {
                     validityCounter.addValidity("0");
 
                     TPREnd = System.currentTimeMillis();
                     timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
+                    timeCounter.addTimeToRawTPRData(TPREnd - TPRStart);
                 }
             } catch (SocketException e) {
                 //System.out.println("Thread ended");

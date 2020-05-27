@@ -120,6 +120,7 @@ public class Querier extends Thread {
             answerCounter.importJSONLog();
             validityCounter.importJSONLog();
 			timeCounter.importJSONLog();
+			timeCounter.importJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -145,6 +146,7 @@ public class Querier extends Thread {
                     sendQueryTest1();
                     TSQEnd = System.currentTimeMillis();
                     timeCounter.addTimeToSendQuery(TSQEnd - TSQStart);
+                    timeCounter.addTimeToRawTSQData(TSQEnd - TSQStart);
                     counter++;
                     if (counter % 25 == 0) {
                         System.out.println("query number: " + counter);
@@ -183,6 +185,7 @@ public class Querier extends Thread {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
             timeCounter.exportJSONLog();
+            timeCounter.exportJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -254,6 +257,7 @@ public class Querier extends Thread {
             answerCounter.importJSONLog();
             validityCounter.importJSONLog();
 			timeCounter.importJSONLog();
+			timeCounter.importJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -282,6 +286,7 @@ public class Querier extends Thread {
                     sendQueryTest2();
                     TSQEnd = System.currentTimeMillis();
                     timeCounter.addTimeToSendQuery(TSQEnd - TSQStart);
+                    timeCounter.addTimeToRawTSQData(TSQEnd - TSQStart);
                     counter++;
                     if (counter % 25 == 0) {
                         System.out.println("query number: " + counter);
@@ -320,6 +325,7 @@ public class Querier extends Thread {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
             timeCounter.exportJSONLog();
+            timeCounter.exportJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -390,6 +396,7 @@ public class Querier extends Thread {
             answerCounter.importJSONLog();
             validityCounter.importJSONLog();
 			timeCounter.importJSONLog();
+            timeCounter.importJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -418,6 +425,7 @@ public class Querier extends Thread {
                     sendQueryTest3(counter);
                     TSQEnd = System.currentTimeMillis();
                     timeCounter.addTimeToSendQuery(TSQEnd - TSQStart);
+                    timeCounter.addTimeToRawTSQData(TSQEnd - TSQStart);
                     counter++;
                     if (counter % 25 == 0) {
                         System.out.println("query number: " + counter);
@@ -456,6 +464,7 @@ public class Querier extends Thread {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
             timeCounter.exportJSONLog();
+            timeCounter.exportJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }

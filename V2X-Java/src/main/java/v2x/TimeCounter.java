@@ -24,9 +24,9 @@ public class TimeCounter {
     private long theFirstTimeToSendQuery;
     private long theFirstTimeToProcessResponse;
     private JSONArray log = new JSONArray();
-    private long[] rawTQRDataArray = new long[this.testAmount * 2];
-    private long[] rawTSQDataArray = new long[this.testAmount * 2];
-    private long[] rawTPRDataArray = new long[this.testAmount * 2];
+    private long[] rawTQRDataArray = new long[2000];
+    private long[] rawTSQDataArray = new long[2000];
+    private long[] rawTPRDataArray = new long[2000];
     private int counterRawTQRDataArray = 0;
     private int counterRawTSQDataArray = 0;
     private int counterRawTPRDataArray = 0;
@@ -141,13 +141,13 @@ public class TimeCounter {
             jo.put("PSEUDO_RATE", this.pseudoRate);
         }
 
-        JSONArray jsonArrayRawTQRDataArray  = new JSONArray(this.rawTQRDataArray);
-        JSONArray jsonArrayRawTSQDataArray = new JSONArray(this.rawTSQDataArray);
-        JSONArray jsonArrayRawTPRDataArray = new JSONArray(this.rawTPRDataArray);
-
-        jo.put("RAW_TQR_DATA", jsonArrayRawTQRDataArray);
-        jo.put("RAW_TSQ_DATA", jsonArrayRawTSQDataArray);
-        jo.put("RAW_TPR_DATA", jsonArrayRawTPRDataArray);
+//        JSONArray jsonArrayRawTQRDataArray  = new JSONArray(this.rawTQRDataArray);
+//        JSONArray jsonArrayRawTSQDataArray = new JSONArray(this.rawTSQDataArray);
+//        JSONArray jsonArrayRawTPRDataArray = new JSONArray(this.rawTPRDataArray);
+//
+//        jo.put("RAW_TQR_DATA", jsonArrayRawTQRDataArray);
+//        jo.put("RAW_TSQ_DATA", jsonArrayRawTSQDataArray);
+//        jo.put("RAW_TPR_DATA", jsonArrayRawTPRDataArray);
 
         double tqrSampleStandardDeviation = getSampleStandardDeviation(counterRawTQRDataArray + 1,
                 rawTQRDataArray);
@@ -167,8 +167,8 @@ public class TimeCounter {
         double leftSide = 1 / ((double) total - 1);
         double totalRightSide = 0;
         long sum = 0;
-        for (long number : inputArray) {
-            sum +=  number;
+        for (int i = 0; i < total - 1; i++) {
+            sum += inputArray[i];
         }
         double average = (double) sum / (double) total;
         for (long number : inputArray) {
