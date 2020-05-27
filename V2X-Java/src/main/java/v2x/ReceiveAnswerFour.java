@@ -88,6 +88,7 @@ public class ReceiveAnswerFour extends Thread {
 //                    System.out.println("end time" + endTime);
                             //System.out.println("total time " + totalTime);
                             timeCounter.addTimeToQueryResolve(totalTime);
+                            timeCounter.addTimeToRawTQRData(totalTime);
 
                             boolean isResponseMalicious = !DNSBloomFilterFunctions.getFixedAAAA().equals(innerAnswer);
                             String answer = isResponseMalicious ? "1" : "0";
@@ -97,6 +98,7 @@ public class ReceiveAnswerFour extends Thread {
 
                             TPREnd = System.currentTimeMillis();
                             timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
+                            timeCounter.addTimeToRawTPRData(TPREnd - TPRStart);
 
 //                            System.out.println("counter " + counter);
 
@@ -115,6 +117,7 @@ public class ReceiveAnswerFour extends Thread {
 
                             TPREnd = System.currentTimeMillis();
                             timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
+                            timeCounter.addTimeToRawTPRData(TPREnd - TPRStart);
                         }
                     } catch (Exception e) {
                         AuthenticationFunctions.addToCRL(outerCertificate, CRL_LOCATION);
@@ -122,12 +125,14 @@ public class ReceiveAnswerFour extends Thread {
 
                         TPREnd = System.currentTimeMillis();
                         timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
+                        timeCounter.addTimeToRawTPRData(TPREnd - TPRStart);
                     }
                 } else {
                     validityCounter.addValidity("0");
 
                     TPREnd = System.currentTimeMillis();
                     timeCounter.addTimeToProcessResponse(TPREnd - TPRStart);
+                    timeCounter.addTimeToRawTPRData(TPREnd - TPRStart);
                 }
             } catch (SocketException e) {
                 //System.out.println("Thread ended");

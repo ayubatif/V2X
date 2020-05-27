@@ -24,6 +24,13 @@ public class TimeCounter {
     private long theFirstTimeToSendQuery;
     private long theFirstTimeToProcessResponse;
     private JSONArray log = new JSONArray();
+    private long[] rawTQRDataArray = new long[this.testAmount * 2];
+    private long[] rawTSQDataArray = new long[this.testAmount * 2];
+    private long[] rawTPRDataArray = new long[this.testAmount * 2];
+    private int counterRawTQRDataArray = 0;
+    private int counterRawTSQDataArray = 0;
+    private int counterRawTPRDataArray = 0;
+
 
     public TimeCounter(int testnum, int testAmount) {
         this.testNumber = testnum;
@@ -63,40 +70,55 @@ public class TimeCounter {
         sumTimeToProcessResponse += time;
     }
 
+    public void addTimeToRawTQRData(long time) {
+        this.rawTQRDataArray[this.counterRawTQRDataArray] = time;
+        this.counterRawTQRDataArray++;
+    }
+
+    public void addTimeToRawTSQData(long time) {
+        this.rawTSQDataArray[this.counterRawTSQDataArray] = time;
+        this.counterRawTSQDataArray++;
+    }
+
+    public void addTimeToRawTPRData(long time) {
+        this.rawTPRDataArray[this.counterRawTPRDataArray] = time;
+        this.counterRawTPRDataArray++;
+    }
+
     public long getPercentage1() {
         return sumTimeToQueryResolve / testAmount;
     }
 
-    public long getPercentage2() {
-        return sumTimeToSendQuery / testAmount;
+    public double getPercentage2() {
+        return (double) sumTimeToSendQuery / (double) testAmount;
     }
 
-    public long getPercentage3() {
-        return sumTimeToProcessResponse / testAmount;
+    public double getPercentage3() {
+        return (double) sumTimeToProcessResponse / (double) testAmount;
     }
 
-    public long getBiasedPercentage1() {
-        return (sumTimeToQueryResolve - theFirstimeToQueryResolve) / testAmount;
+    public double getBiasedPercentage1() {
+        return (double) (sumTimeToQueryResolve - theFirstimeToQueryResolve) / (double) testAmount;
     }
 
-    public long getBiasedPercentage2() {
-        return (sumTimeToSendQuery - theFirstTimeToSendQuery) / testAmount;
+    public double getBiasedPercentage2() {
+        return (double) (sumTimeToSendQuery - theFirstTimeToSendQuery) / (double) testAmount;
     }
 
-    public long getBiasedPercentage3() {
-        return (sumTimeToProcessResponse - theFirstTimeToProcessResponse) / testAmount;
+    public double getBiasedPercentage3() {
+        return (double) (sumTimeToProcessResponse - theFirstTimeToProcessResponse) / (double) testAmount;
     }
 
     /**
      * Appends the JSON log with the current state of times
      */
     public void logAnswers() {
-        long average1 = getPercentage1();
-        long average2 = getPercentage2();
-        long average3 = getPercentage3();
-        long biasedAverage1 = getBiasedPercentage1();
-        long biasedAverage2 = getBiasedPercentage2();
-        long biasedAverage3 = getBiasedPercentage3();
+        double average1 = getPercentage1();
+        double average2 = getPercentage2();
+        double average3 = getPercentage3();
+        double biasedAverage1 = getBiasedPercentage1();
+        double biasedAverage2 = getBiasedPercentage2();
+        double biasedAverage3 = getBiasedPercentage3();
         int totalAnswers = testAmount;
         JSONObject jo = new JSONObject();
         if (this.pseudoRate > 0) {
@@ -110,6 +132,51 @@ public class TimeCounter {
         jo.put("ALL_AVG_TPR", average3);
         jo.put("NOT_AVG_TPR", biasedAverage3);
         log.put(jo);
+    }
+
+    public void logAnswersRawData() {
+        int totalAnswers = testAmount;
+        JSONObject jo = new JSONObject();
+        if (this.pseudoRate > 0) {
+            jo.put("PSEUDO_RATE", this.pseudoRate);
+        }
+
+        JSONArray jsonArrayRawTQRDataArray  = new JSONArray(this.rawTQRDataArray);
+        JSONArray jsonArrayRawTSQDataArray = new JSONArray(this.rawTSQDataArray);
+        JSONArray jsonArrayRawTPRDataArray = new JSONArray(this.rawTPRDataArray);
+
+        jo.put("RAW_TQR_DATA", jsonArrayRawTQRDataArray);
+        jo.put("RAW_TSQ_DATA", jsonArrayRawTSQDataArray);
+        jo.put("RAW_TPR_DATA", jsonArrayRawTPRDataArray);
+
+        double tqrSampleStandardDeviation = getSampleStandardDeviation(counterRawTQRDataArray + 1,
+                rawTQRDataArray);
+        double tsqSampleStandardDeviation = getSampleStandardDeviation(counterRawTSQDataArray + 1,
+                rawTSQDataArray);
+        double tprSampleStandardDeviation = getSampleStandardDeviation(counterRawTPRDataArray + 1,
+                rawTPRDataArray);
+
+        jo.put("TQR_SAMPLE_STANDARD_DEVIATION", tqrSampleStandardDeviation);
+        jo.put("TSQ_SAMPLE_STANDARD_DEVIATION", tsqSampleStandardDeviation);
+        jo.put("TPR_SAMPLE_STANDARD_DEVIATION", tprSampleStandardDeviation);
+
+        log.put(jo);
+    }
+
+    public double getSampleStandardDeviation(int total, long[] inputArray) {
+        double leftSide = 1 / ((double) total - 1);
+        double totalRightSide = 0;
+        long sum = 0;
+        for (long number : inputArray) {
+            sum +=  number;
+        }
+        double average = (double) sum / (double) total;
+        for (long number : inputArray) {
+            totalRightSide +=  Math.pow(((double) number - average), 2);
+        }
+        double sampleStandardDeviation = Math.sqrt(leftSide * totalRightSide);
+
+        return sampleStandardDeviation;
     }
 
     /**
@@ -146,12 +213,41 @@ public class TimeCounter {
         in.close();
     }
 
+    public void importJSONLogRawData() throws IOException {
+        File jsonFile = new File("v2x-time-log-raw"+this.testNumber+LOG_FILE_EXTENSION);
+        InputStream in = new FileInputStream(jsonFile);
+
+        StringBuilder textBuilder = new StringBuilder();
+        try (Reader reader = new BufferedReader(new InputStreamReader
+                (in, Charset.forName(StandardCharsets.UTF_8.name())))) {
+            int c = 0;
+            while ((c = reader.read()) != -1) {
+                textBuilder.append((char) c);
+            }
+        }
+
+        try {
+            log = new JSONArray(textBuilder.toString());
+        } catch (JSONException e) {
+            System.err.println("Empty file isn't quite an empty JSON file");
+        }
+
+        in.close();
+    }
+
     /**
      * Writes the log in JSON to a test specific file
      * @throws IOException
      */
     public void exportJSONLog() throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE_NAME+this.testNumber+LOG_FILE_EXTENSION));
+        writer.write(log.toString());
+
+        writer.close();
+    }
+
+    public void exportJSONLogRawData() throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("v2x-time-log-raw"+this.testNumber+LOG_FILE_EXTENSION));
         writer.write(log.toString());
 
         writer.close();
