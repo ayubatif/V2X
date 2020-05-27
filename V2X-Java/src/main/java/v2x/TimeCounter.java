@@ -132,81 +132,59 @@ public class TimeCounter {
         jo.put("ALL_AVG_TPR", average3);
         jo.put("NOT_AVG_TPR", biasedAverage3);
 
-        JSONArray jsonArrayRawTQRDataArray = new JSONArray(this.rawTQRDataArray);
-        JSONArray jsonArrayRawTSQDataArray = new JSONArray(this.rawTSQDataArray);
-        JSONArray jsonArrayRawTPRDataArray = new JSONArray(this.rawTPRDataArray);
+//        JSONArray jsonArrayRawTQRDataArray = new JSONArray(this.rawTQRDataArray);
+//        JSONArray jsonArrayRawTSQDataArray = new JSONArray(this.rawTSQDataArray);
+//        JSONArray jsonArrayRawTPRDataArray = new JSONArray(this.rawTPRDataArray);
+//
+//        jo.put("RAW_TQR_DATA", jsonArrayRawTQRDataArray);
+//        jo.put("RAW_TSQ_DATA", jsonArrayRawTSQDataArray);
+//        jo.put("RAW_TPR_DATA", jsonArrayRawTPRDataArray);
 
-        jo.put("RAW_TQR_DATA", jsonArrayRawTQRDataArray);
-        jo.put("RAW_TSQ_DATA", jsonArrayRawTSQDataArray);
-        jo.put("RAW_TPR_DATA", jsonArrayRawTPRDataArray);
-
-        double tqrSampleStandardDeviation = getSampleStandardDeviation(counterRawTQRDataArray + 1,
+        double[] tqrStatistics = getSampleStandardDeviation(counterRawTQRDataArray,
                 rawTQRDataArray);
-        double tsqSampleStandardDeviation = getSampleStandardDeviation(counterRawTSQDataArray + 1,
+        double[] tsqStatistics = getSampleStandardDeviation(counterRawTSQDataArray,
                 rawTSQDataArray);
-        double tprSampleStandardDeviation = getSampleStandardDeviation(counterRawTPRDataArray + 1,
+        double[] tprStatistics = getSampleStandardDeviation(counterRawTPRDataArray,
                 rawTPRDataArray);
+
+        double tqrSampleStandardDeviation = tqrStatistics[0];
+        double tsqSampleStandardDeviation = tsqStatistics[0];
+        double tprSampleStandardDeviation = tprStatistics[0];
+
+        double tqrStandardDError = tqrStatistics[1];
+        double tsqStandardDError = tsqStatistics[1];
+        double tprStandardDError = tprStatistics[1];
 
         jo.put("TQR_SAMPLE_STANDARD_DEVIATION", tqrSampleStandardDeviation);
         jo.put("TSQ_SAMPLE_STANDARD_DEVIATION", tsqSampleStandardDeviation);
         jo.put("TPR_SAMPLE_STANDARD_DEVIATION", tprSampleStandardDeviation);
 
-        log.put(jo);
-    }
-
-    public void logAnswersRawData() {
-        int totalAnswers = testAmount;
-        JSONObject jo = new JSONObject();
-        if (this.pseudoRate > 0) {
-            jo.put("PSEUDO_RATE", this.pseudoRate);
-        }
-
-        JSONArray jsonArrayRawTQRDataArray = new JSONArray(this.rawTQRDataArray);
-        JSONArray jsonArrayRawTSQDataArray = new JSONArray(this.rawTSQDataArray);
-        JSONArray jsonArrayRawTPRDataArray = new JSONArray(this.rawTPRDataArray);
-
-        jo.put("RAW_TQR_DATA", jsonArrayRawTQRDataArray);
-        jo.put("RAW_TSQ_DATA", jsonArrayRawTSQDataArray);
-        jo.put("RAW_TPR_DATA", jsonArrayRawTPRDataArray);
-
-        double tqrSampleStandardDeviation = getSampleStandardDeviation(counterRawTQRDataArray,
-                rawTQRDataArray);
-        double tsqSampleStandardDeviation = getSampleStandardDeviation(counterRawTSQDataArray,
-                rawTSQDataArray);
-        double tprSampleStandardDeviation = getSampleStandardDeviation(counterRawTPRDataArray,
-                rawTPRDataArray);
-
-        jo.put("TQR_SAMPLE_STANDARD_DEVIATION", tqrSampleStandardDeviation);
-        jo.put("TSQ_SAMPLE_STANDARD_DEVIATION", tsqSampleStandardDeviation);
-        jo.put("TPR_SAMPLE_STANDARD_DEVIATION", tprSampleStandardDeviation);
+        jo.put("TQR_STANDARD_ERROR", tqrStandardDError);
+        jo.put("TSQ_STANDARD_ERROR", tsqStandardDError);
+        jo.put("TPR_STANDARD_ERROR", tprStandardDError);
 
         log.put(jo);
     }
 
-    public double getSampleStandardDeviation(int total, long[] inputArray) {
-        double leftSide = 1 / ((double) total - 1);
-        System.out.println("leftSide");
-        System.out.println(leftSide);
+    public double[] getSampleStandardDeviation(int total, long[] inputArray) {
+        double leftSide = 1 / ((double) total - 2);
         double totalRightSide = 0;
+        double[] answer = new double[2];
         long sum = 0;
-        for (int i = 1; i < total - 1; i++) {
+        for (int i = 1; i < total; i++) {
             sum += inputArray[i];
         }
-        System.out.println("sum");
-        System.out.println(sum);
         double average = (double) sum / (double) total;
-        System.out.println("average");
-        System.out.println(average);
-        for (long number : inputArray) {
-            totalRightSide +=  Math.pow(((double) number - average), 2);
+        for (int i = 1; i < total; i++) {
+            totalRightSide +=  Math.pow(((double) inputArray[i] - average), 2);
         }
-        System.out.println("totalRightSide");
-        System.out.println(totalRightSide);
         double sampleStandardDeviation = Math.sqrt(leftSide * totalRightSide);
-        System.out.println("sampleStandardDeviation");
-        System.out.println(sampleStandardDeviation);
+        double standardError = sampleStandardDeviation / Math.sqrt(total - 1);
 
-        return sampleStandardDeviation;
+        answer[0] = sampleStandardDeviation;
+        answer[1] = standardError;
+
+        return answer;
     }
 
     /**

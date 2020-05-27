@@ -592,7 +592,6 @@ public class Querier extends Thread {
         answerCounter.logAnswers();
         validityCounter.logAnswers();
         timeCounter.logAnswers();
-        timeCounter.logAnswersRawData();
         try {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
