@@ -132,6 +132,14 @@ public class TimeCounter {
         jo.put("ALL_AVG_TPR", average3);
         jo.put("NOT_AVG_TPR", biasedAverage3);
 
+        JSONArray jsonArrayRawTQRDataArray = new JSONArray(this.rawTQRDataArray);
+        JSONArray jsonArrayRawTSQDataArray = new JSONArray(this.rawTSQDataArray);
+        JSONArray jsonArrayRawTPRDataArray = new JSONArray(this.rawTPRDataArray);
+
+        jo.put("RAW_TQR_DATA", jsonArrayRawTQRDataArray);
+        jo.put("RAW_TSQ_DATA", jsonArrayRawTSQDataArray);
+        jo.put("RAW_TPR_DATA", jsonArrayRawTPRDataArray);
+
         double tqrSampleStandardDeviation = getSampleStandardDeviation(counterRawTQRDataArray + 1,
                 rawTQRDataArray);
         double tsqSampleStandardDeviation = getSampleStandardDeviation(counterRawTSQDataArray + 1,
@@ -161,11 +169,11 @@ public class TimeCounter {
         jo.put("RAW_TSQ_DATA", jsonArrayRawTSQDataArray);
         jo.put("RAW_TPR_DATA", jsonArrayRawTPRDataArray);
 
-        double tqrSampleStandardDeviation = getSampleStandardDeviation(counterRawTQRDataArray + 1,
+        double tqrSampleStandardDeviation = getSampleStandardDeviation(counterRawTQRDataArray,
                 rawTQRDataArray);
-        double tsqSampleStandardDeviation = getSampleStandardDeviation(counterRawTSQDataArray + 1,
+        double tsqSampleStandardDeviation = getSampleStandardDeviation(counterRawTSQDataArray,
                 rawTSQDataArray);
-        double tprSampleStandardDeviation = getSampleStandardDeviation(counterRawTPRDataArray + 1,
+        double tprSampleStandardDeviation = getSampleStandardDeviation(counterRawTPRDataArray,
                 rawTPRDataArray);
 
         jo.put("TQR_SAMPLE_STANDARD_DEVIATION", tqrSampleStandardDeviation);
@@ -181,7 +189,7 @@ public class TimeCounter {
         System.out.println(leftSide);
         double totalRightSide = 0;
         long sum = 0;
-        for (int i = 0; i < total - 1; i++) {
+        for (int i = 1; i < total - 1; i++) {
             sum += inputArray[i];
         }
         System.out.println("sum");
