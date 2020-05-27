@@ -120,7 +120,6 @@ public class Querier extends Thread {
             answerCounter.importJSONLog();
             validityCounter.importJSONLog();
 			timeCounter.importJSONLog();
-			timeCounter.importJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -185,7 +184,6 @@ public class Querier extends Thread {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
             timeCounter.exportJSONLog();
-            timeCounter.exportJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -257,7 +255,6 @@ public class Querier extends Thread {
             answerCounter.importJSONLog();
             validityCounter.importJSONLog();
 			timeCounter.importJSONLog();
-			timeCounter.importJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -325,7 +322,6 @@ public class Querier extends Thread {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
             timeCounter.exportJSONLog();
-            timeCounter.exportJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -396,7 +392,6 @@ public class Querier extends Thread {
             answerCounter.importJSONLog();
             validityCounter.importJSONLog();
 			timeCounter.importJSONLog();
-            timeCounter.importJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -464,7 +459,6 @@ public class Querier extends Thread {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
             timeCounter.exportJSONLog();
-            timeCounter.exportJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -533,7 +527,6 @@ public class Querier extends Thread {
             answerCounter.importJSONLog();
             validityCounter.importJSONLog();
 			timeCounter.importJSONLog();
-			timeCounter.importJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -604,7 +597,6 @@ public class Querier extends Thread {
             answerCounter.exportJSONLog();
             validityCounter.exportJSONLog();
             timeCounter.exportJSONLog();
-            timeCounter.exportJSONLogRawData();
         } catch (Exception e) {
             e.printStackTrace();
         }
