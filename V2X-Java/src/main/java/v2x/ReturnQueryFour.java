@@ -42,9 +42,12 @@ public class ReturnQueryFour extends Thread {
             PrivateKey dnsPrivateKey = AuthenticationFunctions.getPrivateKey(dnsPrivateKeylocation);
 
             String innerAnswer = answer;
+            String innerHash = AuthenticationFunctions.hashMessage(innerAnswer);
+            String innerEncryptedHash = AuthenticationFunctions.encryptMessage(innerHash, dnsPrivateKey);
 
             Message innerMessage = new Message();
             innerMessage.putValue("Answer", innerAnswer);
+            innerMessage.putValue("Hash", innerEncryptedHash);
 
             byte[] innerMessageByte = CommunicationFunctions.messageToByteArray(innerMessage);
             byte[] innerMessageByteBase64 = Base64.getEncoder().encode(innerMessageByte);
