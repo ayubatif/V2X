@@ -70,3 +70,16 @@ V2X-Java/.idea/httpRequests
 
 # Android studio 3.1+ serialized cache file
 V2X-Java/.idea/caches/build_file_checksums.ser
+*.class
+
+V2X-Java/target/
+
+V2X-Java/obuASetup/
+
+V2X-Java/obuNSetup/
+
+V2X-Java/obuXSetup/
+
+V2X-Java/backup/
+
+V2X-Java/Authentication/
